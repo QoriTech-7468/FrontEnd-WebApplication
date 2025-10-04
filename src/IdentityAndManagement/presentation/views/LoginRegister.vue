@@ -2,15 +2,6 @@
   <div class="auth-page">
     <!-- Left Panel - Branding -->
     <div class="left-panel">
-      <svg class="truck-illustration" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="20" y="100" width="120" height="60" rx="8" fill="currentColor"/>
-        <rect x="140" y="80" width="100" height="80" rx="8" fill="currentColor"/>
-        <circle cx="60" cy="180" r="20" fill="currentColor"/>
-        <circle cx="200" cy="180" r="20" fill="currentColor"/>
-        <rect x="160" y="100" width="60" height="30" rx="4" fill="rgba(255,255,255,0.3)"/>
-        <path d="M30 120 L50 120 L60 100 L120 100" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none"/>
-      </svg>
-
       <div class="brand-content">
         <div class="brand-logo-container">
           <div class="brand-logo-placeholder">
@@ -552,11 +543,7 @@ export default {
 }
 
 .left-panel {
-  background: #1e293b;
-  background-image:
-      radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 75% 75%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
-      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><g fill="none" fill-rule="evenodd"><g fill="rgba(255,255,255,0.03)" fill-rule="nonzero"><circle cx="30" cy="30" r="1"/></g></svg>');
+  background: #0E2948;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -564,18 +551,6 @@ export default {
   padding: 40px;
   position: relative;
   overflow: hidden;
-}
-
-.truck-illustration {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 300px;
-  height: 200px;
-  opacity: 0.1;
-  z-index: 1;
-  color: white;
 }
 
 .brand-content {
@@ -1004,44 +979,4 @@ export default {
     font-size: 16px;
   }
 }
-</style> {
-width: 100%;
-padding: 16px;
-background: #1e293b;
-color: white;
-border: none;
-border-radius: 12px;
-font-size: 16px;
-font-weight: 600;
-cursor: pointer;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-margin-bottom: 20px;
-position: relative;
-overflow: hidden;
-}
-
-.btn-primary::before {
-content: '';
-position: absolute;
-top: 50%;
-left: 50%;
-width: 0;
-height: 0;
-border-radius: 50%;
-background: rgba(255, 255, 255, 0.1);
-transform: translate(-50%, -50%);
-transition: width 0.6s, height 0.6s;
-}
-
-.btn-primary:hover:not(:disabled)::before {
-width: 300px;
-height: 300px;
-}
-
-.btn-primary:hover:not(:disabled) {
-background: #0f172a;
-transform: translateY(-2px);
-box-shadow: 0 8px 25px rgba(30, 41, 59, 0.4);
-}
-
-.btn-primary
+</style>

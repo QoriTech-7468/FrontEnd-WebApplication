@@ -2,7 +2,7 @@
   <nav class="navbar">
     <div class="navbar-brand">
       <div class="logo-container">
-        <img src="@/assets/rutana-logo.png" alt="Rutana Logo" class="logo-img" />
+        <img src="../../../assets/rutana-logo.png" alt="Rutana Logo" class="logo-img" />
         <span class="logo-text">Rutana</span>
       </div>
     </div>

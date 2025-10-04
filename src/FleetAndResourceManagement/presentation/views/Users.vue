@@ -1,3 +1,4 @@
+
 <template>
   <div class="users-container">
     <!-- Navbar -->
@@ -132,7 +133,7 @@
 
 <script setup>
 import { ref } from "vue"
-import Navbar from "@/components/Navbar.vue";
+import Navbar from "../../../shared/presentation/components/Navbar.vue";
 
 const currentTab = ref("Users")
 
