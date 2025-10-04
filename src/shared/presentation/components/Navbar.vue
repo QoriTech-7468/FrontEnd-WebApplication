@@ -14,7 +14,7 @@
       <span></span>
     </button>
 
-    <!-- Navegación responsive -->
+    <!-- Navegación responsivee -->
     <ul class="nav-menu" :class="{ 'menu-open': isMenuOpen }">
       <li :class="{ active: currentTab === 'Users' }" @click="selectTab('Users')">
         <span class="nav-icon">👥</span>

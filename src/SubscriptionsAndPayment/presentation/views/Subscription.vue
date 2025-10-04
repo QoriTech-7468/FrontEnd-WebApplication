@@ -1,6 +1,6 @@
 <template>
   <div class="create-account-page">
-    <!-- Left Panel - Branding -->
+    <!-- Panel Izquierdo -->
     <div class="left-panel">
       <div class="brand-content">
         <div class="brand-logo-container">
@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <!-- Right Panel - Form -->
+    <!-- Derecho -->
     <div class="right-panel">
       <div class="form-container animate-fade-up">
         <div class="form-header">

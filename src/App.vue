@@ -7,7 +7,7 @@ export default {
   name: 'App'
 }
 </script>
-
+<!-- style-->
 <style>
 body {
   margin: 0;
