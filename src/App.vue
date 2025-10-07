@@ -1,16 +1,11 @@
 <template>
-  <router-view />
+  <ClientsPage />
 </template>
 
-<script>
-export default {
-  name: 'App'
-}
+<script setup>
+import ClientsPage from "./FleetAndResourceManagement/presentation/views/clients.vue";
 </script>
-<!-- style-->
+
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-}
+html, body, #app { height:100%; margin:0; }
 </style>
