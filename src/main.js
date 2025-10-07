@@ -1,8 +1,11 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
+import { createApp } from "vue";
+import PrimeVue from "primevue/config";
+import Aura from "@primevue/themes/aura";
+import "primeicons/primeicons.css";
+import "primeflex/primeflex.css";
 
-const app = createApp(App)
-app.use(router)
-app.mount('#app')
+import App from "./App.vue";
 
+createApp(App)
+    .use(PrimeVue, { theme: { preset: Aura } })
+    .mount("#app");
