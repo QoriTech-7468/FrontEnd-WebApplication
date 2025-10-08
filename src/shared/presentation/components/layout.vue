@@ -8,6 +8,7 @@ const items = [
   {label: 'Clients', to: '/management/clients'},
   {label: 'Users', to: '/management/Users'},
   {label: 'Vehicles', to: '/management/vehicles'},
+  { label: 'Routes',  to: '/routes/list' }
 ];
 </script>
 

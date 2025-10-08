@@ -1,9 +1,11 @@
 import {createRouter, createWebHistory} from "vue-router";
 import managementRoutes from "./FleetAndResourceManagement/presentation/management-route.js";
+import routePlanningRoutes from "./RoutePlanningExecution/presentation/routeplanning-route.js";
 
 
 const routes = [
     { path: '/management',      name: 'management', children: managementRoutes },
+    { path: '/routes',     name: 'routes', children: routePlanningRoutes },
     //{ path: '/',                redirect: '/management',   children: ['clients'] },
    // { path: '/:pathMatch(.*)*', name: 'not-found',  component: pageNotFound,    meta: { title: 'Page Not Found' } },
 ];
