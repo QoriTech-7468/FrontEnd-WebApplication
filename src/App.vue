@@ -1,16 +1,22 @@
+<script setup>
+</script>
+
 <template>
-  <router-view />
+
+  <pv-toolbar>
+    <template #start>
+      <Button  label="clients"/>aasa
+      <Button label="no"/>
+      <Button label="holas"/>
+    </template>
+    <template #center>
+    </template>
+    <template #end> <SplitButton label="Save"></SplitButton></template>
+  </pv-toolbar>
+
+  <pv-button label="presiona"></pv-button>
 </template>
 
-<script>
-export default {
-  name: 'App'
-}
-</script>
-<!-- style-->
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-}
+<style scoped>
+
 </style>
