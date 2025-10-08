@@ -1,4 +1,5 @@
 <template>
+  <Navbar :current-tab="currentTab"/>
   <div class="p-4">
     <div class="flex align-items-center justify-content-between mb-2">
       <div>
@@ -82,7 +83,11 @@ import ClientSidebar from "../components/clients-sidebar.vue";
 import LocationsPanel from "../components/locations-panel.vue";
 import NewLocationDialog from "../dialogs/add-location.vue";
 import NewClientDialog from "../dialogs/add-clients.vue";
+import Navbar from "../../../shared/presentation/components/Navbar.vue";
 
+
+
+const currentTab = ref("clients")
 /* Datos en memoria (sin API) */
 const clients = ref([
   {
