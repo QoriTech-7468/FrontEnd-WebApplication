@@ -1,4 +1,6 @@
 <script setup>
+// @TODO USAR UN COMPONENTE REUTILIZADO DE MAPA INTERACTIVO
+
 import { ref, computed } from 'vue'
 const props = defineProps({ locations: Array })
 const emits = defineEmits(['select'])

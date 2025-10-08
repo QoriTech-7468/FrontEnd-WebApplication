@@ -1,4 +1,5 @@
 <script setup>
+// @TODO USAR UN COMPONENTE REUTILIZADO DE MAPA INTERACTIVO
 defineProps({
   team: Object,
   isSelected: Boolean,
