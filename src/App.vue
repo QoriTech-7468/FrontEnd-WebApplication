@@ -1,20 +1,9 @@
 <script setup>
+import Layout from "./shared/presentation/components/layout.vue";
 </script>
 
 <template>
-
-  <pv-toolbar>
-    <template #start>
-      <Button  label="clients"/>aasa
-      <Button label="no"/>
-      <Button label="holas"/>
-    </template>
-    <template #center>
-    </template>
-    <template #end> <SplitButton label="Save"></SplitButton></template>
-  </pv-toolbar>
-
-  <pv-button label="presiona"></pv-button>
+  <layout />
 </template>
 
 <style scoped>
