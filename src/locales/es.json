@@ -1,0 +1,18 @@
+{
+  "teams": {
+    "title": "Asigna tus equipos",
+    "select": "Seleccionar",
+    "unselect": "Deseleccionar",
+    "available": "Disponible",
+    "notAvailable": "No disponible"
+  },
+  "locations": {
+    "title": "Ubicaciones",
+    "select": "Seleccionar",
+    "unselect": "Deseleccionar"
+  },
+  "routes": {
+    "title": "Rutas",
+    "edit": "Editar ruta"
+  }
+}

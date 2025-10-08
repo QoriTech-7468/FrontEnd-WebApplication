@@ -1,0 +1,18 @@
+{
+  "teams": {
+    "title": "Assign your teams",
+    "select": "Select",
+    "unselect": "Unselect",
+    "available": "Available",
+    "notAvailable": "Not Available"
+  },
+  "locations": {
+    "title": "Locations",
+    "select": "Select",
+    "unselect": "Unselect"
+  },
+  "routes": {
+    "title": "Routes",
+    "edit": "Edit Route"
+  }
+}
