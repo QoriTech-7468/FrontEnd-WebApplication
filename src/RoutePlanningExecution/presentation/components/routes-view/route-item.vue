@@ -9,8 +9,11 @@ const handleClick = () => {
   if (props.route.status === 'Draft') {
     router.push({ name: 'route-edit', params: { routeId: props.route.id } })
   }
+  else if (props.route.status === 'Published') {
+    router.push({ name: 'route-monitor', params: { routeId: props.route.id } })
+  }
   else {
-    alert('Only draft routes can be edited.')
+    alert('This route cannot be edited or monitored.')
   }
 }
 </script>
@@ -36,7 +39,7 @@ const handleClick = () => {
   align-items: center;
   background: white;
   cursor: pointer;
-  width: 100%;
+  max-width: 100%;
   transition: background 0.2s, box-shadow 0.2s;
 }
 

@@ -1,6 +1,7 @@
 // Lazy-loaded components
 const RoutesView = () => import('./views/routes-view.vue');
 const RouteEdit = () => import('./views/route-edit.vue');
+const RouteMonitor = () => import('./views/route-monitor-view.vue');
 
 const routePlanningRoutes = [
     {
@@ -14,6 +15,12 @@ const routePlanningRoutes = [
         name: 'route-edit',
         component: RouteEdit,
         meta: { title: 'Edit Route' }
+    },
+    {
+        path: ':routeId/monitor',
+        name: 'route-monitor',
+        component: RouteMonitor,
+        meta: { title: 'Monitor Route' }
     }
 ];
 
