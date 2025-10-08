@@ -1,5 +1,4 @@
 <template>
-  <Navbar :current-tab="currentTab"/>
   <div class="p-4">
     <div class="flex align-items-center justify-content-between mb-2">
       <div>
@@ -121,6 +120,4 @@ function openNewClient() { showNewClient.value = true; }
 </script>
 
 <style scoped>
-.shadow-1{ box-shadow:0 2px 8px rgba(0,0,0,.06); }
-.h-25rem{ height:25rem; }
 </style>

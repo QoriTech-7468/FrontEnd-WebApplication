@@ -7,9 +7,10 @@ import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import {
     Toolbar,
-    Button
+    Button, Toast, ConfirmDialog
 } from "primevue";
 import {definePreset} from "@primeuix/themes";
+import router from "./router.js";
 
 const MyPreset = definePreset(Aura, {
     semantic: {
@@ -31,7 +32,11 @@ const MyPreset = definePreset(Aura, {
 createApp(App)
     .use(PrimeVue, {theme:{preset:MyPreset}}
     )
+    .use(router)
     .component('pv-toolbar', Toolbar)
     .component('pv-button',Button)
 
+
+    .component('pv-confirm-dialog', ConfirmDialog)
+    .component('pv-toast', Toast)
     .mount('#app')

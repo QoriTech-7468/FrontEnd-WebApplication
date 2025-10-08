@@ -2,7 +2,6 @@
 <template>
   <div class="users-container">
     <!-- Navbar -->
-    <Navbar :currentTab="currentTab" @updateTab="currentTab = $event" />
 
     <!-- Main content -->
     <div class="content">
