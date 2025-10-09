@@ -15,7 +15,10 @@ import {
     IconField,
     InputIcon,
     ScrollPanel,
-    DatePicker
+    DatePicker,
+    Tabs,
+    TabPanel,
+    AutoComplete
 } from "primevue";
 import {definePreset} from "@primeuix/themes";
 import router from "./router.js";
@@ -64,6 +67,9 @@ createApp(App)
     .component('pv-input-icon', InputIcon)
     .component('pv-scroll-panel', ScrollPanel)
     .component('pv-date-picker', DatePicker)
+    .component('pv-tabs', Tabs)
+    .component('pv-tab-panel', TabPanel)
+    .component('pv-auto-complete', AutoComplete)
     .component('pv-confirm-dialog', ConfirmDialog)
     .component('pv-toast', Toast)
     .use(ToastService)

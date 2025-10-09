@@ -51,42 +51,41 @@ const handleRemoveFromSelected = (loc) => {
 
 <template>
   <div class="locations-tab">
-    <div class="top-section">
       <SelectedLocationsList :locations="route.locations" />
 
+      <div class="search-locations-section">
       <LocationDetails
           :location="selectedLocation"
           :isSelected="selectedLocation && route.locations.some(l => l.id === selectedLocation.id)"
           @select="handleAddToSelected"
           @unselect="handleRemoveFromSelected"
       />
-    </div>
 
-    <div class="bottom-section">
       <InteractiveMap
           :locations="allLocations"
           @select="handleSelectLocation"
       />
-    </div>
+      </div>
   </div>
 </template>
 
 <style scoped>
 .locations-tab {
   display: flex;
-  flex-direction: column;
   gap: 1rem;
 }
 
-.top-section {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
+.search-locations-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   gap: 1rem;
 }
 
 .bottom-section {
-  margin-top: 1rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 </style>

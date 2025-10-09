@@ -4,21 +4,37 @@
 import { ref, computed } from 'vue'
 const props = defineProps({ locations: Array })
 const emits = defineEmits(['select'])
-const search = ref('')
+const selectedClient = ref(null)
 
-const filteredLocations = computed(() =>
-    props.locations.filter(loc =>
-        loc.client.toLowerCase().includes(search.value.toLowerCase())
-    )
-)
+// Crear lista única de clientes para el autocomplete
+const clients = computed(() => {
+  const uniqueClients = [...new Set(props.locations.map(loc => loc.client))]
+  return uniqueClients.map(client => ({ label: client, value: client }))
+})
+
+// Filtrar ubicaciones por cliente seleccionado
+const filteredLocations = computed(() => {
+  if (!selectedClient.value) {
+    return props.locations
+  }
+  return props.locations.filter(loc => loc.client === selectedClient.value.value)
+})
+
+const handleClientSelect = (event) => {
+  selectedClient.value = event.value
+}
 </script>
 
 <template>
   <div class="map-container">
     <div class="search-bar">
-      <input
-          v-model="search"
+      <pv-auto-complete
+          v-model="selectedClient"
+          :suggestions="clients"
           placeholder="Search client"
+          optionLabel="label"
+          @complete="handleClientSelect"
+          class="w-full"
       />
     </div>
 
@@ -35,32 +51,46 @@ const filteredLocations = computed(() =>
 
 <style scoped>
 .map-container {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-.search-bar input {
-  width: 100%;
-  padding: 0.4rem 0.6rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+
+.search-bar {
   margin-bottom: 1rem;
 }
+
 .map {
   height: 200px;
-  background: #fafafa;
-  border: 1px dashed #ccc;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
   justify-content: center;
+  padding: 1rem;
 }
+
 .mock-marker {
   cursor: pointer;
   background: white;
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.mock-marker:hover {
+  border-color: #043873;
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(4, 56, 115, 0.1);
 }
 </style>

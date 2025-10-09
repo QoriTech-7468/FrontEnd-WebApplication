@@ -4,7 +4,7 @@ import LocationsTab from "../components/routes-edit/locations/locations-tab.vue"
 import TeamsTab from "../components/routes-edit/teams/teams-tab.vue";
 
 // Estado actual
-const activeTab = ref('locations')
+const activeTabIndex = ref(0)
 
 // Estado de ruta (simulado)
 const route = ref({
@@ -47,113 +47,99 @@ const publishDraft = () => {
 </script>
 
 <template>
-  <section class="route-edit">
-    <div class="header">
-      <div class="left">
-        <h2>{{ activeTab === 'locations' ? 'Locations' : 'Team' }}</h2>
-        <p>Select your {{ activeTab }}</p>
-
-        <div class="tabs">
-          <button
-              :class="{ active: activeTab === 'locations' }"
-              @click="activeTab = 'locations'"
-          >
-            Locations
-          </button>
-          <button
-              :class="{ active: activeTab === 'team' }"
-              @click="activeTab = 'team'"
-          >
-            Team
-          </button>
+  <div class="route-edit">
+    <!-- Header -->
+    <div class="flex align-items-center justify-content-between mb-4">
+      <div>
+        <div class="text-900 text-3xl font-semibold mb-1">Edit Route</div>
+        <div class="text-600 mb-3">Configure locations and team for your route</div>
+        
+        <!-- Tab Buttons -->
+        <div class="flex gap-2">
+          <pv-button 
+            :label="'Locations'" 
+            :icon="'pi pi-map-marker'"
+            :class="{ 'p-button-outlined': activeTabIndex !== 0 }"
+            @click="activeTabIndex = 0" 
+          />
+          <pv-button 
+            :label="'Team'" 
+            :icon="'pi pi-users'"
+            :class="{ 'p-button-outlined': activeTabIndex !== 1 }"
+            @click="activeTabIndex = 1" 
+          />
         </div>
       </div>
-
-      <div class="right">
-        <button class="delete" @click="deleteDraft">Delete Draft</button>
-        <button class="save" @click="saveDraft">Save Draft</button>
-        <button class="publish" @click="publishDraft">Publish</button>
+      
+      <div class="flex gap-2">
+        <pv-button label="Delete Draft" severity="danger" outlined @click="deleteDraft" />
+        <pv-button label="Save Draft" severity="secondary" outlined @click="saveDraft" />
+        <pv-button label="Publish" @click="publishDraft" />
       </div>
     </div>
 
-    <!-- Contenido dinámico -->
-    <div v-if="activeTab === 'locations'">
-      <LocationsTab :route="route" />
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <LocationsTab v-if="activeTabIndex === 0" :route="route" />
+      <TeamsTab v-else :route="route" />
     </div>
-    <div v-else>
-      <TeamsTab :route="route" />
-    </div>
-
-    <!-- Toast flotante -->
-    <transition name="toast-fade">
-      <div v-if="toast.visible" class="toast" :class="toast.type">
-        {{ toast.message }}
-      </div>
-    </transition>
-  </section>
+  </div>
 </template>
 
 <style scoped>
-.route-edit {
-  padding: 4rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+/* ===== BUTTON STYLES ===== */
+:deep(.p-button) {
+  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(4, 56, 115, 0.2) !important;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+:deep(.p-button:hover) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(4, 56, 115, 0.3) !important;
 }
 
-.tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
+:deep(.p-button:active) {
+  transform: translateY(0) !important;
 }
 
-.tabs button {
-  background: #f0f0f0;
+/* ===== TABS STYLES ===== */
+:deep(.p-tabs) {
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+:deep(.p-tabview-nav) {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+:deep(.p-tabview-nav-link) {
+  padding: 1rem 1.5rem;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.tabs button.active {
-  background: #003087;
-  color: white;
-}
-
-.right {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 2rem;
-}
-
-button.delete {
-  background: #ffe5e5;
-  color: #d33;
-}
-
-button.save {
-  background: #eaffea;
-  color: #27ae60;
-}
-
-button.publish {
-  background: #fff6a0;
-  color: #000;
-}
-
-button {
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
+  background: transparent;
+  color: #6b7280;
   font-weight: 500;
+  transition: all 0.3s ease;
 }
+
+:deep(.p-tabview-nav-link:hover) {
+  color: #043873;
+  background: #f8fafc;
+}
+
+:deep(.p-tabview-nav-link.p-highlight) {
+  color: #043873;
+  background: white;
+  border-bottom: 2px solid #043873;
+}
+
+:deep(.p-tabview-panels) {
+  padding: 1.5rem;
+}
+
 
 /* --- Toast styling --- */
 .toast {
