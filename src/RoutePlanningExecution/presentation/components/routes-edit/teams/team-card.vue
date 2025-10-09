@@ -9,93 +9,163 @@ const emits = defineEmits(['select', 'unselect'])
 </script>
 
 <template>
-  <div class="team-card">
-    <div class="team-id">
-      <span class="icon">🚚</span>
-      <strong>{{ team.id }}</strong>
+  <div class="team-card" :class="{ 'selected': isSelected, 'unavailable': !isAvailable }">
+    <div class="team-header">
+      <div class="team-id">
+        <i class="pi pi-truck text-xl"></i>
+        <span class="team-code">{{ team.id }}</span>
+      </div>
+      <div class="status-badge" :class="{ 'available': isAvailable, 'unavailable': !isAvailable }">
+        <i class="pi" :class="isAvailable ? 'pi-check-circle' : 'pi-times-circle'"></i>
+        <span>{{ isAvailable ? 'Available' : 'Unavailable' }}</span>
+      </div>
     </div>
 
     <div class="team-members">
-      <strong>Team members</strong>
-      <ul>
-        <li v-for="member in team.members" :key="member">{{ member }}</li>
-      </ul>
+      <h4 class="members-title">Team Members</h4>
+      <div class="members-list">
+        <div v-for="member in team.members" :key="member" class="member-item">
+          <i class="pi pi-user text-sm"></i>
+          <span>{{ member }}</span>
+        </div>
+      </div>
     </div>
 
     <div class="team-action">
-      <button
+      <pv-button
           v-if="!isAvailable"
-          class="not-available"
+          label="Not Available"
+          icon="pi pi-times"
+          severity="secondary"
+          outlined
           disabled
-      >
-        {{ $t('teams.notAvailable') }}
-      </button>
-
-      <button
+          class="w-full"
+      />
+      <pv-button
           v-else-if="isSelected"
-          class="unselect"
+          label="Selected"
+          icon="pi pi-check"
+          severity="success"
+          outlined
           @click="$emit('unselect', team)"
-      >
-        {{ $t('teams.unselect') }}
-      </button>
-
-      <button
+          class="w-full"
+      />
+      <pv-button
           v-else
-          class="select"
+          label="Select Team"
+          icon="pi pi-plus"
           @click="$emit('select', team)"
-      >
-        {{ $t('teams.select') }}
-      </button>
+          class="w-full"
+      />
     </div>
   </div>
 </template>
 
 <style scoped>
 .team-card {
-  display: grid;
-  grid-template-columns: 1fr 2fr auto;
-  align-items: center;
-  gap: 1rem;
-  border: 1px solid #ddd;
+  background: white;
+  border: 1px solid #e5e7eb;
   border-radius: 12px;
-  padding: 1rem;
-  background-color: #fff;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 280px;
+}
+
+.team-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.team-card.selected {
+  border-color: #043873;
+  box-shadow: 0 0 0 2px rgba(4, 56, 115, 0.1);
+}
+
+.team-card.unavailable {
+  opacity: 0.6;
+  background: #f8fafc;
+}
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .team-id {
   display: flex;
   align-items: center;
-  font-size: 1.1rem;
+  gap: 0.75rem;
+}
+
+.team-code {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status-badge.available {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.unavailable {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.team-members {
+  flex: 1;
+}
+
+.members-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.members-list {
+  display: flex;
+  flex-direction: column;
   gap: 0.5rem;
 }
 
-.team-members ul {
-  margin: 0.3rem 0 0;
-  padding-left: 1.2rem;
-  color: #333;
-}
-
-button {
-  border: none;
-  padding: 0.4rem 1rem;
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #f8fafc;
   border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
+  border: 1px solid #e2e8f0;
 }
 
-button.select {
-  background-color: #22c55e;
-  color: #fff;
+.member-item span {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
 }
 
-button.unselect {
-  background-color: #fca5a5;
-  color: #fff;
-}
-
-button.not-available {
-  background-color: #ccc;
-  color: #555;
-  cursor: not-allowed;
+.team-action {
+  margin-top: auto;
 }
 </style>
