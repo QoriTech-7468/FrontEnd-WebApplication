@@ -7,18 +7,18 @@ const props = defineProps({ locations: Array })
 const exampleLocations = [
   {
     id: 1,
-    address: "Av. Industrial 123, Lima",
-    client: "ACME Corp"
+    client: "ACME Corp",
+    address: "Av. Industrial 123, Lima"
   },
   {
     id: 2,
-    address: "Jr. Los Olivos 456, Lima", 
-    client: "Distribuidora Lima"
+    client: "ACME Corp",
+    address: "Jr. Los Olivos 456, Lima"
   },
   {
     id: 3,
-    address: "Av. Pachacutec 789, Callao",
-    client: "North Branch"
+    client: "Distribuidora Lima",
+    address: "Av. Pachacútec 789, Callao"
   }
 ]
 
@@ -30,15 +30,16 @@ const displayLocations = computed(() => {
 
 <template>
   <div class="selected-list">
-    <h4 class="title">Selected Locations ({{ displayLocations.length }})</h4>
+    <h4 class="title p-3">Selected Locations ({{ displayLocations.length }})</h4>
     <div v-if="displayLocations.length === 0" class="empty">
       No locations selected yet.
     </div>
     <div v-else class="list">
       <div v-for="(loc, index) in displayLocations" :key="loc.id" class="location-item" :class="{ 'has-accent': index === 0 }">
         <div class="location-content">
-          <div class="location-address">{{ loc.address }}</div>
+          <div class="location-name">{{ loc.address }}</div>
           <div class="location-client">{{ loc.client }}</div>
+          <div v-if="loc.address" class="location-address">{{ loc.address }}</div>
         </div>
       </div>
     </div>
@@ -48,9 +49,9 @@ const displayLocations = computed(() => {
 <style scoped>
 .selected-list {
   background: white;
+  width: 300px;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -58,8 +59,8 @@ const displayLocations = computed(() => {
   font-size: 1.25rem;
   font-weight: 700;
   color: #111827;
-  margin: 0 0 1.5rem 0;
-  padding-left: 0.5rem;
+  margin: 0 0 1rem 0;
+  padding-left: 1rem;
 }
 
 .list {
@@ -70,7 +71,11 @@ const displayLocations = computed(() => {
 
 .location-item {
   position: relative;
-  padding-left: 0.5rem;
+  padding-left: 1rem;
+}
+
+.location-item.has-accent {
+  padding-left: 1rem;
 }
 
 .location-item.has-accent::before {
@@ -90,7 +95,7 @@ const displayLocations = computed(() => {
   gap: 0.25rem;
 }
 
-.location-address {
+.location-name {
   font-size: 1rem;
   font-weight: 600;
   color: #111827;
@@ -98,6 +103,13 @@ const displayLocations = computed(() => {
 }
 
 .location-client {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.location-address {
   font-size: 0.875rem;
   font-weight: 400;
   color: #6b7280;

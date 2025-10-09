@@ -60,7 +60,6 @@ const handleRemoveFromSelected = (loc) => {
           @select="handleAddToSelected"
           @unselect="handleRemoveFromSelected"
       />
-
       <InteractiveMap
           :locations="allLocations"
           @select="handleSelectLocation"
