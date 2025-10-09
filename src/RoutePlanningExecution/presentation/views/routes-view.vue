@@ -40,8 +40,8 @@ const handleAddRoute = (routeData) => {
       v-model="plannedDate"
   />
 
-    <!-- Lista -->
-    <RouteList :routes="routes" />
+  <!-- Lista -->
+  <RouteList :routes="routes" />
 
   <!-- Modal -->
   <NewRouteModal
