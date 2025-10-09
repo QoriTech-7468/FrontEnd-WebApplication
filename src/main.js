@@ -10,8 +10,10 @@ import {
     Toolbar,
     Button, Toast, ConfirmDialog, ConfirmationService, ToastService
 } from "primevue";
+import InputText from "primevue/inputtext";
 import {definePreset} from "@primeuix/themes";
 import router from "./router.js";
+import pinia from "./pinia.js";
 
 const MyPreset = definePreset(Aura, {
     semantic: {
@@ -37,7 +39,7 @@ createApp(App)
     .use(i18n)
     .component('pv-toolbar', Toolbar)
     .component('pv-button',Button)
-
+    .component('pv-inputtext',InputText)
 
     .component('pv-confirm-dialog', ConfirmDialog)
     .component('pv-toast', Toast)
@@ -47,4 +49,5 @@ createApp(App)
     .component('pv-button', Button)
     .component('pv-toast', Toast)
     .component('pv-confirm-dialog', ConfirmDialog)
+    .use(pinia)
     .mount('#app')

@@ -1,0 +1,74 @@
+{
+  "user": [
+    {
+      "id": 1,
+      "fullname": "Juan Jose Molera Masca",
+      "Email": "juan@hotmail.com",
+      "Role": "conductor",
+      "password": "2688juan",
+      "vehicleId": 1
+    },
+    {
+      "id": 2,
+      "fullname": "Juan Jose Molera Masca",
+      "Email": "juan@hotmail.com",
+      "Role": "conductor",
+      "password": "2688juan",
+      "vehicleId": 1
+    },
+    {
+      "id": 3,
+      "fullname": "Juan Jose Molera Masca",
+      "Email": "juan@hotmail.com",
+      "Role": "conductor",
+      "password": "2688juan",
+      "vehicleId": 1
+    },
+    {
+      "id": 4,
+      "fullname": "Juan Jose Molera Masca",
+      "Email": "juan@hotmail.com",
+      "Role": "conductor",
+      "password": "2688juan",
+      "vehicleId": 1
+    }
+  ],
+  "vehicles": [
+    {
+      "id": 1,
+      "plate": "123bcd",
+      "capacity": 400,
+      "isActive": "Enabled"
+    },
+    {
+      "id": 2,
+      "plate": "456aer",
+      "capacity": 300,
+      "isActive": "Disabled"
+    },
+    {
+      "id": 3,
+      "plate": "789scd",
+      "capacity": 500,
+      "isActive": "Enabled"
+    },
+    {
+      "id": 6,
+      "plate": "",
+      "capacity": null,
+      "isActive": "Active"
+    },
+    {
+      "id": 5,
+      "plate": "",
+      "capacity": null,
+      "isActive": "Active"
+    },
+    {
+      "id": 7,
+      "plate": "asb123",
+      "capacity": 1234,
+      "isActive": "Active"
+    }
+  ]
+}

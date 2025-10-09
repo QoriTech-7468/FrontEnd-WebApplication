@@ -31,7 +31,7 @@ const items = [
       </template>
     </pv-toolbar>
   </div>
-  <div>
+  <div class="main-content">
     <router-view/>
   </div>
 
@@ -47,6 +47,6 @@ const items = [
 }
 
 .main-content {
-  margin-top: 60px; /* Adjust based on header height */
+  margin-top: 95px; /* Adjust based on header height */
 }
 </style>

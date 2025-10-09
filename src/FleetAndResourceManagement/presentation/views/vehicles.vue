@@ -54,7 +54,6 @@ import VehicleSidebar from "../components/vehicle-sidebar.vue";
 import VehicleDetailsPanel from "../components/vehicle-details.vue";
 import NewVehicleDialog from "../dialogs/add-vehicle.vue";
 
-const currentTab = ref("vehicles")
 /* Datos en memoria (sin API) */
 const vehicles = ref([
   { id: 1, plate: "ABC-123", capacity: 1500, status: "Disabled", members: [] },
