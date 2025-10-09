@@ -5,70 +5,131 @@ import LocationDetails from "../components/routes-edit/locations/location-detail
 import TeamCard from "../components/routes-edit/teams/team-card.vue"
 
 const routeStats = ref({
-  completed: 0,
+  completed: 8,
   total: 12,
-  effectiveness: 0
+  effectiveness: 87
 })
 
 const selectedLocation = ref(null)
 
-const handleLocationSelect = (location) => {
-  selectedLocation.value = location
-}
+// Mock data for monitoring
+const allLocations = ref([
+  {
+    id: 'P-001',
+    address: 'Av. Industrial 123, Lima',
+    client: 'ACME Corp',
+    latitude: -12.0464,
+    longitude: -77.0428,
+    status: 'Active'
+  },
+  {
+    id: 'P-002',
+    address: 'Jr. Los Olivos 456, Lima',
+    client: 'ACME Corp',
+    latitude: -12.055,
+    longitude: -77.05,
+    status: 'Active'
+  },
+  {
+    id: 'P-003',
+    address: 'Av. Pachacutec 789, Callao',
+    client: 'Distribuidora Lima',
+    latitude: -12.07,
+    longitude: -77.1,
+    status: 'Active'
+  }
+])
 
-// Datos mock
 const team = ref({
-  licensePlate: 'ABC-123',
+  id: 'XYZ-123',
   members: [
     'Jhon Doe Carrera Nuñez',
     'José Huaman Perez',
     'Eduardo Swart Smith'
   ],
-  status: 'Active'
+  available: true
 })
 
 const location = ref({
+  id: 'P-001',
   client: 'ACME Corp',
-  type: 'Viajero',
   address: 'Av. Industrial 123, Lima',
-  latitude: '-12.0464',
-  longitude: '-77.0428',
+  latitude: -12.0464,
+  longitude: -77.0428,
   status: 'Active'
 })
+
+const handleLocationSelect = (location) => {
+  selectedLocation.value = location
+}
 </script>
 
 <template>
   <div class="route-monitor">
-    <!-- Estadísticas superiores -->
+    <!-- Header -->
+    <div class="header">
+      <h1 class="title">Route Monitor</h1>
+      <p class="subtitle">Monitor active routes and delivery progress</p>
+    </div>
+
+    <!-- Statistics Cards -->
     <div class="stats-grid">
       <div class="stat-card">
+        <div class="stat-icon">
+          <i class="pi pi-check-circle text-2xl"></i>
+        </div>
         <div class="stat-info">
-          <strong>{{ routeStats.completed }}/{{ routeStats.total }}</strong>
-          <p>Completed routes</p>
+          <div class="stat-value">{{ routeStats.completed }}/{{ routeStats.total }}</div>
+          <div class="stat-label">Completed Routes</div>
         </div>
       </div>
 
       <div class="stat-card">
+        <div class="stat-icon">
+          <i class="pi pi-chart-line text-2xl"></i>
+        </div>
         <div class="stat-info">
-          <strong>{{ routeStats.effectiveness }}%</strong>
-          <p>Effective deliveries</p>
+          <div class="stat-value">{{ routeStats.effectiveness }}%</div>
+          <div class="stat-label">Effectiveness Rate</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="pi pi-clock text-2xl"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ routeStats.total - routeStats.completed }}</div>
+          <div class="stat-label">Pending Routes</div>
         </div>
       </div>
     </div>
 
-    <!-- Layout principal -->
+    <!-- Main Content -->
     <div class="content-grid">
       <div class="map-section">
-<!--        <InteractiveMap @select-location="handleLocationSelect" />-->
+        <InteractiveMap 
+          :locations="allLocations"
+          :selectedLocation="selectedLocation"
+          @select="handleLocationSelect" 
+        />
       </div>
 
       <div class="side-section">
         <div class="details-section">
-<!--          <LocationDetails v-if="selectedLocation" :location="selectedLocation" />-->
-<!--          <LocationDetails v-else :location="location" />-->
+          <LocationDetails 
+            :location="selectedLocation || location"
+            :isSelected="true"
+            :isReadOnly="true"
+          />
         </div>
         <div class="team-section">
-<!--          <TeamCard :team="team" />-->
+          <TeamCard 
+            :team="team"
+            :isSelected="true"
+            :isAvailable="team.available"
+            :isReadOnly="true"
+          />
         </div>
       </div>
     </div>
@@ -80,94 +141,166 @@ const location = ref({
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  margin: 10rem 6rem 0 6rem;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-/* === Estadísticas superiores === */
+/* Header */
+.header {
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Statistics Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
 }
 
 .stat-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   gap: 1rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 1rem 1.5rem;
-  background-color: #fff;
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .stat-icon {
-  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: #f8fafc;
+  border-radius: 10px;
+  color: #043873;
 }
 
-.stat-info strong {
-  font-size: 1.3rem;
-  display: block;
-  color: #000;
+.stat-info {
+  flex: 1;
 }
 
-.stat-info p {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #666;
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
 }
 
-/* === Grid principal === */
+.stat-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* Main Content Grid */
 .content-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 1.5rem;
-  align-items: stretch;
+  gap: 2rem;
+  align-items: start;
 }
 
-/* Mapa */
+/* Map Section */
 .map-section {
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  height: 600px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 600px;
 }
 
-/* Panel lateral */
+/* Side Section */
 .side-section {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 1rem;
-  height: 600px;
+  gap: 1.5rem;
 }
 
-/* Alturas proporcionales */
-.details-section {
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  flex: 1;
-}
-
+.details-section,
 .team-section {
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  flex: 1;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
-/* Responsivo */
-@media (max-width: 900px) {
-  .route-monitor {
-    margin: 2rem;
-  }
-
+/* Responsive Design */
+@media (max-width: 1024px) {
   .content-grid {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
+  
+  .map-section {
+    min-height: 400px;
+  }
+}
 
-  .side-section {
-    height: auto;
+@media (max-width: 768px) {
+  .route-monitor {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+  
+  .title {
+    font-size: 1.75rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .stat-card {
+    padding: 1rem;
+  }
+  
+  .stat-value {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .route-monitor {
+    padding: 0.75rem;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+  }
+  
+  .subtitle {
+    font-size: 0.875rem;
   }
 }
 </style>

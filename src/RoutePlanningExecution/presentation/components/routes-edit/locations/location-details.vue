@@ -1,5 +1,9 @@
 <script setup>
-const props = defineProps({ location: Object, isSelected: Boolean })
+const props = defineProps({ 
+  location: Object, 
+  isSelected: Boolean,
+  isReadOnly: Boolean 
+})
 const emits = defineEmits(['select', 'unselect'])
 </script>
 
@@ -31,7 +35,7 @@ const emits = defineEmits(['select', 'unselect'])
         </div>
       </div>
 
-      <div class="actions">
+      <div v-if="!isReadOnly" class="actions">
         <pv-button
             v-if="!isSelected"
             label="Select Location"

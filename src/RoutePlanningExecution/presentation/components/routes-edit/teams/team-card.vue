@@ -3,7 +3,8 @@
 defineProps({
   team: Object,
   isSelected: Boolean,
-  isAvailable: Boolean
+  isAvailable: Boolean,
+  isReadOnly: Boolean
 })
 const emits = defineEmits(['select', 'unselect'])
 </script>
@@ -31,7 +32,7 @@ const emits = defineEmits(['select', 'unselect'])
       </div>
     </div>
 
-    <div class="team-action">
+    <div v-if="!isReadOnly" class="team-action">
       <pv-button
           v-if="!isAvailable"
           label="Not Available"
@@ -64,7 +65,6 @@ const emits = defineEmits(['select', 'unselect'])
 <style scoped>
 .team-card {
   background: white;
-  border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -75,10 +75,6 @@ const emits = defineEmits(['select', 'unselect'])
   min-height: 280px;
 }
 
-.team-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
 
 .team-card.selected {
   border-color: #043873;
