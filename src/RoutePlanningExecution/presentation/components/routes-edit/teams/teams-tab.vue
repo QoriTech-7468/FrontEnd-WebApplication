@@ -41,7 +41,9 @@ const handleUnselect = () => {
 
 <template>
   <div class="teams-tab">
-    <h3>{{ t('teams.title') }}</h3>
+    <div class="header">
+      <h2 class="title">{{ t('teams.title') }}</h2>
+    </div>
 
     <div class="teams-grid">
       <TeamCard
@@ -61,18 +63,28 @@ const handleUnselect = () => {
 .teams-tab {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
+}
+.title {
+  font-size: 1.25rem;
+  font-weight:500;
+  color: #111827;
 }
 
 .teams-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
 }
 
 @media (max-width: 768px) {
   .teams-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .title {
+    font-size: 1.5rem;
   }
 }
 </style>

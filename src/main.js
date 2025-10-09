@@ -8,7 +8,17 @@ import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import {
     Toolbar,
-    Button, Toast, ConfirmDialog, ConfirmationService, ToastService
+    Button, Toast, ConfirmDialog, ConfirmationService, ToastService,
+    Panel,
+    Tag,
+    InputText,
+    IconField,
+    InputIcon,
+    ScrollPanel,
+    DatePicker,
+    Tabs,
+    TabPanel,
+    AutoComplete
 } from "primevue";
 import {definePreset} from "@primeuix/themes";
 import router from "./router.js";
@@ -16,35 +26,52 @@ import router from "./router.js";
 const MyPreset = definePreset(Aura, {
     semantic: {
         primary: {
-            50: '{sky.50}',
-            100: '{sky.100}',
-            200: '{sky.200}',
-            300: '{sky.300}',
-            400: '{sky.400}',
-            500: '{sky.500}',
-            600: '{sky.600}',
-            700: '{sky.700}',
-            800: '{sky.800}',
-            900: '{indigo.900}',
-            950: '{indigo.950}'
+            50: '#e6f0ff',
+            100: '#b3d1ff',
+            200: '#80b2ff',
+            300: '#4d93ff',
+            400: '#1a74ff',
+            500: '#043873',
+            600: '#043873',
+            700: '#043873',
+            800: '#043873',
+            900: '#043873',
+            950: '#043873'
+        },
+        accent: {
+            50: '#fffdf0',
+            100: '#fff9d6',
+            200: '#fff2b3',
+            300: '#ffeb90',
+            400: '#ffe46d',
+            500: '#FFD60A',
+            600: '#FFD60A',
+            700: '#FFD60A',
+            800: '#FFD60A',
+            900: '#FFD60A',
+            950: '#FFD60A'
         }
     }
 });
 createApp(App)
-    .use(PrimeVue, {theme:{preset:MyPreset}}
+    .use(PrimeVue, {theme:{preset:MyPreset, options: {darkModeSelector: 'never'}}}
     )
     .use(router)
     .use(i18n)
     .component('pv-toolbar', Toolbar)
     .component('pv-button',Button)
-
-
+    .component('pv-panel', Panel)
+    .component('pv-tag', Tag)
+    .component('pv-input-text', InputText)
+    .component('pv-icon-field', IconField)
+    .component('pv-input-icon', InputIcon)
+    .component('pv-scroll-panel', ScrollPanel)
+    .component('pv-date-picker', DatePicker)
+    .component('pv-tabs', Tabs)
+    .component('pv-tab-panel', TabPanel)
+    .component('pv-auto-complete', AutoComplete)
     .component('pv-confirm-dialog', ConfirmDialog)
     .component('pv-toast', Toast)
     .use(ToastService)
     .use(ConfirmationService)
-    .component('pv-toolbar', Toolbar)
-    .component('pv-button', Button)
-    .component('pv-toast', Toast)
-    .component('pv-confirm-dialog', ConfirmDialog)
     .mount('#app')

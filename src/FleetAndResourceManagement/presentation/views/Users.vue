@@ -1,23 +1,16 @@
 
 <template>
-  <div class="users-container">
-    <!-- Navbar -->
-
-    <!-- Main content -->
-    <div class="content">
-      <div class="header">
-        <div class="header-left">
-          <h2 class="animate-fade-in">Users</h2>
-          <p class="subtitle animate-fade-in-delay">Add new users to your account</p>
+  <div>
+      <div class="flex align-items-center justify-content-between mb-2">
+        <div class="mb-3">
+          <div class="text-900 text-3xl font-semibold">Users</div>
+          <div class="text-600">Add new users to your account</div>
         </div>
-        <button class="add-btn animate-fade-in-delay" @click="showModal = true">
-          <span class="btn-icon">➕</span>
-          Add user
-        </button>
+         <pv-button label="Add user" icon="pi pi-plus-circle" class="font-medium" @click="showModal = true" />
       </div>
 
       <!-- Table -->
-      <div class="table-container animate-slide-up">
+      <div class="table-container">
         <table class="users-table">
           <thead>
           <tr>
@@ -65,9 +58,9 @@
           </tbody>
         </table>
       </div>
-    </div>
+  </div>
 
-    <transition name="modal-fade">
+  <transition name="modal-fade">
       <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
         <div class="modal animate-modal-up">
           <div class="modal-header">
@@ -127,7 +120,6 @@
         </div>
       </div>
     </transition>
-  </div>
 </template>
 
 <script setup>
@@ -178,30 +170,10 @@ const handleStatusChange = (user) => {
 
 <style scoped>
 /* ===== ANIMACIONES ===== */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 @keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -218,18 +190,6 @@ const handleStatusChange = (user) => {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.6s ease-out;
-}
-
-.animate-fade-in-delay {
-  animation: fadeIn 0.6s ease-out 0.2s both;
-}
-
-.animate-slide-up {
-  animation: slideUp 0.7s ease-out 0.3s both;
 }
 
 .animate-modal-up {
@@ -258,70 +218,25 @@ const handleStatusChange = (user) => {
   box-sizing: border-box;
 }
 
-.users-container {
-  min-height: 100vh;
-  background: #f8f9fa;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
 /* ===== CONTENT ===== */
-.content {
-  padding: 40px 50px;
-  max-width: 1400px;
-  margin: 0 auto;
+
+/* ===== BUTTON STYLES ===== */
+:deep(.p-button) {
+  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(4, 56, 115, 0.2) !important;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 30px;
+:deep(.p-button:hover) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(4, 56, 115, 0.3) !important;
 }
 
-.header-left h2 {
-  font-size: 32px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 5px;
-}
-
-.subtitle {
-  color: #6b7280;
-  font-size: 14px;
-}
-
-.add-btn {
-  width: auto !important;       /* asegura que no herede 100% */
-  display: inline-flex;         /* evita que se estire */
-  justify-content: center;
-  align-items: center;
-  padding: 10px 18px;           /* tamaño compacto */
-  background: #4f46e5;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  gap: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
-}
-
-
-.btn-icon {
-  font-size: 16px;
-  transition: transform 0.3s ease;
-}
-
-.add-btn:hover {
-  background: #4338ca;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
-}
-
-.add-btn:hover .btn-icon {
-  transform: rotate(90deg);
+:deep(.p-button:active) {
+  transform: translateY(0) !important;
 }
 
 /* ===== TABLE ===== */
@@ -468,7 +383,6 @@ const handleStatusChange = (user) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
   backdrop-filter: blur(4px);
 }
 
@@ -647,9 +561,6 @@ const handleStatusChange = (user) => {
     align-self: stretch;
   }
 
-  .content {
-    padding: 20px;
-  }
 
   .table-container {
     overflow-x: auto;

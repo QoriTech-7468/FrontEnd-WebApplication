@@ -21,40 +21,65 @@ const handleClick = () => {
 <template>
   <button class="route-item" @click="handleClick">
     <div class="route-info">
-      <h4>{{ route.id }}</h4>
-      <RouteStatusBadge :status="route.status" />
-      <p>{{ route.vehicle }}</p>
+      <div class="flex align-items-center gap-2 mb-2">
+        <div class="text-900 text-lg font-semibold">{{ route.id }}</div>
+        <RouteStatusBadge :status="route.status" />
+      </div>
+      <div class="text-600 text-sm mb-1">{{ route.vehicle }}</div>
     </div>
-    <p>Locations: {{ route.locations }}</p>
+    <div class="route-meta">
+      <div class="text-500 text-sm">Locations</div>
+      <div class="text-700 font-medium">{{ route.locations }}</div>
+    </div>
   </button>
 </template>
 
 <style scoped>
 .route-item {
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.25rem;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   background: white;
   cursor: pointer;
-  max-width: 100%;
-  transition: background 0.2s, box-shadow 0.2s;
+  width: 100%;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  text-align: left;
 }
 
 .route-item:hover {
-  background: #f7faff;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(4, 56, 115, 0.1);
+}
+
+.route-item:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(4, 56, 115, 0.15);
 }
 
 .route-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+}
+
+.route-meta {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 button {
   all: unset;
+  box-sizing: border-box;
+}
+
+/* Focus styles for accessibility */
+.route-item:focus {
+  outline: 2px solid #043873;
+  outline-offset: 2px;
 }
 </style>
