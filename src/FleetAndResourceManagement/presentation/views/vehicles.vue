@@ -1,6 +1,4 @@
 <template>
-
-  <div class="p-4">
     <!-- Header -->
     <div class="flex align-items-center justify-content-between mb-2">
       <div>
@@ -38,9 +36,8 @@
       </div>
     </div>
 
-    <!-- Pop-out: New vehicle -->
-    <NewVehicleDialog v-model:visible="showCreate" />
-  </div>
+  <!-- Pop-out: New vehicle -->
+  <NewVehicleDialog v-model:visible="showCreate" />
 </template>
 
 <script setup>

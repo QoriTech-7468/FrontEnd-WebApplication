@@ -1,5 +1,4 @@
 <template>
-  <div class="p-4">
     <div class="flex align-items-center justify-content-between mb-2">
       <div>
         <div class="text-900 text-3xl font-semibold">Clients</div>
@@ -66,10 +65,9 @@
       </div>
     </div>
 
-    <!-- Dialogs -->
-    <NewLocationDialog v-model:visible="showNewLocation" :clients="clients" />
-    <NewClientDialog v-model:visible="showNewClient" />
-  </div>
+  <!-- Dialogs -->
+  <NewLocationDialog v-model:visible="showNewLocation" :clients="clients" />
+  <NewClientDialog v-model:visible="showNewClient" />
 </template>
 
 <script setup>

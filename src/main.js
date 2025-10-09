@@ -16,22 +16,22 @@ import router from "./router.js";
 const MyPreset = definePreset(Aura, {
     semantic: {
         primary: {
-            50: '{sky.50}',
-            100: '{sky.100}',
-            200: '{sky.200}',
-            300: '{sky.300}',
-            400: '{sky.400}',
-            500: '{sky.500}',
-            600: '{sky.600}',
-            700: '{sky.700}',
-            800: '{sky.800}',
-            900: '{indigo.900}',
-            950: '{indigo.950}'
+            50: '#e6f0ff',
+            100: '#b3d1ff',
+            200: '#80b2ff',
+            300: '#4d93ff',
+            400: '#1a74ff',
+            500: '#043873',
+            600: '#043873',
+            700: '#043873',
+            800: '#043873',
+            900: '#043873',
+            950: '#043873'
         }
     }
 });
 createApp(App)
-    .use(PrimeVue, {theme:{preset:MyPreset}}
+    .use(PrimeVue, {theme:{preset:MyPreset, options: {darkModeSelector: 'never'}}}
     )
     .use(router)
     .use(i18n)

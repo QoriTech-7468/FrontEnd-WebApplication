@@ -30,19 +30,19 @@ const showToast = (message, type = 'info') => {
 const deleteDraft = () => {
   if (confirm('Are you sure you want to delete this draft?')) {
     showToast('Draft deleted. Returning to routes list...', 'info')
-    setTimeout(() => window.location.href = '/routes/list', 1000)
+    setTimeout(() => window.location.href = '/management/routes/list', 1000)
   }
 }
 
 const saveDraft = () => {
   showToast('Draft saved successfully!', 'success')
-  setTimeout(() => window.location.href = '/routes/list', 1000)
+  setTimeout(() => window.location.href = '/management/routes/list', 1000)
 }
 
 const publishDraft = () => {
   route.value.status = 'Published'
   showToast('Route published successfully!', 'success')
-  setTimeout(() => window.location.href = '/routes/list', 1000)
+  setTimeout(() => window.location.href = '/management/routes/list', 1000)
 }
 </script>
 

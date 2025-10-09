@@ -4,8 +4,10 @@ import routePlanningRoutes from "./RoutePlanningExecution/presentation/routeplan
 
 
 const routes = [
-    { path: '/management',      name: 'management', children: managementRoutes },
-    { path: '/routes',     name: 'routes', children: routePlanningRoutes },
+    { path: '/management',      name: 'management', children: [
+        ...managementRoutes,
+        { path: 'routes', name: 'management-routes', children: routePlanningRoutes }
+    ]},
     //{ path: '/',                redirect: '/management',   children: ['clients'] },
    // { path: '/:pathMatch(.*)*', name: 'not-found',  component: pageNotFound,    meta: { title: 'Page Not Found' } },
 ];

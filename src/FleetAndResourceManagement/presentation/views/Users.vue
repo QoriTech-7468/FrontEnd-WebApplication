@@ -1,10 +1,7 @@
 
 <template>
-  <div class="users-container">
-    <!-- Navbar -->
-
-    <!-- Main content -->
-    <div class="content">
+  <!-- Main content -->
+  <div class="content">
       <div class="header">
         <div class="header-left">
           <h2 class="animate-fade-in">Users</h2>
@@ -65,9 +62,9 @@
           </tbody>
         </table>
       </div>
-    </div>
+  </div>
 
-    <transition name="modal-fade">
+  <transition name="modal-fade">
       <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
         <div class="modal animate-modal-up">
           <div class="modal-header">
@@ -127,7 +124,6 @@
         </div>
       </div>
     </transition>
-  </div>
 </template>
 
 <script setup>
@@ -258,17 +254,9 @@ const handleStatusChange = (user) => {
   box-sizing: border-box;
 }
 
-.users-container {
-  min-height: 100vh;
-  background: #f8f9fa;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
 /* ===== CONTENT ===== */
 .content {
-  padding: 40px 50px;
-  max-width: 1400px;
-  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .header {
@@ -468,7 +456,6 @@ const handleStatusChange = (user) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
   backdrop-filter: blur(4px);
 }
 
@@ -647,9 +634,6 @@ const handleStatusChange = (user) => {
     align-self: stretch;
   }
 
-  .content {
-    padding: 20px;
-  }
 
   .table-container {
     overflow-x: auto;
