@@ -27,39 +27,47 @@ const handleAddRoute = (routeData) => {
 </script>
 
 <template>
-  <section class="routes-container">
-    <!-- Header -->
-    <h2>Routes</h2>
-    <p class="subtitle">Add or edit your routes for the delivery</p>
+  <div class="flex align-items-center justify-content-between mb-2">
+    <div class="mb-3">
+      <div class="text-900 text-3xl font-semibold">Routes</div>
+      <div class="text-600">Add or edit your routes for the delivery</div>
+    </div>
+    <pv-button label="New route" icon="pi pi-plus-circle" class="font-medium" @click="showModal = true" />
+  </div>
 
-    <!-- Top Actions -->
-    <TopActions
-        v-model="plannedDate"
-        @create-route="showModal = true"
-    />
+  <!-- Top Actions -->
+  <TopActions
+      v-model="plannedDate"
+  />
 
     <!-- Lista -->
     <RouteList :routes="routes" />
 
-    <!-- Modal -->
-    <NewRouteModal
-        v-if="showModal"
-        @close="showModal = false"
-        @create="handleAddRoute"
-    />
-  </section>
+  <!-- Modal -->
+  <NewRouteModal
+      v-if="showModal"
+      @close="showModal = false"
+      @create="handleAddRoute"
+  />
 </template>
 
 <style scoped>
-.routes-container {
-  max-width: 900px;
-  margin: 3rem auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+/* ===== BUTTON STYLES ===== */
+:deep(.p-button) {
+  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(4, 56, 115, 0.2) !important;
 }
-.subtitle {
-  color: #555;
-  margin-bottom: 0.5rem;
+
+:deep(.p-button:hover) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(4, 56, 115, 0.3) !important;
+}
+
+:deep(.p-button:active) {
+  transform: translateY(0) !important;
 }
 </style>

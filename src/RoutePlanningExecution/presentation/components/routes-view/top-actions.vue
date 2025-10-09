@@ -1,31 +1,35 @@
 <script setup>
+import { computed } from 'vue'
+
 const props = defineProps({
   modelValue: String
 })
-const emits = defineEmits(['update:modelValue', 'create-route'])
+const emits = defineEmits(['update:modelValue'])
+
+const modelValue = computed({
+  get: () => props.modelValue,
+  set: (value) => emits('update:modelValue', value)
+})
 </script>
 
 <template>
-  <div class="top-actions">
+  <div class="top-actions mb-3 bg-white">
     <div class="date-input">
-      <label>Planned date</label>
-      <input
-          type="date"
-          :value="modelValue"
-          @input="$emit('update:modelValue', $event.target.value)"
+      <label class="text-700 mb-2 font-medium text-xl">Planned date</label>
+      <pv-date-picker
+          v-model="modelValue"
+          @update:modelValue="$emit('update:modelValue', $event)"
+          dateFormat="yy-mm-dd"
+          placeholder="Choose a date"
+          showIcon
+          icon="pi pi-calendar"
       />
     </div>
-
-    <button class="new-route-btn" @click="$emit('create-route')">
-      + New route
-    </button>
   </div>
 </template>
 
 <style scoped>
 .top-actions {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 1rem;
   border: 1px solid #ddd;

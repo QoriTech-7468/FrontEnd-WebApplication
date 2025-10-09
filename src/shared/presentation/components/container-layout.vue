@@ -14,9 +14,8 @@
 <style scoped>
 .app-layout {
   margin-top: 60px; /* Altura del header para empujar el contenido hacia abajo */
-  min-height: 100vh;
+  min-height: calc(100vh);
   background: #f8f9fa;
-  padding: 0;
 }
 
 .layout-container {

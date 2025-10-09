@@ -1,14 +1,13 @@
 <template>
     <div class="flex align-items-center justify-content-between mb-2">
-      <div>
+      <div class="mb-3">
         <div class="text-900 text-3xl font-semibold">Clients</div>
         <div class="text-600">Add or edit your clients</div>
       </div>
-      <Button
+      <pv-button
           label="Register client"
           icon="pi pi-plus-circle"
           class="font-medium"
-          severity="contrast"
           @click="openNewClient()"
       />
     </div>
@@ -28,7 +27,7 @@
         <div class="grid">
           <!-- Centro -->
           <div class="col-12 lg:col-8">
-            <Panel :header="selected ? selected.name : null" class="shadow-1">
+            <pv-panel :header="selected ? selected.name : null" class="shadow-1">
               <!-- Estado 1: vacío -->
               <div v-if="!selected" class="flex flex-column align-items-center justify-content-center h-25rem text-600">
                 <i class="pi pi-user text-6xl mb-3"></i>
@@ -38,10 +37,10 @@
               <!-- Estado 2: seleccionado -->
               <template v-else>
                 <div class="flex align-items-center justify-content-between mb-3">
-                  <Tag :value="selected.status" :severity="statusSeverity(selected.status)" />
+                  <pv-tag :value="selected.status" :severity="statusSeverity(selected.status)" />
                   <div class="flex gap-2">
-                    <Button label="Edit" outlined />
-                    <Button label="Register location" severity="warning" @click="openNewLocation()" />
+                    <pv-button label="Edit" outlined />
+                    <pv-button label="Register location" severity="warning" @click="openNewLocation()" />
                   </div>
                 </div>
 
@@ -51,7 +50,7 @@
                   <small class="text-500">Click on the map to create a new location</small>
                 </div>
               </template>
-            </Panel>
+            </pv-panel>
           </div>
 
           <!-- Derecha: Locations -->
@@ -72,9 +71,6 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import Panel from "primevue/panel";
-import Button from "primevue/button";
-import Tag from "primevue/tag";
 
 import ClientSidebar from "../components/clients-sidebar.vue";
 import LocationsPanel from "../components/locations-panel.vue";
@@ -118,4 +114,22 @@ function openNewClient() { showNewClient.value = true; }
 </script>
 
 <style scoped>
+/* ===== BUTTON STYLES ===== */
+:deep(.p-button) {
+  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(4, 56, 115, 0.2) !important;
+}
+
+:deep(.p-button:hover) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(4, 56, 115, 0.3) !important;
+}
+
+:deep(.p-button:active) {
+  transform: translateY(0) !important;
+}
 </style>
