@@ -1,11 +1,18 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import SelectedLocationsList from './selected-locations-list.vue'
 import LocationDetails from './location-details.vue'
 import InteractiveMap from './interactive-map.vue'
 
 const props = defineProps({ route: Object })
 const selectedLocation = ref(null)
+
+// Initialize route.locations if it doesn't exist
+onMounted(() => {
+  if (!props.route.locations) {
+    props.route.locations = []
+  }
+})
 
 const allLocations = ref([
   {
@@ -46,12 +53,20 @@ const handleAddToSelected = (loc) => {
 
 const handleRemoveFromSelected = (loc) => {
   props.route.locations = props.route.locations.filter(l => l.id !== loc.id)
+  // If we're removing the currently selected location, clear the selection
+  if (selectedLocation.value && selectedLocation.value.id === loc.id) {
+    selectedLocation.value = null
+  }
 }
 </script>
 
 <template>
   <div class="locations-tab">
-      <SelectedLocationsList :locations="route.locations" />
+      <SelectedLocationsList 
+          :locations="route.locations"
+          :selectedLocation="selectedLocation"
+          @select="handleSelectLocation" 
+      />
 
       <div class="search-locations-section">
       <LocationDetails
@@ -62,6 +77,7 @@ const handleRemoveFromSelected = (loc) => {
       />
       <InteractiveMap
           :locations="allLocations"
+          :selectedLocation="selectedLocation"
           @select="handleSelectLocation"
       />
       </div>

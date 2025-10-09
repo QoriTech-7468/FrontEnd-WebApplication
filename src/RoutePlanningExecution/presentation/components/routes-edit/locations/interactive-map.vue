@@ -2,7 +2,10 @@
 // @TODO USAR UN COMPONENTE REUTILIZADO DE MAPA INTERACTIVO
 
 import { ref, computed } from 'vue'
-const props = defineProps({ locations: Array })
+const props = defineProps({ 
+  locations: Array,
+  selectedLocation: Object 
+})
 const emits = defineEmits(['select'])
 const selectedClient = ref(null)
 
@@ -42,6 +45,7 @@ const handleClientSelect = (event) => {
       <div v-for="loc in filteredLocations"
            :key="loc.id"
            class="mock-marker"
+           :class="{ 'selected': selectedLocation && selectedLocation.id === loc.id }"
            @click="$emit('select', loc)">
         📍 {{ loc.client }}
       </div>
@@ -92,5 +96,17 @@ const handleClientSelect = (event) => {
   background: #f8fafc;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(4, 56, 115, 0.1);
+}
+
+.mock-marker.selected {
+  border-color: #043873;
+  background: #043873;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(4, 56, 115, 0.2);
+}
+
+.mock-marker.selected:hover {
+  background: #032a5a;
 }
 </style>

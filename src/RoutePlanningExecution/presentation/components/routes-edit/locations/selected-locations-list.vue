@@ -1,41 +1,27 @@
 <script setup>
-import { computed } from 'vue'
-
-const props = defineProps({ locations: Array })
-
-// Example data for demonstration
-const exampleLocations = [
-  {
-    id: 1,
-    client: "ACME Corp",
-    address: "Av. Industrial 123, Lima"
-  },
-  {
-    id: 2,
-    client: "ACME Corp",
-    address: "Jr. Los Olivos 456, Lima"
-  },
-  {
-    id: 3,
-    client: "Distribuidora Lima",
-    address: "Av. Pachacútec 789, Callao"
-  }
-]
-
-// Use provided locations or fall back to example data
-const displayLocations = computed(() => {
-  return props.locations && props.locations.length > 0 ? props.locations : exampleLocations
+const props = defineProps({ 
+  locations: Array,
+  selectedLocation: Object 
 })
+const emits = defineEmits(['select'])
+
+const handleLocationClick = (location) => {
+  emits('select', location)
+}
 </script>
 
 <template>
   <div class="selected-list">
-    <h4 class="title p-3">Selected Locations ({{ displayLocations.length }})</h4>
-    <div v-if="displayLocations.length === 0" class="empty">
+    <h4 class="title p-3">Selected Locations ({{ locations.length }})</h4>
+    <div v-if="locations.length === 0" class="empty">
       No locations selected yet.
     </div>
     <div v-else class="list">
-      <div v-for="(loc, index) in displayLocations" :key="loc.id" class="location-item" :class="{ 'has-accent': index === 0 }">
+      <div v-for="(loc, index) in locations" 
+           :key="loc.id" 
+           class="location-item" 
+           :class="{ 'has-accent': selectedLocation && selectedLocation.id === loc.id }"
+           @click="handleLocationClick(loc)">
         <div class="location-content">
           <div class="location-name">{{ loc.address }}</div>
           <div class="location-client">{{ loc.client }}</div>
@@ -66,12 +52,13 @@ const displayLocations = computed(() => {
 .list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
 }
 
 .location-item {
   position: relative;
-  padding-left: 1rem;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .location-item.has-accent {
@@ -87,6 +74,10 @@ const displayLocations = computed(() => {
   width: 4px;
   background: #FFD60A;
   border-radius: 2px;
+}
+
+.location-item:hover {
+  background: #f8fafc;
 }
 
 .location-content {

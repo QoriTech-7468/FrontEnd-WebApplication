@@ -63,22 +63,22 @@ const emits = defineEmits(['select', 'unselect'])
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 1rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  min-height: 300px;
+  min-height: 250px;
 }
 
 .title {
   font-size: 1.25rem;
   font-weight: 700;
   color: #111827;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1rem 0;
 }
 
 .info-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
   margin-bottom: 1.5rem;
 }
 
@@ -86,9 +86,9 @@ const emits = defineEmits(['select', 'unselect'])
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  padding: 0.75rem;
+  padding: 0.5rem;
   background: #f8fafc;
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid #e2e8f0;
 }
 
