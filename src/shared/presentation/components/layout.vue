@@ -1,5 +1,6 @@
 <script setup>
 import Navbar from "./Navbar.vue";
+import ContainerLayout from "./container-layout.vue";
 import {ref} from "vue";
 const drawer = ref(false);
 const toggleDrawer = () => { drawer.value = !drawer.value; };
@@ -8,14 +9,15 @@ const items = [
   {label: 'Clients', to: '/management/clients'},
   {label: 'Users', to: '/management/Users'},
   {label: 'Vehicles', to: '/management/vehicles'},
-  { label: 'Routes',  to: '/routes/list' }
+  { label: 'Routes',  to: '/management/routes/list' }
 ];
 </script>
 
 <template>
-
   <pv-toast/>
   <pv-confirm-dialog/>
+  
+  <!-- Header fijo -->
   <div class="header">
     <pv-toolbar class="bg-primary">
       <template #start>
@@ -31,22 +33,19 @@ const items = [
       </template>
     </pv-toolbar>
   </div>
-  <div class="main-content">
+  
+  <!-- Contenido principal con layout -->
+  <ContainerLayout>
     <router-view/>
-  </div>
-
-
+  </ContainerLayout>
 </template>
 
 <style scoped>
 .header {
-  position:  absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-}
-
-.main-content {
-  margin-top: 95px; /* Adjust based on header height */
+  z-index: 1000;
 }
 </style>

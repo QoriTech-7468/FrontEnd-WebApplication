@@ -1,7 +1,7 @@
 // Lazy-loaded components
 const Vehicle = () => import('./views/vehicles.vue');
 const Clients = () => import('./views/clients.vue');
-const Users = () => import('./views/Users.vue');
+const Users = () => import('./views/users.vue');
 
 const managementRoutes = [
     { path: 'vehicles',           name: 'vehicles-list',      component: Vehicle, meta: {title: 'Vehicles'} },

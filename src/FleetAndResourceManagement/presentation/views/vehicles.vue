@@ -1,13 +1,11 @@
 <template>
-
-  <div class="p-4">
     <!-- Header -->
     <div class="flex align-items-center justify-content-between mb-2">
-      <div>
+      <div class="mb-3">
         <div class="text-900 text-3xl font-semibold">Vehicles</div>
         <div class="text-600">Add or edit your vehicles</div>
       </div>
-      <Button label="Register vehicle" icon="pi pi-plus-circle" severity="contrast" @click="openCreate()" />
+      <pv-button label="Register vehicle" icon="pi pi-plus-circle" class="font-medium" @click="openCreate()" />
     </div>
 
     <div class="grid">
@@ -22,7 +20,7 @@
 
       <!-- CENTER: Panel detalles / placeholder -->
       <div class="col-12 md:col-8 lg:col-9">
-        <Panel :header="selected ? `Vehicle's details` : null" class="shadow-1 h-full">
+        <pv-panel :header="selected ? `Vehicle's details` : null" class="shadow-1 h-full">
           <!-- Pantalla 1: vacío -->
           <div v-if="!selected" class="flex flex-column align-items-center justify-content-center h-25rem text-600">
             <i class="pi pi-truck text-6xl mb-3"></i>
@@ -34,19 +32,16 @@
               v-else
               :vehicle="selected"
           />
-        </Panel>
+        </pv-panel>
       </div>
     </div>
 
-    <!-- Pop-out: New vehicle -->
-    <NewVehicleDialog v-model:visible="showCreate" />
-  </div>
+  <!-- Pop-out: New vehicle -->
+  <NewVehicleDialog v-model:visible="showCreate" />
 </template>
 
 <script setup>
 import { computed, ref } from "vue";
-import Panel from "primevue/panel";
-import Button from "primevue/button";
 
 import Navbar from "../../../shared/presentation/components/Navbar.vue";
 
@@ -71,4 +66,22 @@ function openCreate(){ showCreate.value = true; }
 </script>
 
 <style scoped>
+/* ===== BUTTON STYLES ===== */
+:deep(.p-button) {
+  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(4, 56, 115, 0.2) !important;
+}
+
+:deep(.p-button:hover) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(4, 56, 115, 0.3) !important;
+}
+
+:deep(.p-button:active) {
+  transform: translateY(0) !important;
+}
 </style>

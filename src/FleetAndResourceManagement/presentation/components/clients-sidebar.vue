@@ -1,13 +1,15 @@
 <template>
-  <Panel header="Search by name" class="shadow-1">
-    <div class="p-inputgroup mb-3">
-      <span class="p-inputgroup-addon"><i class="pi pi-search"></i></span>
-      <InputText v-model="modelQuery" placeholder="Search client" />
-    </div>
+  <pv-panel header="Search by name" class="shadow-1">
+    <pv-icon-field iconPosition="left" class="mb-3">
+      <pv-input-icon>
+        <i class="pi pi-search" />
+      </pv-input-icon>
+      <pv-input-text v-model="modelQuery" placeholder="Search client" />
+    </pv-icon-field>
 
     <div class="text-700 mb-2">Clients ({{ filtered.length }})</div>
 
-    <ScrollPanel style="height: 52vh">
+    <pv-scroll-panel style="height: 52vh">
       <ul class="list-none p-0 m-0">
         <li
             v-for="c in filtered"
@@ -17,19 +19,15 @@
             @click="modelSelectedId = c.id"
         >
           <span>{{ c.name }}</span>
-          <Tag :value="c.status" :severity="statusSeverity(c.status)" />
+            <pv-tag :value="c.status" :severity="statusSeverity(c.status)" />
         </li>
       </ul>
-    </ScrollPanel>
-  </Panel>
+    </pv-scroll-panel>
+  </pv-panel>
 </template>
 
 <script setup>
 import { computed } from "vue";
-import Panel from "primevue/panel";
-import InputText from "primevue/inputtext";
-import Tag from "primevue/tag";
-import ScrollPanel from "primevue/scrollpanel";
 
 const props = defineProps({
   clients: { type: Array, required: true },
