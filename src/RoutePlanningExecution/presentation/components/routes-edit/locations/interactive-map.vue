@@ -60,6 +60,9 @@ const handleClientSelect = (event) => {
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .search-bar {
@@ -67,7 +70,7 @@ const handleClientSelect = (event) => {
 }
 
 .map {
-  height: 200px;
+  flex: 1;
   background: #f8fafc;
   border: 1px dashed #cbd5e1;
   border-radius: 8px;
@@ -77,6 +80,7 @@ const handleClientSelect = (event) => {
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  min-height: 400px;
 }
 
 .mock-marker {

@@ -235,7 +235,8 @@ const handleLocationSelect = (location) => {
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  min-height: 600px;
+  height: 600px;
+  overflow: hidden;
 }
 
 /* Side Section */
