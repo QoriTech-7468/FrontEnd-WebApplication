@@ -1,4 +1,79 @@
 {
+  "navbar": {
+    "users": "Usuarios",
+    "clients": "Clientes",
+    "vehicles": "Vehículos",
+    "routes": "Rutas"
+  },
+  "clients": {
+    "title": "Clientes",
+    "subtitle": "Agregar o editar tus clientes",
+    "register": "Registrar cliente",
+    "company": "Razón Social",
+    "searchHeader": "Buscar por nombre",
+    "searchPlaceholder": "Buscar cliente",
+    "selectPrompt": "Selecciona un cliente para ver detalles",
+    "edit": "Editar",
+    "registerLocation": "Registrar ubicación",
+    "mapTitle": "Mapa Interactivo",
+    "mapHint": "Haz clic en el mapa para crear una nueva ubicación",
+    "status": {
+      "enabled": "Habilitado",
+      "disabled": "Deshabilitado"
+    },
+    "status2": {
+      "active": "Activado",
+      "disactive": "Desactivado"
+    },
+    "locations": "Ubicaciones: {count}",
+    "selectedLocations": "¿seleccionado?: {count}",
+    "newLocation": {
+      "title": "Nueva Ubicación",
+      "clientLabel": "Cliente",
+      "clientPlaceholder": "Selecciona un cliente",
+      "typeLabel": "Tipo",
+      "typePlaceholder": "Selecciona un tipo",
+      "confirm": "Confirmar"
+    }
+  },
+  "users": {
+    "title": "Usuarios",
+    "subtitle": "Agrega nuevos usuarios a tu cuenta",
+    "addUser": "Agregar usuario",
+    "table": {
+      "fullName": "Nombre completo",
+      "email": "Correo electrónico",
+      "permission": "Permiso",
+      "status": "Estado",
+      "isAssigned": "¿Asignado?",
+      "actions": "Acciones"
+    },
+    "permissions": {
+      "administrator": "Administrador",
+      "driver": "Conductor",
+      "client": "Cliente"
+    },
+    "statuses": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "boolean": {
+      "true": "Verdadero",
+      "false": "Falso"
+    },
+    "modal": {
+      "title": "Agregar un nuevo usuario",
+      "fullNameLabel": "Nombre completo",
+      "fullNamePlaceholder": "Juan Pérez",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "juan@ejemplo.com",
+      "permissionLabel": "Permiso",
+      "statusLabel": "Estado",
+      "assignedLabel": "Asignado a ruta",
+      "cancel": "Cancelar",
+      "save": "Guardar usuario"
+    }
+  },
   "teams": {
     "title": "Equipos disponibles",
     "select": "Seleccionar",

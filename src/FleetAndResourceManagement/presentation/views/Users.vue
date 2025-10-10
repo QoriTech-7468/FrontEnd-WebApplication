@@ -3,10 +3,10 @@
   <div>
       <div class="flex align-items-center justify-content-between mb-2">
         <div class="mb-3">
-          <div class="text-900 text-3xl font-semibold">Users</div>
-          <div class="text-600">Add new users to your account</div>
+          <div class="text-900 text-3xl font-semibold">{{ $t('users.title') }}</div>
+          <div class="text-600">{{ $t('users.subtitle') }}</div>
         </div>
-         <pv-button label="Add user" icon="pi pi-plus-circle" class="font-medium" @click="showModal = true" />
+         <pv-button :label="$t('users.addUser')" icon="pi pi-plus-circle" class="font-medium" @click="showModal = true" />
       </div>
 
       <!-- Table -->
@@ -14,12 +14,12 @@
         <table class="users-table">
           <thead>
           <tr>
-            <th>Full name</th>
-            <th>Email</th>
-            <th>Permission</th>
-            <th>Status</th>
-            <th>Is Assigned</th>
-            <th>Actions</th>
+            <th>{{ $t('users.table.fullName') }}</th>
+            <th>{{ $t('users.table.email') }}</th>
+            <th>{{ $t('users.table.permission') }}</th>
+            <th>{{ $t('users.table.status') }}</th>
+            <th>{{ $t('users.table.isAssigned') }}</th>
+            <th>{{ $t('users.table.actions') }}</th>
           </tr>
           </thead>
           <tbody>
@@ -33,20 +33,21 @@
             <td class="user-email">{{ user.email }}</td>
             <td>
               <select v-model="user.permission" class="select-input">
-                <option value="Administrator">Administrator</option>
-                <option value="Driver">Driver</option>
-                <option value="Client">Client</option>
+                <option v-for="perm in ['Administrator', 'Driver', 'Client']" :key="perm" :value="perm">
+                  {{ $t(`users.permissions.${perm.toLowerCase()}`) }}
+                </option>
               </select>
             </td>
             <td>
               <select v-model="user.status" class="select-input" @change="handleStatusChange(user)">
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
+                <option v-for="stat in ['Active', 'Inactive']" :key="stat" :value="stat">
+                  {{ $t(`users.statuses.${stat.toLowerCase()}`) }}
+                </option>
               </select>
             </td>
             <td>
                 <span class="badge" :class="user.isAssigned ? 'badge-true' : 'badge-false'">
-                  {{ user.isAssigned ? 'True' : 'False' }}
+                 {{ $t(`users.boolean.${user.isAssigned.toString().toLowerCase()}`) }}
                 </span>
             </td>
             <td class="actions-cell">
@@ -70,7 +71,7 @@
 
           <div class="modal-body">
             <div class="form-group">
-              <label>Full name</label>
+              {{ $t('users.modal.fullNameLabel') }}
               <input
                   v-model="newUser.fullname"
                   placeholder="John Doe"

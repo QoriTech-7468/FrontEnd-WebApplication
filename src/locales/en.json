@@ -1,4 +1,80 @@
 {
+  "navbar": {
+    "clients": "Clients",
+    "users": "Users",
+    "vehicles": "Vehicles",
+    "routes": "Routes"
+  },
+  "clients": {
+    "title": "Clients",
+    "subtitle": "Add or edit your clients",
+    "register": "Register client",
+    "company": "Company name",
+    "searchHeader": "Search by name",
+    "searchPlaceholder": "Search client",
+    "selectPrompt": "Select a client to see details",
+    "edit": "Edit",
+    "registerLocation": "Register location",
+    "mapTitle": "Interactive Map",
+    "mapHint": "Click on the map to create a new location",
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "status2": {
+      "active": "Active",
+      "disactive": "Desactive"
+    },
+    "locations": "Locations: {count}",
+    "selectedLocations": "selected?: {count}",
+    "newLocation": {
+      "title": "New Location",
+      "clientLabel": "Client",
+      "clientPlaceholder": "Select a customer",
+      "typeLabel": "Type",
+      "typePlaceholder": "Select a type",
+      "confirm": "Confirm"
+    }
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "Add new users to your account",
+    "addUser": "Add user",
+    "table": {
+      "fullName": "Full name",
+      "email": "Email",
+      "permission": "Permission",
+      "status": "Status",
+      "isAssigned": "Is Assigned",
+      "actions": "Actions"
+    },
+    "permissions": {
+      "administrator": "Administrator",
+      "driver": "Driver",
+      "client": "Client"
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "boolean": {
+      "true": "True",
+      "false": "False"
+    },
+    "modal": {
+      "title": "Add a new user",
+      "fullNameLabel": "Full name",
+      "fullNamePlaceholder": "John Doe",
+      "emailLabel": "Email",
+      "emailPlaceholder": "john@example.com",
+      "permissionLabel": "Permission",
+      "statusLabel": "Status",
+      "assignedLabel": "Assigned to route",
+      "cancel": "Cancel",
+      "save": "Save User"
+    }
+  },
+
   "teams": {
     "title": "Available teams",
     "select": "Select",

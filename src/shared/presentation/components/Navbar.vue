@@ -38,12 +38,20 @@
       </li>
     </ul>
 
+    <div class="navbar-actions">
+      <button class="btn-lang" @click="toggleLanguage">
+         {{ locale === 'en' ? 'EN' : 'ES' }}
+      </button>
+      <button class="btn-profile">{{ $t('navbar.profile') }}</button>
+    </div>
+
     <button class="btn-profile">Profile</button>
   </nav>
 </template>
 
 <script setup>
 import { ref, defineProps, defineEmits } from "vue"
+import { useI18n } from "vue-i18n"
 
 const props = defineProps({
   currentTab: {
@@ -63,6 +71,12 @@ const toggleMenu = () => {
 const selectTab = (tab) => {
   emit('updateTab', tab)
   isMenuOpen.value = false // Cerrar menú al seleccionar
+}
+
+const { locale } = useI18n()
+const toggleLanguage = () => {
+  locale.value = locale.value === 'en' ? 'es' : 'en'
+  localStorage.setItem('lang', locale.value)
 }
 </script>
 
