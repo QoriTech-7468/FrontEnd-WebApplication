@@ -1,106 +1,82 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import SelectedLocationsList from './selected-locations-list.vue'
-import LocationDetails from './location-details.vue'
 import InteractiveMap from './interactive-map.vue'
+import LocationDetails from './location-details.vue'
+import { useRoutePlanningStore } from '../../../../application/routeplanning.store.js'
 
-const props = defineProps({ route: Object })
-const selectedLocation = ref(null)
-
-// Initialize route.locations if it doesn't exist
-onMounted(() => {
-  if (!props.route.locations) {
-    props.route.locations = []
-  }
+const props = defineProps({
+  route: { type: Object, required: false, default: null }
 })
 
-const allLocations = ref([
-  {
-    id: 'P-001',
-    address: 'Av. Industrial 123, Lima',
-    client: 'ACME Corp',
-    latitude: -12.0464,
-    longitude: -77.0428,
-    status: 'Active'
-  },
-  {
-    id: 'P-002',
-    address: 'Jr. Los Olivos 456, Lima',
-    client: 'ACME Corp',
-    latitude: -12.055,
-    longitude: -77.05,
-    status: 'Active'
-  },
-  {
-    id: 'P-003',
-    address: 'Av. Pachacutec 789, Callao',
-    client: 'Distribuidora Lima',
-    latitude: -12.07,
-    longitude: -77.1,
-    status: 'Active'
+const store = useRoutePlanningStore()
+const loading = ref(false)
+const locations = ref([])
+const selectedLocation = ref(null)
+
+// Cargar locations basadas en route.id (si existe)
+const loadLocations = async () => {
+  if (!props.route || !props.route.id) {
+    locations.value = props.route?.locations ?? []
+    return
   }
-])
+
+  loading.value = true
+  try {
+    // store.fetchLocationsByRoute devuelve array normalizado
+    const data = await store.fetchLocationsByRoute(props.route.id)
+    // fetchLocationsByRoute en tu store ya devuelve entities (o array vacio)
+    locations.value = data ?? []
+  } catch (err) {
+    console.error('Error loading locations by route:', err)
+    // fallback: si route trae un campo locations, lo usamos
+    locations.value = props.route.locations ?? []
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadLocations()
+})
+
+// Si la prop route cambia (por ejemplo al navegar), recargamos
+watch(() => props.route && props.route.id, (newVal, oldVal) => {
+  if (newVal !== oldVal) loadLocations()
+})
 
 const handleSelectLocation = (loc) => {
   selectedLocation.value = loc
 }
-
-const handleAddToSelected = (loc) => {
-  if (!props.route.locations.some(l => l.id === loc.id)) {
-    props.route.locations.push(loc)
-  }
-}
-
-const handleRemoveFromSelected = (loc) => {
-  props.route.locations = props.route.locations.filter(l => l.id !== loc.id)
-  // If we're removing the currently selected location, clear the selection
-  if (selectedLocation.value && selectedLocation.value.id === loc.id) {
-    selectedLocation.value = null
-  }
-}
 </script>
 
 <template>
-  <div class="locations-tab">
-      <SelectedLocationsList 
-          :locations="route.locations"
-          :selectedLocation="selectedLocation"
-          @select="handleSelectLocation" 
-      />
-
-      <div class="search-locations-section">
-      <LocationDetails
-          :location="selectedLocation"
-          :isSelected="selectedLocation && route.locations.some(l => l.id === selectedLocation.id)"
-          @select="handleAddToSelected"
-          @unselect="handleRemoveFromSelected"
-      />
-      <InteractiveMap
-          :locations="allLocations"
+  <div class="locations-tab grid grid-cols-3 gap-4">
+    <!-- Left: selected locations list -->
+    <div class="col-span-1">
+      <selected-locations-list
+          :locations="locations"
           :selectedLocation="selectedLocation"
           @select="handleSelectLocation"
       />
-      </div>
+    </div>
+
+    <!-- Middle: map -->
+    <div class="col-span-1">
+      <interactive-map
+          :locations="locations"
+          :selectedLocation="selectedLocation"
+          @select="handleSelectLocation"
+      />
+    </div>
+
+    <!-- Right: details -->
+    <div class="col-span-1">
+      <location-details :location="selectedLocation" :isReadOnly="false" />
+    </div>
   </div>
 </template>
 
 <style scoped>
-.locations-tab {
-  display: flex;
-  gap: 1rem;
-}
-
-.search-locations-section {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 1rem;
-}
-
-.bottom-section {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
+.locations-tab { min-height: 420px; }
 </style>

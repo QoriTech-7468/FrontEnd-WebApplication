@@ -1,181 +1,184 @@
 <script setup>
-import { ref } from 'vue'
-import LocationsTab from "../components/routes-edit/locations/locations-tab.vue";
-import TeamsTab from "../components/routes-edit/teams/teams-tab.vue";
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useRoutePlanningStore } from '../../application/routeplanning.store.js'
+import { useToast } from 'primevue/usetoast'
+import LocationsTab from "../components/routes-edit/locations/locations-tab.vue"
+import TeamsTab from "../components/routes-edit/teams/teams-tab.vue"
 
-// Estado actual
+const store = useRoutePlanningStore()
+const toast = useToast()
+const router = useRouter()
+const route = useRoute()
+
+// estado local
+const currentRoute = ref(null)
 const activeTabIndex = ref(0)
+const loading = ref(true)
+const saving = ref(false)
 
-// Estado de ruta (simulado)
-const route = ref({
-  id: '',
-  status: '',
-  locations: []
-})
+// helpers
+const isDraft = computed(() => !!currentRoute.value && String(currentRoute.value.state).toLowerCase() === 'draft')
+const isPublished = computed(() => !!currentRoute.value && String(currentRoute.value.state).toLowerCase() === 'published')
 
-// Estado del toast
-const toast = ref({
-  visible: false,
-  message: '',
-  type: '' // success | error | info
-})
+// intenta cargar la ruta por id
+async function loadRoute() {
+  loading.value = true
+  try {
+    if (!store.routes || store.routes.length === 0) {
+      await store.fetchAllRoutes()
+    }
 
-// Mostrar toast temporal (no bloqueante)
-const showToast = (message, type = 'info') => {
-  toast.value = { visible: true, message, type }
-  setTimeout(() => (toast.value.visible = false), 1000)
-}
+    const rid = route.params.routeId
+    currentRoute.value = store.routes.find(r => String(r.id) === String(rid))
 
-// Acciones
-const deleteDraft = () => {
-  if (confirm('Are you sure you want to delete this draft?')) {
-    showToast('Draft deleted. Returning to routes list...', 'info')
-    setTimeout(() => window.location.href = '/management/routes/list', 1000)
+    if (!currentRoute.value) {
+      toast.add({ severity: 'warn', summary: 'Not found', detail: 'Route not found', life: 2500 })
+      await router.push('/management/routes/list')
+    }
+  } catch (err) {
+    console.error('loadRoute error', err)
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Could not load route', life: 2500 })
+  } finally {
+    loading.value = false
   }
 }
 
-const saveDraft = () => {
-  showToast('Draft saved successfully!', 'success')
-  setTimeout(() => window.location.href = '/management/routes/list', 1000)
+onMounted(() => {
+  loadRoute()
+})
+
+// guardar borrador
+// guardar borrador
+const saveDraft = async () => {
+  if (!currentRoute.value) return
+  saving.value = true
+  try {
+    await store.saveDraftRoute(currentRoute.value)
+    toast.add({ severity: 'success', summary: 'Saved', detail: 'Draft saved successfully!', life: 2500 })
+
+    // 👇 Redirección agregada para volver a la lista
+    await router.push('/management/routes/list')
+  } catch (err) {
+    console.error('saveDraft error', err)
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Could not save draft', life: 2500 })
+  } finally {
+    saving.value = false
+  }
 }
 
-const publishDraft = () => {
-  route.value.status = 'Published'
-  showToast('Route published successfully!', 'success')
-  setTimeout(() => window.location.href = '/management/routes/list', 1000)
+// publicar
+const publishDraft = async () => {
+  if (!currentRoute.value || !isDraft.value) return
+  saving.value = true
+  try {
+    await store.publishRoute(currentRoute.value.id)
+    toast.add({ severity: 'success', summary: 'Published', detail: 'Route published successfully!', life: 2500 })
+    await router.push('/management/routes/list')
+  } catch (err) {
+    console.error('publishDraft error', err)
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Could not publish route', life: 2500 })
+  } finally {
+    saving.value = false
+  }
+}
+
+// eliminar borrador
+const deleteDraft = async () => {
+  if (!currentRoute.value || !isDraft.value) return
+  if (!confirm('Are you sure you want to delete this draft route?')) return
+  saving.value = true
+  try {
+    await store.deleteDraftRoute(currentRoute.value.id)
+    toast.add({ severity: 'success', summary: 'Deleted', detail: 'Draft route deleted.', life: 2500 })
+    await router.push('/management/routes/list')
+  } catch (err) {
+    console.error('deleteDraft error', err)
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Could not delete draft route.', life: 2500 })
+  } finally {
+    saving.value = false
+  }
 }
 </script>
 
 <template>
   <div class="route-edit">
-    <!-- Header -->
-    <div class="flex align-items-center justify-content-between mb-4">
-      <div>
-        <div class="text-900 text-3xl font-semibold mb-1">Edit Route</div>
-        <div class="text-600 mb-3">Configure locations and team for your route</div>
-        
-        <!-- Tab Buttons -->
+    <div v-if="loading" class="p-4 text-center text-gray-500">Loading route...</div>
+
+    <div v-else-if="currentRoute">
+      <div class="flex align-items-center justify-content-between mb-4">
+        <div>
+          <div class="text-900 text-3xl font-semibold mb-1">Edit Route #{{ currentRoute.id }}</div>
+          <div class="text-600 mb-3">Vehicle: {{ currentRoute.vehicleId ?? 'Unassigned' }}</div>
+
+          <div class="flex gap-2">
+            <pv-button
+                v-if="isDraft"
+                label="Save Draft"
+                icon="pi pi-save"
+                :loading="saving"
+                :disabled="saving"
+                class="p-button-outlined"
+                @click="saveDraft"
+            />
+            <pv-button
+                v-if="isDraft"
+                label="Publish"
+                icon="pi pi-upload"
+                :loading="saving"
+                :disabled="saving"
+                class="p-button-success"
+                @click="publishDraft"
+            />
+          </div>
+        </div>
+
         <div class="flex gap-2">
-          <pv-button 
-            :label="'Locations'" 
-            :icon="'pi pi-map-marker'"
-            :class="{ 'p-button-outlined': activeTabIndex !== 0 }"
-            @click="activeTabIndex = 0" 
-          />
-          <pv-button 
-            :label="'Team'" 
-            :icon="'pi pi-users'"
-            :class="{ 'p-button-outlined': activeTabIndex !== 1 }"
-            @click="activeTabIndex = 1" 
+          <pv-button
+              v-if="isDraft"
+              label="Delete Draft"
+              severity="danger"
+              outlined
+              :disabled="saving"
+              @click="deleteDraft"
           />
         </div>
       </div>
-      
-      <div class="flex gap-2">
-        <pv-button label="Delete Draft" severity="danger" outlined @click="deleteDraft" />
-        <pv-button label="Save Draft" severity="secondary" outlined @click="saveDraft" />
-        <pv-button label="Publish" @click="publishDraft" />
+
+      <!-- Tabs -->
+      <div class="tab-content">
+        <div class="tabs flex gap-2 mb-4">
+          <pv-button
+              class="p-button-text"
+              :class="{ 'p-button-outlined': activeTabIndex !== 0 }"
+              @click="activeTabIndex = 0"
+          >Locations</pv-button>
+
+          <pv-button
+              class="p-button-text"
+              :class="{ 'p-button-outlined': activeTabIndex !== 1 }"
+              @click="activeTabIndex = 1"
+          >Team</pv-button>
+        </div>
+
+        <div>
+          <LocationsTab v-if="activeTabIndex === 0" :route="currentRoute" />
+          <TeamsTab v-else :route="currentRoute" />
+        </div>
       </div>
     </div>
 
-    <!-- Tab Content -->
-    <div class="tab-content">
-      <LocationsTab v-if="activeTabIndex === 0" :route="route" />
-      <TeamsTab v-else :route="route" />
+    <div v-else class="p-4 text-center text-gray-500">
+      Route not found
     </div>
   </div>
 </template>
 
 <style scoped>
-/* ===== BUTTON STYLES ===== */
-:deep(.p-button) {
-  padding: 12px 20px !important;
-  border-radius: 8px !important;
-  font-weight: 600 !important;
-  font-size: 14px !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 2px 8px rgba(4, 56, 115, 0.2) !important;
-}
-
-:deep(.p-button:hover) {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 12px rgba(4, 56, 115, 0.3) !important;
-}
-
-:deep(.p-button:active) {
-  transform: translateY(0) !important;
-}
-
-/* ===== TABS STYLES ===== */
-:deep(.p-tabs) {
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-:deep(.p-tabview-nav) {
-  border-bottom: 1px solid #e5e7eb;
-}
-
-:deep(.p-tabview-nav-link) {
-  padding: 1rem 1.5rem;
-  border: none;
-  background: transparent;
-  color: #6b7280;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-:deep(.p-tabview-nav-link:hover) {
-  color: #043873;
-  background: #f8fafc;
-}
-
-:deep(.p-tabview-nav-link.p-highlight) {
-  color: #043873;
-  background: white;
-  border-bottom: 2px solid #043873;
-}
-
-:deep(.p-tabview-panels) {
+.route-edit {
   padding: 1.5rem;
-}
-
-
-/* --- Toast styling --- */
-.toast {
-  position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
-  padding: 1rem 1.25rem;
-  border-radius: 8px;
-  color: #fff;
-  font-weight: 500;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-  z-index: 2000;
-  min-width: 240px;
-  text-align: center;
-}
-
-.toast.info {
-  background-color: #007bff;
-}
-
-.toast.success {
-  background-color: #28a745;
-}
-
-.toast.error {
-  background-color: #dc3545;
-}
-
-/* --- Animación toast --- */
-.toast-fade-enter-active,
-.toast-fade-leave-active {
-  transition: all 0.3s ease;
-}
-.toast-fade-enter-from,
-.toast-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 </style>
