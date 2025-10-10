@@ -74,7 +74,35 @@
       "save": "Save User"
     }
   },
-
+  "vehicles": {
+    "title": "Vehicles",
+    "subtitle": "Add or edit your vehicles",
+    "registerVehicle": "Register vehicle",
+    "selectPrompt": "Select a vehicle to see details",
+    "detailsHeader": "Vehicle's details",
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "searchHeader": "Search by plate",
+    "searchPlaceholder": "Search vehicle",
+    "vehiclesList": "Vehicles ({count})",
+    "newVehicle": {
+      "plateLabel": "Licence plate",
+      "capacityLabel": "Load capacity (kg)",
+      "deactivate": "Deactivate",
+      "confirm": "Confirm"
+    },
+    "details": {
+      "plateLabel": "License Plate:",
+      "capacityLabel": "Capacity:",
+      "stateLabel": "State:",
+      "edit": "Edit",
+      "membersTitle": "Team members",
+      "addMembers": "Add team members",
+      "noMembers": "No members"
+    }
+  },
   "teams": {
     "title": "Available teams",
     "select": "Select",

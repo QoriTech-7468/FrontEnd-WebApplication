@@ -2,10 +2,10 @@
     <!-- Header -->
     <div class="flex align-items-center justify-content-between mb-2">
       <div class="mb-3">
-        <div class="text-900 text-3xl font-semibold">Vehicles</div>
-        <div class="text-600">Add or edit your vehicles</div>
+        <div class="text-900 text-3xl font-semibold">{{ $t('vehicles.title') }}</div>
+        <div class="text-600">{{ $t('vehicles.subtitle') }}</div>
       </div>
-      <pv-button label="Register vehicle" icon="pi pi-plus-circle" class="font-medium" @click="openCreate()" />
+      <pv-button :label="$t('vehicles.registerVehicle')" icon="pi pi-plus-circle" class="font-medium" @click="openCreate()" />
     </div>
 
     <div class="grid">
@@ -20,11 +20,11 @@
 
       <!-- CENTER: Panel detalles / placeholder -->
       <div class="col-12 md:col-8 lg:col-9">
-        <pv-panel :header="selected ? `Vehicle's details` : null" class="shadow-1 h-full">
+        <pv-panel :header="selected ? $t('vehicles.detailsHeader') : null" class="shadow-1 h-full">
           <!-- Pantalla 1: vacío -->
           <div v-if="!selected" class="flex flex-column align-items-center justify-content-center h-25rem text-600">
             <i class="pi pi-truck text-6xl mb-3"></i>
-            <span>Select a vehicle to see details</span>
+            <span>{{ $t('vehicles.selectPrompt') }}</span>
           </div>
 
           <!-- Pantalla 2: seleccionado -->

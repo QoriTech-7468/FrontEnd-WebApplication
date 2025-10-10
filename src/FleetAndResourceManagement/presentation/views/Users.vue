@@ -65,22 +65,22 @@
       <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
         <div class="modal animate-modal-up">
           <div class="modal-header">
-            <h3>Add a new user</h3>
+            <h3>{{ $t('users.modal.title') }}</h3>
             <button class="close-btn" @click="showModal = false">✕</button>
           </div>
 
           <div class="modal-body">
             <div class="form-group">
-              {{ $t('users.modal.fullNameLabel') }}
+              <label>{{ $t('users.modal.fullNameLabel') }}</label>
               <input
                   v-model="newUser.fullname"
-                  placeholder="John Doe"
+                  :placeholder="$t('users.modal.fullNamePlaceholder')"
                   class="modal-input"
               />
             </div>
 
             <div class="form-group">
-              <label>Email</label>
+              <label>{{ $t('users.modal.emailLabel') }}</label>
               <input
                   v-model="newUser.email"
                   placeholder="john@example.com"
@@ -91,32 +91,33 @@
 
             <div class="form-row">
               <div class="form-group">
-                <label>Permission</label>
+                <label>Permission{{ $t('users.modal.permissionLabel') }}</label>
                 <select v-model="newUser.permission" class="modal-select">
-                  <option value="Administrator">Administrator</option>
-                  <option value="Driver">Driver</option>
-                  <option value="Client">Client</option>
+                  <option v-for="perm in ['Administrator', 'Driver', 'Client']" :key="perm" :value="perm">
+                    {{ $t(`users.permissions.${perm.toLowerCase()}`) }}
+                  </option>
                 </select>
               </div>
 
               <div class="form-group">
-                <label>Status</label>
+                <label>{{ $t('users.modal.statusLabel') }}</label>
                 <select v-model="newUser.status" class="modal-select">
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
+                  <option v-for="stat in ['Active', 'Inactive']" :key="stat" :value="stat">
+                    {{ $t(`users.statuses.${stat.toLowerCase()}`) }}
+                  </option>
                 </select>
               </div>
             </div>
 
             <label class="checkbox-label">
               <input type="checkbox" v-model="newUser.isAssigned" class="checkbox-input" />
-              <span class="checkbox-text">Assigned to route</span>
+              <span class="checkbox-text">{{ $t('users.modal.assignedLabel') }}</span>
             </label>
           </div>
 
           <div class="modal-actions">
-            <button class="btn-cancel" @click="showModal = false">Cancel</button>
-            <button class="btn-save" @click="addUser">Save User</button>
+            <button class="btn-cancel" @click="showModal = false">{{ $t('users.modal.cancel') }}</button>
+            <button class="btn-save" @click="addUser">{{ $t('users.modal.save') }}</button>
           </div>
         </div>
       </div>

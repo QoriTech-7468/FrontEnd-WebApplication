@@ -45,7 +45,7 @@
       "email": "Correo electrónico",
       "permission": "Permiso",
       "status": "Estado",
-      "isAssigned": "¿Asignado?",
+      "isAssigned": "Asignado",
       "actions": "Acciones"
     },
     "permissions": {
@@ -72,6 +72,35 @@
       "assignedLabel": "Asignado a ruta",
       "cancel": "Cancelar",
       "save": "Guardar usuario"
+    }
+  },
+  "vehicles": {
+    "title": "Vehículos",
+    "subtitle": "Agrega o edita tus vehículos",
+    "registerVehicle": "Registrar vehículo",
+    "selectPrompt": "Selecciona un vehículo para ver detalles",
+    "detailsHeader": "Detalles del vehículo",
+    "status": {
+      "enabled": "Habilitado",
+      "disabled": "Deshabilitado"
+    },
+    "searchHeader": "Buscar por placa",
+    "searchPlaceholder": "Buscar vehículo",
+    "vehiclesList": "Vehículos ({count})",
+    "newVehicle": {
+      "plateLabel": "Placa",
+      "capacityLabel": "Capacidad de carga (kg)",
+      "deactivate": "Desactivar",
+      "confirm": "Confirmar"
+    },
+    "details": {
+      "plateLabel": "Placa:",
+      "capacityLabel": "Capacidad:",
+      "stateLabel": "Estado:",
+      "edit": "Editar",
+      "membersTitle": "Miembros del equipo",
+      "addMembers": "Agregar miembros",
+      "noMembers": "Sin miembros"
     }
   },
   "teams": {
