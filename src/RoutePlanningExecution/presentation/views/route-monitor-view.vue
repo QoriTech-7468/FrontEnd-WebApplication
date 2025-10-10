@@ -1,62 +1,39 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoutePlanningStore } from '../../application/routeplanning.store.js'
 import InteractiveMap from "../components/routes-edit/locations/interactive-map.vue"
 import LocationDetails from "../components/routes-edit/locations/location-details.vue"
 import TeamCard from "../components/routes-edit/teams/team-card.vue"
 
-const routeStats = ref({
-  completed: 8,
-  total: 12,
-  effectiveness: 87
-})
+const { t } = useI18n()
+const store = useRoutePlanningStore()
 
 const selectedLocation = ref(null)
 
-// Mock data for monitoring
-const allLocations = ref([
-  {
-    id: 'P-001',
-    address: 'Av. Industrial 123, Lima',
-    client: 'ACME Corp',
-    latitude: -12.0464,
-    longitude: -77.0428,
-    status: 'Active'
-  },
-  {
-    id: 'P-002',
-    address: 'Jr. Los Olivos 456, Lima',
-    client: 'ACME Corp',
-    latitude: -12.055,
-    longitude: -77.05,
-    status: 'Active'
-  },
-  {
-    id: 'P-003',
-    address: 'Av. Pachacutec 789, Callao',
-    client: 'Distribuidora Lima',
-    latitude: -12.07,
-    longitude: -77.1,
-    status: 'Active'
-  }
-])
-
-const team = ref({
-  id: 'XYZ-123',
-  members: [
-    'Jhon Doe Carrera Nuñez',
-    'José Huaman Perez',
-    'Eduardo Swart Smith'
-  ],
-  available: true
+// Datos de estadísticas iniciales (se actualizan al montar)
+const routeStats = ref({
+  completed: 0,
+  total: 0,
+  effectiveness: 0
 })
 
-const location = ref({
-  id: 'P-001',
-  client: 'ACME Corp',
-  address: 'Av. Industrial 123, Lima',
-  latitude: -12.0464,
-  longitude: -77.0428,
-  status: 'Active'
+// Datos dinámicos
+const allLocations = ref([])
+const team = ref(null)
+
+onMounted(async () => {
+  try {
+    // Podrás reemplazar luego por las llamadas reales:
+    await store.fetchMonitoringData()
+
+    // Ejemplo: simulamos estructura base
+    routeStats.value = store.stats ?? { completed: 0, total: 0, effectiveness: 0 }
+    allLocations.value = store.locations ?? []
+    team.value = store.team ?? null
+  } catch (err) {
+    console.error('Error loading route monitoring data:', err)
+  }
 })
 
 const handleLocationSelect = (location) => {
@@ -68,8 +45,8 @@ const handleLocationSelect = (location) => {
   <div class="route-monitor">
     <!-- Header -->
     <div class="header">
-      <h1 class="title">Route Monitor</h1>
-      <p class="subtitle">Monitor active routes and delivery progress</p>
+      <h1 class="title">{{ t('routes.monitor.title') }}</h1>
+      <p class="subtitle">{{ t('routes.monitor.subtitle') }}</p>
     </div>
 
     <!-- Statistics Cards -->
@@ -80,7 +57,7 @@ const handleLocationSelect = (location) => {
         </div>
         <div class="stat-info">
           <div class="stat-value">{{ routeStats.completed }}/{{ routeStats.total }}</div>
-          <div class="stat-label">Completed Routes</div>
+          <div class="stat-label">{{ t('routes.monitor.completed') }}</div>
         </div>
       </div>
 
@@ -90,7 +67,7 @@ const handleLocationSelect = (location) => {
         </div>
         <div class="stat-info">
           <div class="stat-value">{{ routeStats.effectiveness }}%</div>
-          <div class="stat-label">Effectiveness Rate</div>
+          <div class="stat-label">{{ t('routes.monitor.effectiveness') }}</div>
         </div>
       </div>
 
@@ -99,8 +76,8 @@ const handleLocationSelect = (location) => {
           <i class="pi pi-clock text-2xl"></i>
         </div>
         <div class="stat-info">
-          <div class="stat-value">{{ routeStats.total - routeStats.completed }}</div>
-          <div class="stat-label">Pending Routes</div>
+          <div class="stat-value">{{ Math.max(routeStats.total - routeStats.completed, 0) }}</div>
+          <div class="stat-label">{{ t('routes.monitor.pending') }}</div>
         </div>
       </div>
     </div>
@@ -108,27 +85,29 @@ const handleLocationSelect = (location) => {
     <!-- Main Content -->
     <div class="content-grid">
       <div class="map-section">
-        <InteractiveMap 
-          :locations="allLocations"
-          :selectedLocation="selectedLocation"
-          @select="handleLocationSelect" 
+        <InteractiveMap
+            :locations="allLocations"
+            :selectedLocation="selectedLocation"
+            @select="handleLocationSelect"
         />
       </div>
 
       <div class="side-section">
         <div class="details-section">
-          <LocationDetails 
-            :location="selectedLocation || location"
-            :isSelected="true"
-            :isReadOnly="true"
+          <LocationDetails
+              v-if="selectedLocation"
+              :location="selectedLocation"
+              :isSelected="true"
+              :isReadOnly="true"
           />
         </div>
-        <div class="team-section">
-          <TeamCard 
-            :team="team"
-            :isSelected="true"
-            :isAvailable="team.available"
-            :isReadOnly="true"
+
+        <div v-if="team" class="team-section">
+          <TeamCard
+              :team="team"
+              :isSelected="true"
+              :isAvailable="team.available"
+              :isReadOnly="true"
           />
         </div>
       </div>
@@ -167,7 +146,7 @@ const handleLocationSelect = (location) => {
   line-height: 1.5;
 }
 
-/* Statistics Grid */
+/* Stats Grid */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -221,7 +200,7 @@ const handleLocationSelect = (location) => {
   line-height: 1.4;
 }
 
-/* Main Content Grid */
+/* Layout */
 .content-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -229,7 +208,6 @@ const handleLocationSelect = (location) => {
   align-items: start;
 }
 
-/* Map Section */
 .map-section {
   background: white;
   border: 1px solid #e5e7eb;
@@ -239,7 +217,6 @@ const handleLocationSelect = (location) => {
   overflow: hidden;
 }
 
-/* Side Section */
 .side-section {
   display: flex;
   flex-direction: column;
@@ -255,13 +232,12 @@ const handleLocationSelect = (location) => {
   overflow: hidden;
 }
 
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 1024px) {
   .content-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
-  
   .map-section {
     min-height: 400px;
   }
@@ -272,20 +248,16 @@ const handleLocationSelect = (location) => {
     padding: 1rem;
     gap: 1.5rem;
   }
-  
   .title {
     font-size: 1.75rem;
   }
-  
   .stats-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
   .stat-card {
     padding: 1rem;
   }
-  
   .stat-value {
     font-size: 1.25rem;
   }
@@ -295,11 +267,9 @@ const handleLocationSelect = (location) => {
   .route-monitor {
     padding: 0.75rem;
   }
-  
   .title {
     font-size: 1.5rem;
   }
-  
   .subtitle {
     font-size: 0.875rem;
   }
