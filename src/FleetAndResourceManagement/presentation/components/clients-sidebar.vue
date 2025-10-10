@@ -19,7 +19,7 @@
             @click="modelSelectedId = c.id"
         >
           <span>{{ c.name }}</span>
-          <pv-tag :value="$t(`clients.status.${c.status.toLowerCase()}`)" :severity="statusSeverity(c.status)" />
+          <pv-tag :value= c.status :severity="statusSeverity(c.status)" />
         </li>
       </ul>
     </pv-scroll-panel>
