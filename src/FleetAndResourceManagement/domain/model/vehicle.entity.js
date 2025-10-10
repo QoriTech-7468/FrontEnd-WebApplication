@@ -1,16 +1,15 @@
-export class Vehicle{
-
+export class Vehicle {
     /**
-     * Creates an instance of Category.
-     * @param id - The unique identifier of the category.
-     * @param plate - The name of the category.
-     * @param capacity
-     * @param availability
+     * Creates an instance of Vehicle.
+     * @param id - The unique identifier of the vehicle.
+     * @param plate - The license plate of the vehicle.
+     * @param capacity - The load capacity of the vehicle.
+     * @param isActive - The current state of the vehicle (e.g., 'Enabled').
      */
-    constructor({id=null,plate= '',capacity=null,availability= ''}) {
+    constructor({ id = null, plate = '', capacity = null, isActive = '' }) { // <-- Cambiado de 'availability' a 'isActive'
         this.id = id;
         this.plate = plate;
         this.capacity = capacity;
-        this.isActive = availability
+        this.status = isActive;
     }
 }

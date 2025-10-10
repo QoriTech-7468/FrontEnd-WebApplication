@@ -1,34 +1,22 @@
 {
   "user": [
     {
-      "id": "1",
-      "fullname": "Juan Jose Molera Masca",
-      "email": "juan@hotmail.com",
+      "fullname": "Santiago",
+      "email": "Sant@hotmail.com",
       "role": "Driver",
-      "password": "2688juan",
-      "vehicleId": 1,
-      "status": "Active",
-      "isAssigned": true
+      "status": "Inactive",
+      "vehicleId": null,
+      "password": "",
+      "id": 1
     },
     {
-      "id": "2",
-      "fullname": "Juan Jose Molera Masca",
-      "email": "juan@hotmail.com",
+      "fullname": "Yaku",
+      "email": "yaku@hotmail.com",
       "role": "Driver",
-      "password": "2688juan",
-      "vehicleId": 1,
-      "status": "Active",
-      "isAssigned": true
-    },
-    {
-      "id": "3",
-      "fullname": "Juan Jose Molera Masca",
-      "email": "juan@hotmail.com",
-      "role": "Driver",
-      "password": "2688juan",
-      "vehicleId": 1,
-      "status": "Active",
-      "isAssigned": true
+      "status": "Inactive",
+      "vehicleId": null,
+      "password": "",
+      "id": 2
     }
   ],
   "vehicles": [
@@ -73,11 +61,21 @@
     {
       "id": "1",
       "vehicleId": 1,
-      "state": "draft",
+      "state": "published",
       "color": "#FFF223",
       "createdAt": "2025-12-01T08:00:00Z",
       "startedAt": null,
       "finishedAt": null
+    },
+    {
+      "color": "#0000ff",
+      "vehicleId": null,
+      "date": null,
+      "state": "draft",
+      "createdAt": "2025-10-10T04:30:20.744Z",
+      "startedAt": null,
+      "finishedAt": null,
+      "id": "Eel1ZwH"
     }
   ],
   "deliveries": [
