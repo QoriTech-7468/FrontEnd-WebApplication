@@ -37,7 +37,6 @@
 </template>
 
 <script setup>
-import TeamMemberList from "./team-member-list.vue";
 import Button from "primevue/button";
 import Tag from "primevue/tag";
 import Divider from "primevue/divider";

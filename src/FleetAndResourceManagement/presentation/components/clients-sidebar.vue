@@ -1,9 +1,7 @@
 <template>
   <pv-panel header="Search by name" class="shadow-1">
     <pv-icon-field iconPosition="left" class="mb-3">
-      <pv-input-icon>
-        <i class="pi pi-search" />
-      </pv-input-icon>
+      <pv-input-icon><i class="pi pi-search" /></pv-input-icon>
       <pv-input-text v-model="modelQuery" placeholder="Search client" />
     </pv-icon-field>
 
@@ -14,12 +12,12 @@
         <li
             v-for="c in filtered"
             :key="c.id"
-            class="flex align-items-center justify-content-between p-2 border-round cursor-pointer hover:surface-100"
-            :class="[{ 'border-left-3 border-yellow-500': c.id===modelSelectedId }, 'mb-1']"
+            class="flex align-items-center justify-content-between p-2 border-round cursor-pointer hover:surface-100 mb-1"
+            :class="{ 'border-left-3 border-yellow-500': c.id === modelSelectedId }"
             @click="modelSelectedId = c.id"
         >
           <span>{{ c.name }}</span>
-            <pv-tag :value="c.status" :severity="statusSeverity(c.status)" />
+          <pv-tag :value="c.status" :severity="statusSeverity(c.status)" />
         </li>
       </ul>
     </pv-scroll-panel>
@@ -30,11 +28,11 @@
 import { computed } from "vue";
 
 const props = defineProps({
-  clients: { type: Array, required: true },
+  clients: { type: Array, default: () => [] },
   selectedId: Number,
   query: String
 });
-const emit = defineEmits(["update:selectedId","update:query"]);
+const emit = defineEmits(["update:selectedId", "update:query"]);
 
 const modelSelectedId = computed({
   get: () => props.selectedId ?? null,
@@ -48,14 +46,17 @@ const modelQuery = computed({
 const filtered = computed(() => {
   const t = (props.query || "").trim().toLowerCase();
   if (!t) return props.clients;
-  return props.clients.filter(c => c.name.toLowerCase().includes(t));
+  return props.clients.filter(c => (c?.name || "").toLowerCase().includes(t));
 });
 
-function statusSeverity(s) {
-  return s?.toLowerCase() === "enabled" ? "success"
-      : s?.toLowerCase() === "disabled" ? "danger"
-          : "info";
+function severity(s) {
+  const v = (s || "").toLowerCase();
+  if (v === "enabled" || v === "active") return "success";
+  if (v === "disabled" || v === "disable") return "danger";
+  return "info";
 }
+
+const statusSeverity = severity;
 </script>
 
 <style scoped>

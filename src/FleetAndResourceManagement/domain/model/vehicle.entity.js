@@ -1,9 +1,9 @@
 export class Vehicle{
 
     /**
-     * Creates an instance of Category.
-     * @param id - The unique identifier of the category.
-     * @param plate - The name of the category.
+     * Creates an instance of Vehicle.
+     * @param id
+     * @param plate
      * @param capacity
      * @param availability
      */

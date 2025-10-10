@@ -1,81 +1,157 @@
 {
-  "user": [ 
-    { 
-      "id": 1, 
-      "fullname": "Juan Jose Molera Masca", 
-      "Email": "juan@hotmail.com", 
-      "Role": "transportista", 
-      "password": "2688juan", 
-      "vehicleId": 1 
-    }, 
-    { 
-      "id": 2, 
-      "fullname": "Juan Jose Molera Masca", 
-      "Email": "juan@hotmail.com", 
-      "Role": "transportista", 
-      "password": "2688juan", 
-      "vehicleId": 1 
-    }, 
-    { 
-      "id": 3, 
-      "fullname": "Juan Jose Molera Masca", 
-      "Email": "juan@hotmail.com", 
-      "Role": "transportista", 
-      "password": "2688juan", 
-      "vehicleId": 1 
-    }, 
-    { 
-      "id": 4, 
-      "fullname": "Juan Jose Molera Masca", 
-      "Email": "juan@hotmail.com", 
-      "Role": "transportista", 
-      "password": "2688juan", 
-      "vehicleId": 1 
-    } 
-  ],
-  "vehicles": [ 
-    { 
-      "id": 1, 
-      "plate": "123bcd", 
-      "capacity": 400, 
-      "isActive": "Enabled" 
+  "user": [
+    {
+      "id": 1,
+      "fullname": "Juan Jose Molera Masca",
+      "Email": "juan@hotmail.com",
+      "Role": "transportista",
+      "password": "2688juan",
+      "vehicleId": 1
     },
-    { 
-      "id": 2, 
-      "plate": "456aer", 
-      "capacity": 300, 
-      "isActive": "Disabled" 
+    {
+      "id": 2,
+      "fullname": "Juan Jose Molera Masca",
+      "Email": "juan@hotmail.com",
+      "Role": "transportista",
+      "password": "2688juan",
+      "vehicleId": 2
     },
-    { 
-      "id": 3, 
-      "plate": "789scd", 
-      "capacity": 500, 
-      "isActive": "Enabled" 
-    } 
+    {
+      "id": 3,
+      "fullname": "Juan Jose Molera Masca",
+      "Email": "juan@hotmail.com",
+      "Role": "transportista",
+      "password": "2688juan",
+      "vehicleId": 2
+    },
+    {
+      "id": 4,
+      "fullname": "Juan Jose Molera Masca",
+      "Email": "juan@hotmail.com",
+      "Role": "transportista",
+      "password": "2688juan",
+      "vehicleId": 3
+    }
   ],
-  "customers": [
-    { 
-      "id": 1, 
-      "name": "La Tiendita", 
-      "isActive": true 
+  "vehicles": [
+    {
+      "id": 1,
+      "plate": "123bcd",
+      "capacity": 400,
+      "isActive": "Enabled"
+    },
+    {
+      "id": 2,
+      "plate": "456aer",
+      "capacity": 300,
+      "isActive": "Disabled"
+    },
+    {
+      "id": 3,
+      "plate": "789scd",
+      "capacity": 500,
+      "isActive": "Enabled"
+    },
+    {
+      "id": 4,
+      "plate": "asdf",
+      "capacity": 1234,
+      "isActive": "Active"
+    },
+    {
+      "id": 5,
+      "plate": "123DBS",
+      "capacity": 1235,
+      "isActive": "Active"
+    }
+  ],
+  "clients": [
+    {
+      "id": 1,
+      "name": "La Tiendita",
+      "isActive": true
+    },
+    {
+      "id": 2,
+      "name": "La Choza",
+      "isActive": true
+    },
+    {
+      "id": 3,
+      "name": "Mercadillo",
+      "isActive": true
     }
   ],
   "locations": [
     {
       "id": 1,
-      "customerId": 1,
+      "clientsId": 1,
       "latitude": -11.1075,
       "longitude": -77.6053,
       "address": "Av. Juan Velasco, Huacho",
-      "type": "store", 
+      "type": "store",
       "isActive": true
+    },
+    {
+      "clientsId": 1,
+      "address": "Av.LaMar",
+      "type": "store",
+      "latitude": 12,
+      "longitude": 12,
+      "isActive": true,
+      "id": 2
+    },
+    {
+      "clientsId": 1,
+      "address": "Av.LaMar",
+      "type": "store",
+      "latitude": 12,
+      "longitude": 12,
+      "isActive": true,
+      "id": 3
+    },
+    {
+      "clientsId": 2,
+      "address": "av.salavery",
+      "type": "local",
+      "latitude": 12,
+      "longitude": 13,
+      "isActive": true,
+      "id": 4
+    },
+    {
+      "clientsId": 2,
+      "address": "av.salavery",
+      "type": "local",
+      "latitude": 12,
+      "longitude": 13,
+      "isActive": true,
+      "id": 5
+    },
+    {
+      "clientsId": 2,
+      "address": "ab ala",
+      "type": "local",
+      "latitude": 12,
+      "longitude": 12,
+      "isActive": true,
+      "id": 6
+    },
+    {
+      "clientsId": 3,
+      "address": "Av.sala",
+      "type": "warehouse",
+      "latitude": 12,
+      "longitude": 32,
+      "isActive": true,
+      "id": 7
     }
   ],
   "routes": [
     {
       "id": 1,
       "vehicleId": 1,
-      "state": "draft",              
+      "state": "draft",
       "color": "#FFF223",
       "createdAt": "2025-12-01T08:00:00Z",
       "startedAt": null,
@@ -87,8 +163,8 @@
       "id": 1,
       "routeId": 1,
       "locationId": 1,
-      "state": "in_progress",        
-      "rejectionReason": null,       
+      "state": "in_progress",
+      "rejectionReason": null,
       "rejectionNote": null,
       "evidenceUrl": null,
       "createdAt": "2025-12-01T08:10:00Z",

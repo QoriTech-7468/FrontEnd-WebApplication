@@ -17,12 +17,13 @@ import {
     DatePicker,
     Tabs,
     TabPanel,
-    AutoComplete
+    AutoComplete, Dropdown
 } from "primevue";
 import InputText from "primevue/inputtext";
 import {definePreset} from "@primeuix/themes";
 import router from "./router.js";
 import pinia from "./pinia.js";
+import InputNumber from "primevue/inputnumber";
 
 const MyPreset = definePreset(Aura, {
     semantic: {
@@ -59,11 +60,13 @@ createApp(App)
     )
     .use(router)
     .use(i18n)
+    .component('pv-dropdown',Dropdown)
     .component('pv-toolbar', Toolbar)
     .component('pv-button',Button)
     .component('pv-panel', Panel)
     .component('pv-tag', Tag)
     .component('pv-input-text', InputText)
+    .component('pv-input-number', InputNumber)
     .component('pv-icon-field', IconField)
     .component('pv-input-icon', InputIcon)
     .component('pv-scroll-panel', ScrollPanel)
@@ -75,6 +78,5 @@ createApp(App)
     .component('pv-toast', Toast)
     .use(ToastService)
     .use(ConfirmationService)
-    .component('pv-toast', Toast)
     .use(pinia)
     .mount('#app')
