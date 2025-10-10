@@ -6,13 +6,11 @@ const props = defineProps({ route: Object })
 const router = useRouter()
 
 const handleClick = () => {
-  if (props.route.status === 'Draft') {
+  if (props.route.state === 'draft') {
     router.push({ name: 'route-edit', params: { routeId: props.route.id } })
-  }
-  else if (props.route.status === 'Published') {
+  } else if (props.route.state === 'published') {
     router.push({ name: 'route-monitor', params: { routeId: props.route.id } })
-  }
-  else {
+  } else {
     alert('This route cannot be edited or monitored.')
   }
 }
@@ -22,14 +20,17 @@ const handleClick = () => {
   <button class="route-item" @click="handleClick">
     <div class="route-info">
       <div class="flex align-items-center gap-2 mb-2">
-        <div class="text-900 text-lg font-semibold">{{ route.id }}</div>
-        <RouteStatusBadge :status="route.status" />
+        <div class="text-900 text-lg font-semibold">Route #{{ route.id }}</div>
+        <RouteStatusBadge :status="route.state" />
       </div>
-      <div class="text-600 text-sm mb-1">{{ route.vehicle }}</div>
+      <div class="text-600 text-sm mb-1">
+        <span v-if="route.vehicleId">Vehicle ID: {{ route.vehicleId }}</span>
+        <span v-else>No vehicle assigned</span>
+      </div>
     </div>
     <div class="route-meta">
-      <div class="text-500 text-sm">Locations</div>
-      <div class="text-700 font-medium">{{ route.locations }}</div>
+      <div class="text-500 text-sm">Created</div>
+      <div class="text-700 font-medium">{{ new Date(route.createdAt).toLocaleDateString() }}</div>
     </div>
   </button>
 </template>
@@ -77,7 +78,7 @@ button {
   box-sizing: border-box;
 }
 
-/* Focus styles for accessibility */
+/* Focus styles */
 .route-item:focus {
   outline: 2px solid #043873;
   outline-offset: 2px;

@@ -1,5 +1,6 @@
 <script setup>
 import RouteItem from './route-item.vue'
+
 defineProps({ routes: Array })
 </script>
 

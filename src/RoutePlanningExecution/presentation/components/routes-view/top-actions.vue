@@ -1,4 +1,5 @@
 <script setup>
+
 const props = defineProps({
   modelValue: String
 })
@@ -9,7 +10,8 @@ const emits = defineEmits(['update:modelValue', 'create-route'])
   <div class="top-actions">
     <div class="date-input">
       <label>Planned date</label>
-      <pv-inputtext
+      <!-- ✅ Cambiado a InputText -->
+      <InputText
           type="date"
           :value="modelValue"
           @input="$emit('update:modelValue', $event.target.value)"
