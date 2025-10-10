@@ -1,18 +1,152 @@
 {
-  "teams": {
-    "title": "Equipos disponibles",
-    "select": "Seleccionar",
-    "unselect": "Deseleccionar",
-    "available": "Disponible",
-    "notAvailable": "No disponible"
-  },
-  "locations": {
-    "title": "Ubicaciones",
-    "select": "Seleccionar",
-    "unselect": "Deseleccionar"
-  },
   "routes": {
     "title": "Rutas",
-    "edit": "Editar ruta"
+    "subtitle": "Gestiona, planifica y monitorea tus rutas logísticas",
+    "plannedDate": "Fecha Planificada",
+    "editTitle": "Editar Ruta",
+    "vehicleLabel": "Vehículo",
+    "unassigned": "Sin Asignar",
+    "new": "Nueva Ruta",
+
+    "list": {
+      "title": "Lista de Rutas",
+      "total": "Total de Rutas"
+    },
+
+    "item": {
+      "id": "ID",
+      "vehicle": "Vehículo",
+      "noVehicle": "Sin Vehículo Asignado",
+      "created": "Creado",
+      "status": {
+        "draft": "Borrador",
+        "published": "Publicado"
+      }
+    },
+
+    "status": {
+      "draft": "Borrador",
+      "published": "Publicado",
+      "archived": "Archivado"
+    },
+
+    "actions": {
+      "publish": "Publicar",
+      "delete": "Eliminar",
+      "edit": "Editar",
+      "view": "Ver",
+      "save": "Guardar Borrador",
+      "back": "Volver a la Lista"
+    },
+
+    "buttons": {
+      "saveDraft": "Guardar Borrador",
+      "publish": "Publicar",
+      "deleteDraft": "Eliminar"
+    },
+
+    "tabs": {
+      "locationsTab": "Ubicaciones",
+      "teamTab": "Equipo"
+    },
+
+    "monitor": {
+      "title": "Monitoreo de Rutas",
+      "subtitle": "Seguimiento de rutas y equipos en tiempo real",
+      "completed": "Entregas completadas",
+      "effectiveness": "Efectividad de la ruta",
+      "pending": "Entregas pendientes"
+    },
+
+    "notifications": {
+      "created": "Ruta creada con éxito",
+      "deleted": "Ruta eliminada con éxito",
+      "updated": "Ruta actualizada con éxito",
+      "published": "Ruta publicada con éxito",
+      "draftSaved": "Borrador guardado con éxito",
+      "publishSuccess": "Ruta publicada con éxito",
+      "deleteSuccess": "Ruta eliminada con éxito",
+      "saved": "Guardado con éxito"
+    },
+
+    "errors": {
+      "notFound": "Ruta no encontrada",
+      "notFoundDetail": "La ruta que intentas acceder no existe.",
+      "loadError": "Error al cargar la ruta",
+      "saveError": "Error al guardar el borrador",
+      "publishError": "Error al publicar la ruta",
+      "deleteError": "Error al eliminar la ruta"
+    },
+
+    "confirmDelete": "¿Estás seguro de que deseas eliminar este borrador?"
+  },
+
+  "locations": {
+    "title": "Ubicaciones",
+    "subtitle": "Gestiona los puntos de recogida y entrega de esta ruta",
+    "select": "Seleccionar",
+    "unselect": "Deseleccionar",
+    "selected": "Ubicaciones Seleccionadas",
+    "details": {
+      "title": "Detalles de la Ubicación",
+      "address": "Dirección",
+      "client": "Cliente",
+      "latitude": "Latitud",
+      "longitude": "Longitud",
+      "status": "Estado",
+      "add": "Agregar Ubicación",
+      "remove": "Eliminar Ubicación"
+    },
+    "map": {
+      "title": "Mapa Interactivo",
+      "noSelection": "Selecciona una ubicación en el mapa para ver detalles"
+    }
+  },
+
+  "teams": {
+    "title": "Equipos Disponibles",
+    "subtitle": "Asigna un equipo a esta ruta",
+    "available": "Disponible",
+    "notAvailable": "No Disponible",
+    "select": "Seleccionar",
+    "unselect": "Deseleccionar",
+    "card": {
+      "leader": "Líder del Equipo",
+      "members": "Miembros",
+      "status": "Estado"
+    },
+    "tabs": {
+      "assigned": "Equipo Asignado",
+      "available": "Equipos Disponibles"
+    }
+  },
+
+  "modals": {
+    "newRoute": {
+      "title": "Crear Nueva Ruta",
+      "description": "Define la información básica para crear un borrador de ruta",
+      "color": "Color",
+      "vehicle": "Vehículo",
+      "date": "Fecha",
+      "create": "Crear",
+      "cancel": "Cancelar"
+    }
+  },
+
+  "topActions": {
+    "filterByDate": "Filtrar por Fecha Planificada",
+    "createRoute": "Crear Ruta",
+    "refresh": "Actualizar"
+  },
+
+  "common": {
+    "loading": "Cargando...",
+    "noData": "No hay datos disponibles",
+    "actions": "Acciones",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "back": "Volver",
+    "save": "Guardar",
+    "error": "Error"
   }
 }
