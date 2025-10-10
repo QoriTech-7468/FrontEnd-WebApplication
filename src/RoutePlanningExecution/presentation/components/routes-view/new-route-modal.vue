@@ -1,12 +1,17 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { FleetResourceManagementApi } from "../../../../FleetAndResourceManagement/infrastructure/fleet-resource-management-api.js"
 import { VehicleAssembler } from "../../../../FleetAndResourceManagement/infrastructure/vehicle.assembler.js"
 
+const { t } = useI18n()
 const emits = defineEmits(['close', 'create'])
-const color = ref('#0000ff')
+const color = ref('#003087')
 const vehicleId = ref('')
 const vehicles = ref([])
+const loading = ref(true)
+
+const colorInputRef = ref(null)
 
 const api = new FleetResourceManagementApi()
 
@@ -18,10 +23,12 @@ const loadVehicles = async () => {
         .filter(v => v.isActive === 'Enabled')
   } catch (error) {
     console.error('Error loading vehicles:', error)
+  } finally {
+    loading.value = false
   }
 }
 
-// Crear ruta (vehículo opcional)
+// Crear ruta
 const createRoute = () => {
   emits('create', {
     color: color.value,
@@ -30,28 +37,33 @@ const createRoute = () => {
   emits('close')
 }
 
+// Abre el selector de color
+const openColorPicker = () => {
+  colorInputRef.value?.click()
+}
+
 onMounted(loadVehicles)
 </script>
 
 <template>
   <div class="modal-backdrop">
     <div class="modal">
-      <h3>Create New Route</h3>
+      <h3>{{ t('modals.newRoute.title') }}</h3>
 
-      <label>Route color</label>
-      <input type="color" v-model="color" />
-
-      <label>Select vehicle (optional)</label>
-      <select v-model="vehicleId">
-        <option value="">-- No vehicle assigned --</option>
-        <option v-for="v in vehicles" :key="v.id" :value="v.id">
-          {{ v.plate }} (Capacity: {{ v.capacity }})
-        </option>
-      </select>
+      <label>{{ t('modals.newRoute.color') }}</label>
+      <div class="color-wrapper" @click="openColorPicker">
+        <div class="color-preview" :style="{ backgroundColor: color }"></div>
+        <input
+            ref="colorInputRef"
+            type="color"
+            v-model="color"
+            class="color-hidden"
+        />
+      </div>
 
       <div class="actions">
-        <button class="cancel" @click="$emit('close')">Cancel</button>
-        <button class="create" @click="createRoute">Create</button>
+        <button class="cancel" @click="$emit('close')">{{ t('modals.newRoute.cancel') }}</button>
+        <button class="create" @click="createRoute">{{ t('modals.newRoute.create') }}</button>
       </div>
     </div>
   </div>
@@ -72,18 +84,60 @@ onMounted(loadVehicles)
   background: white;
   padding: 2rem;
   border-radius: 10px;
-  width: 380px;
+  width: 350px;
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
 }
 
+h3 {
+  margin-top: 0;
+  color: #003087;
+  font-size: 1.1rem;
+}
+
+label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ✅ Cuadro compacto pero funcional */
+.color-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  width: 4em;
+}
+
+.color-preview {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.color-preview:hover {
+  outline: 2px solid #003087;
+}
+
+.color-hidden {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 🔹 Select */
 select {
   padding: 0.4rem;
   border-radius: 6px;
   border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
 }
 
+/* 🔹 Botones */
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -106,5 +160,10 @@ select {
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.create:hover {
+  background: #002060;
 }
 </style>

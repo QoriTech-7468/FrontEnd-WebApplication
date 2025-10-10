@@ -1,17 +1,27 @@
 <script setup>
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import RouteStatusBadge from './route-status-badge.vue'
 
-const props = defineProps({ route: Object })
+const props = defineProps({
+  route: {
+    type: Object,
+    required: true
+  }
+})
+
 const router = useRouter()
+const { t } = useI18n()
 
 const handleClick = () => {
   if (props.route.state === 'draft') {
     router.push({ name: 'route-edit', params: { routeId: props.route.id } })
-  } else if (props.route.state === 'published') {
+  }
+  else if (props.route.state === 'published') {
     router.push({ name: 'route-monitor', params: { routeId: props.route.id } })
-  } else {
-    alert('This route cannot be edited or monitored.')
+  }
+  else {
+    alert(t('routes.item.error'))
   }
 }
 </script>
@@ -19,18 +29,31 @@ const handleClick = () => {
 <template>
   <button class="route-item" @click="handleClick">
     <div class="route-info">
+      <!-- Cabecera -->
       <div class="flex align-items-center gap-2 mb-2">
-        <div class="text-900 text-lg font-semibold">Route #{{ route.id }}</div>
+        <div class="text-900 text-lg font-semibold">
+          {{ t('routes.item.id', { id: route.id }) }}
+        </div>
         <RouteStatusBadge :status="route.state" />
       </div>
+
+      <!-- Vehículo -->
       <div class="text-600 text-sm mb-1">
-        <span v-if="route.vehicleId">Vehicle ID: {{ route.vehicleId }}</span>
-        <span v-else>No vehicle assigned</span>
+        <span v-if="route.vehicleId">
+          {{ t('routes.item.vehicle', { id: route.vehicleId }) }}
+        </span>
+        <span v-else class="italic text-500">
+          {{ t('routes.item.noVehicle') }}
+        </span>
       </div>
     </div>
+
+    <!-- Meta info -->
     <div class="route-meta">
-      <div class="text-500 text-sm">Created</div>
-      <div class="text-700 font-medium">{{ new Date(route.createdAt).toLocaleDateString() }}</div>
+      <div class="text-500 text-sm">{{ t('routes.item.created') }}</div>
+      <div class="text-700 font-medium">
+        {{ new Date(route.createdAt).toLocaleDateString() }}
+      </div>
     </div>
   </button>
 </template>
@@ -43,7 +66,7 @@ const handleClick = () => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  background: white;
+  background-color: #ffffff;
   cursor: pointer;
   width: 100%;
   transition: all 0.3s ease;
@@ -53,6 +76,7 @@ const handleClick = () => {
 
 .route-item:hover {
   box-shadow: 0 4px 12px rgba(4, 56, 115, 0.1);
+  transform: translateY(-2px);
 }
 
 .route-item:active {
@@ -78,7 +102,7 @@ button {
   box-sizing: border-box;
 }
 
-/* Focus styles */
+/* Estado enfocado (accesibilidad) */
 .route-item:focus {
   outline: 2px solid #043873;
   outline-offset: 2px;

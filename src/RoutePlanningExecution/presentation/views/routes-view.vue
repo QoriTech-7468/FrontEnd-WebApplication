@@ -1,25 +1,32 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoutePlanningStore } from '../../application/routeplanning.store.js'
 import RouteList from '../components/routes-view/route-list.vue'
 import NewRouteModal from '../components/routes-view/new-route-modal.vue'
 import TopActions from '../components/routes-view/top-actions.vue'
 
+// --- i18n ---
+const { t } = useI18n()
+
+// --- Estado general ---
 const store = useRoutePlanningStore()
 const plannedDate = ref(null)
 const showModal = ref(false)
 
+// --- Cargar rutas al montar ---
 onMounted(async () => {
   await store.fetchAllRoutes()
 })
 
+// --- Crear nueva ruta (draft) ---
 const handleAddRoute = async (routeData) => {
   try {
     await store.createDraftRoute({
       color: routeData.color,
       vehicleId: routeData.vehicleId ?? null,
       date: plannedDate.value ?? null
-    });
+    })
   } catch (err) {
     console.error('Error creating draft route:', err)
   } finally {
@@ -27,6 +34,7 @@ const handleAddRoute = async (routeData) => {
   }
 }
 
+// --- Abrir modal ---
 const handleCreateClick = () => {
   showModal.value = true
 }
@@ -34,10 +42,19 @@ const handleCreateClick = () => {
 
 <template>
   <div class="routes-view">
-    <!-- Encabezado -->
-    <div class="mb-3">
-      <div class="text-900 text-3xl font-semibold">Routes</div>
-      <div class="text-600">Add or edit your routes for the delivery</div>
+    <!-- Encabezado principal -->
+    <div class="flex align-items-center justify-content-between mb-3">
+      <div>
+        <div class="text-900 text-3xl font-semibold">{{ t('routes.title') }}</div>
+        <div class="text-600">{{ t('routes.subtitle') }}</div>
+      </div>
+
+      <pv-button
+          label="New Route"
+          icon="pi pi-plus-circle"
+          class="font-medium"
+          @click="handleCreateClick"
+      />
     </div>
 
     <!-- Acciones Superiores -->
@@ -63,9 +80,13 @@ const handleCreateClick = () => {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* Botones uniformes */
+/* ===== BUTTON STYLES ===== */
 :deep(.p-button) {
   padding: 12px 20px !important;
   border-radius: 8px !important;

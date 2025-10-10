@@ -1,8 +1,8 @@
 <script setup>
-const props = defineProps({ 
-  location: Object, 
+const props = defineProps({
+  location: Object,
   isSelected: Boolean,
-  isReadOnly: Boolean 
+  isReadOnly: Boolean
 })
 const emits = defineEmits(['select', 'unselect'])
 </script>
