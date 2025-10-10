@@ -28,7 +28,7 @@ const useStore = defineStore('vehicles', () => {
     // Actions
     function fetchVehicles() {
         fleetResourceManagementApi.getVehicles().then(response => {
-            vehicles.value = VehicleAssembler.toEntityfromResponse(response);
+            vehicles.value = VehicleAssembler.toEntitiesFromResponse(response);
             vehiclesLoaded.value = true;
             console.log(vehiclesLoaded.value);
             console.log(vehicles.value);
