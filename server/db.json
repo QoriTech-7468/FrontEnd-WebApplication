@@ -1,74 +1,98 @@
 {
-  "user": [
-    {
-      "id": 1,
-      "fullname": "Juan Jose Molera Masca",
-      "Email": "juan@hotmail.com",
-      "Role": "conductor",
-      "password": "2688juan",
-      "vehicleId": 1
+  "user": [ 
+    { 
+      "id": 1, 
+      "fullname": "Juan Jose Molera Masca", 
+      "Email": "juan@hotmail.com", 
+      "Role": "transportista", 
+      "password": "2688juan", 
+      "vehicleId": 1 
+    }, 
+    { 
+      "id": 2, 
+      "fullname": "Juan Jose Molera Masca", 
+      "Email": "juan@hotmail.com", 
+      "Role": "transportista", 
+      "password": "2688juan", 
+      "vehicleId": 1 
+    }, 
+    { 
+      "id": 3, 
+      "fullname": "Juan Jose Molera Masca", 
+      "Email": "juan@hotmail.com", 
+      "Role": "transportista", 
+      "password": "2688juan", 
+      "vehicleId": 1 
+    }, 
+    { 
+      "id": 4, 
+      "fullname": "Juan Jose Molera Masca", 
+      "Email": "juan@hotmail.com", 
+      "Role": "transportista", 
+      "password": "2688juan", 
+      "vehicleId": 1 
+    } 
+  ],
+  "vehicles": [ 
+    { 
+      "id": 1, 
+      "plate": "123bcd", 
+      "capacity": 400, 
+      "isActive": "Enabled" 
     },
-    {
-      "id": 2,
-      "fullname": "Juan Jose Molera Masca",
-      "Email": "juan@hotmail.com",
-      "Role": "conductor",
-      "password": "2688juan",
-      "vehicleId": 1
+    { 
+      "id": 2, 
+      "plate": "456aer", 
+      "capacity": 300, 
+      "isActive": "Disabled" 
     },
-    {
-      "id": 3,
-      "fullname": "Juan Jose Molera Masca",
-      "Email": "juan@hotmail.com",
-      "Role": "conductor",
-      "password": "2688juan",
-      "vehicleId": 1
-    },
-    {
-      "id": 4,
-      "fullname": "Juan Jose Molera Masca",
-      "Email": "juan@hotmail.com",
-      "Role": "conductor",
-      "password": "2688juan",
-      "vehicleId": 1
+    { 
+      "id": 3, 
+      "plate": "789scd", 
+      "capacity": 500, 
+      "isActive": "Enabled" 
+    } 
+  ],
+  "customers": [
+    { 
+      "id": 1, 
+      "name": "La Tiendita", 
+      "isActive": true 
     }
   ],
-  "vehicles": [
+  "locations": [
     {
       "id": 1,
-      "plate": "123bcd",
-      "capacity": 400,
-      "isActive": "Enabled"
-    },
+      "customerId": 1,
+      "latitude": -11.1075,
+      "longitude": -77.6053,
+      "address": "Av. Juan Velasco, Huacho",
+      "type": "store", 
+      "isActive": true
+    }
+  ],
+  "routes": [
     {
-      "id": 2,
-      "plate": "456aer",
-      "capacity": 300,
-      "isActive": "Disabled"
-    },
+      "id": 1,
+      "vehicleId": 1,
+      "state": "draft",              
+      "color": "#FFF223",
+      "createdAt": "2025-12-01T08:00:00Z",
+      "startedAt": null,
+      "finishedAt": null
+    }
+  ],
+  "deliveries": [
     {
-      "id": 3,
-      "plate": "789scd",
-      "capacity": 500,
-      "isActive": "Enabled"
-    },
-    {
-      "id": 6,
-      "plate": "",
-      "capacity": null,
-      "isActive": "Active"
-    },
-    {
-      "id": 5,
-      "plate": "",
-      "capacity": null,
-      "isActive": "Active"
-    },
-    {
-      "id": 7,
-      "plate": "asb123",
-      "capacity": 1234,
-      "isActive": "Active"
+      "id": 1,
+      "routeId": 1,
+      "locationId": 1,
+      "state": "in_progress",        
+      "rejectionReason": null,       
+      "rejectionNote": null,
+      "evidenceUrl": null,
+      "createdAt": "2025-12-01T08:10:00Z",
+      "updatedAt": "2025-12-01T08:10:00Z"
     }
   ]
 }
