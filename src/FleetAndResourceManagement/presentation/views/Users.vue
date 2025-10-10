@@ -16,7 +16,7 @@
           <tr>
             <th>Full name</th>
             <th>Email</th>
-            <th>Permission</th>
+            <th>Role</th>
             <th>Status</th>
             <th>Is Assigned</th>
             <th>Actions</th>
@@ -25,17 +25,16 @@
           <tbody>
           <tr
               v-for="(user, index) in users"
-              :key="index"
+              :key="user.id"
               class="table-row"
               :style="{ animationDelay: `${index * 0.1}s` }"
           >
             <td class="user-name">{{ user.fullname }}</td>
             <td class="user-email">{{ user.email }}</td>
             <td>
-              <select v-model="user.permission" class="select-input">
+              <select v-model="user.role" class="select-input">
                 <option value="Administrator">Administrator</option>
                 <option value="Driver">Driver</option>
-                <option value="Client">Client</option>
               </select>
             </td>
             <td>
@@ -50,7 +49,7 @@
                 </span>
             </td>
             <td class="actions-cell">
-              <button class="delete-btn" @click="deleteUser(index)" title="Delete user">
+              <button class="delete-btn" @click="deleteUser(user.id)" title="Delete user">
                 ✕
               </button>
             </td>
@@ -90,11 +89,10 @@
 
             <div class="form-row">
               <div class="form-group">
-                <label>Permission</label>
-                <select v-model="newUser.permission" class="modal-select">
+                <label>Role</label>
+                <select v-model="newUser.role" class="modal-select">
                   <option value="Administrator">Administrator</option>
                   <option value="Driver">Driver</option>
-                  <option value="Client">Client</option>
                 </select>
               </div>
 
@@ -121,51 +119,89 @@
       </div>
     </transition>
 </template>
-
 <script setup>
-import { ref } from "vue"
-import Navbar from "../../../shared/presentation/components/Navbar.vue";
+import { ref, onMounted } from "vue";
 
-const currentTab = ref("Users")
+const API_URL = "http://localhost:3000/user";
 
-const users = ref([
-  { fullname: "Jose Cruz Camina Nuñez", email: "jose@rutana.com", permission: "Administrator", status: "Active", isAssigned: true },
-  { fullname: "Jose Cruz Camina Nuñez", email: "jose@rutana.com", permission: "Administrator", status: "Active", isAssigned: true },
-  { fullname: "Jose Cruz Camina Nuñez", email: "jose@rutana.com", permission: "Administrator", status: "Active", isAssigned: true }
-])
+const users = ref([]);
+const showModal = ref(false);
 
-const showModal = ref(false)
 const newUser = ref({
   fullname: "",
   email: "",
-  permission: "Client",
+  role: "transportista", // o "Administrator"
+  password: "",
+  vehicleId: null,
   status: "Active",
   isAssigned: false
-})
+});
 
-const addUser = () => {
+// --- FUNCIONES CRUD ---
+
+const fetchUsers = async () => {
+  try {
+    const response = await fetch(API_URL);
+    users.value = await response.json();
+  } catch (error) {
+    console.error("Error al cargar los usuarios:", error);
+  }
+};
+
+onMounted(fetchUsers);
+
+const addUser = async () => {
   if (newUser.value.fullname && newUser.value.email) {
-    users.value.push({ ...newUser.value })
-    newUser.value = { fullname: "", email: "", permission: "Client", status: "Active", isAssigned: false }
-    showModal.value = false
-  }
-}
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newUser.value)
+      });
+      const createdUser = await response.json();
+      users.value.push(createdUser);
 
-const deleteUser = (index) => {
+      newUser.value = { fullname: "", email: "", role: "transportista", password: "", vehicleId: null, status: "Active", isAssigned: false };
+      showModal.value = false;
+    } catch (error) {
+      console.error("Error al añadir el usuario:", error);
+    }
+  }
+};
+
+// BORRAR (DELETE)
+const deleteUser = async (userId) => {
   if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-    users.value.splice(index, 1)
+    try {
+      await fetch(`${API_URL}/${userId}`, { method: 'DELETE' });
+      users.value = users.value.filter(user => user.id !== userId);
+    } catch (error) {
+      console.error("Error al eliminar el usuario:", error);
+    }
   }
-}
+};
 
-const handleStatusChange = (user) => {
-  // Si el status cambia a Inactive, isAssigned se pone en false
+// ACTUALIZAR (PATCH)
+const handleStatusChange = async (user) => {
   if (user.status === 'Inactive') {
-    user.isAssigned = false
+    user.isAssigned = false;
+  } else if (user.status === 'Active') {
+    user.isAssigned = true;
   }
-  else if (user.status === 'Active'){
-    user.isAssigned = true
+
+  try {
+    await fetch(`${API_URL}/${user.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status: user.status,
+        isAssigned: user.isAssigned,
+      })
+    });
+  } catch (error) {
+    console.error("Error al actualizar el estado:", error);
   }
-}
+};
 </script>
 
 <style scoped>
