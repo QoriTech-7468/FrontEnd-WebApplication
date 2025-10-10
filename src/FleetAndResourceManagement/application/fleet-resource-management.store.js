@@ -2,6 +2,7 @@ import {FleetResourceManagementApi} from "../infrastructure/fleet-resource-manag
 import {defineStore} from "pinia";
 import {computed, ref} from "vue";
 import {VehicleAssembler} from "../infrastructure/vehicle.assembler.js";
+import {UserAssembler} from "../infrastructure/user.assembler.js";
 
 
 const fleetResourceManagementApi = new FleetResourceManagementApi();
@@ -12,11 +13,17 @@ const useStore = defineStore('vehicles', () => {
     const vehicles = ref([]);
     const errors = ref([]);
     const vehiclesLoaded = ref(false);
+    const users = ref([]);
+
+    const usersLoaded = ref(false);
 
     // Properties
     const vehiclesCount = computed(() => {
         return vehiclesLoaded ? vehicles.value.length : 0; });
 
+
+    const usersCount = computed(() => {
+        return usersLoaded ? users.value.length : 0; });
 
     // Actions
     function fetchVehicles() {
@@ -25,6 +32,16 @@ const useStore = defineStore('vehicles', () => {
             vehiclesLoaded.value = true;
             console.log(vehiclesLoaded.value);
             console.log(vehicles.value);
+        }).catch(error => {
+            errors.value.push(error);
+        });
+    }
+    function fetchUsers() {
+        fleetResourceManagementApi.getUsers().then(response => {
+            users.value = UserAssembler.toEntitiesFromResponse(response);
+            usersLoaded.value = true;
+            console.log(usersLoaded.value);
+            console.log(users.value);
         }).catch(error => {
             errors.value.push(error);
         });
@@ -65,19 +82,61 @@ const useStore = defineStore('vehicles', () => {
         });
     }
 
+    function getUsersById(id) {
+        let idNum = parseInt(id);
+        return users.value.find(user => user["id"] === idNum);
+    }
+
+    function addUsers(user) {
+        fleetResourceManagementApi.createUsers(user).then(response => {
+            const resource = response.data;
+            const newUser = UserAssembler.toEntityFromResource(resource);
+            users.value.push(newUser);
+        }).catch(error => {
+            errors.value.push(error);
+        });
+    }
+
+    function updateUsers(user) {
+        fleetResourceManagementApi.updateUsers(user).then(response => {
+            const resource = response.data;
+            const updatedUser = UserAssembler.toEntityFromResource(resource);
+            const index = users.value.findIndex(t => t["id"] === updatedUser.id);
+            if (index !== -1) users.value[index] = updatedUser;
+        }).catch(error => {
+            errors.value.push(error);
+        });
+    }
+
+    function deleteUsers(usersId) {
+        fleetResourceManagementApi.deleteUsers(usersId).then(() => {
+            const index = users.value.findIndex(t => t["id"] === usersId);
+            if (index !== -1) users.value.splice(index, 1);
+        }).catch(error => {
+            errors.value.push(error);
+        });
+    }
     return {
         // State
         vehicles,
         errors,
         vehiclesLoaded,
+        users,
+        usersLoaded,
         // Properties
         vehiclesCount,
+        usersCount,
         // Actions
         fetchVehicles,
+        fetchUsers,
         getVehiclesById,
         addVehicles,
         updateVehicles,
         deleteVehicles,
+        getUsersById,
+        addUsers,
+        updateUsers,
+        deleteUsers
     };
 
 });

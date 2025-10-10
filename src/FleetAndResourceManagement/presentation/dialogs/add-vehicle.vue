@@ -35,14 +35,14 @@ import {Vehicle} from "../../domain/model/vehicle.entity.js";
 
 const props = defineProps({ visible: Boolean });
 const emit  = defineEmits(["update:visible"]);
-
+const isEdit = computed(() => !!route.params.id);
 const route = useRoute();
+
 const store = useStore();
-//const isEdit = computed(() => !!route.params.id);
 const { errors, addVehicles} = store;
 
 const saveVehicle = () => {
-  const vehicle = new Vehicle({ id: 7, plate: form.value.plate,capacity: form.value.capacity, availability:"Active"});
+  const vehicle = new Vehicle({ id: isEdit.value ? route.params.id : null, plate: form.value.plate,capacity: form.value.capacity, availability:"Active"});
   addVehicles(vehicle);
 }
 
