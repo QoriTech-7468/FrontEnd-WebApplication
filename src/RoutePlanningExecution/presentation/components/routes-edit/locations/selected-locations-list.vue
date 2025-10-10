@@ -1,31 +1,41 @@
 <script setup>
-const props = defineProps({ 
-  locations: Array,
-  selectedLocation: Object 
+import { defineProps, defineEmits } from 'vue'
+
+const props = defineProps({
+  locations: { type: Array, default: () => [] },
+  selectedLocation: { type: Object, default: null }
 })
+
 const emits = defineEmits(['select'])
 
-const handleLocationClick = (location) => {
+const handleSelect = (location) => {
   emits('select', location)
 }
 </script>
 
 <template>
   <div class="selected-list">
-    <h4 class="title p-3">Selected Locations ({{ locations.length }})</h4>
-    <div v-if="locations.length === 0" class="empty">
-      No locations selected yet.
+    <h4 class="title p-3">
+      Selected Locations ({{ locations.length }})
+    </h4>
+
+    <!-- Empty state -->
+    <div v-if="!locations || locations.length === 0" class="empty">
+      No locations assigned to this route.
     </div>
+
+    <!-- List of locations -->
     <div v-else class="list">
-      <div v-for="(loc, index) in locations" 
-           :key="loc.id" 
-           class="location-item" 
-           :class="{ 'has-accent': selectedLocation && selectedLocation.id === loc.id }"
-           @click="handleLocationClick(loc)">
+      <div
+          v-for="loc in locations"
+          :key="loc.id"
+          class="location-item"
+          :class="{ 'has-accent': selectedLocation && selectedLocation.id === loc.id }"
+          @click="handleSelect(loc)"
+      >
         <div class="location-content">
-          <div class="location-name">{{ loc.address }}</div>
-          <div class="location-client">{{ loc.client }}</div>
-          <div v-if="loc.address" class="location-address">{{ loc.address }}</div>
+          <div class="location-name">{{ loc.address || loc.name || ('Location ' + loc.id) }}</div>
+          <div v-if="loc.client" class="location-client">{{ loc.client }}</div>
         </div>
       </div>
     </div>
@@ -41,77 +51,66 @@ const handleLocationClick = (location) => {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* Title header */
 .title {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: #111827;
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.75rem 0;
   padding-left: 1rem;
 }
 
+/* List container */
 .list {
   display: flex;
   flex-direction: column;
+  gap: 0.25rem;
 }
 
+/* Location item */
 .location-item {
   position: relative;
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
-}
-
-.location-item.has-accent {
-  padding-left: 1rem;
-}
-
-.location-item.has-accent::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: #FFD60A;
-  border-radius: 2px;
+  border-radius: 8px;
 }
 
 .location-item:hover {
-  background: #f8fafc;
+  background: #f9fafb;
 }
 
+/* Accent highlight for selected item */
+.location-item.has-accent {
+  background: #f0f6ff;
+  padding-left: 1.25rem;
+  border-left: 4px solid #003087;
+}
+
+/* Inner content */
 .location-content {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
 }
 
 .location-name {
   font-size: 1rem;
   font-weight: 600;
   color: #111827;
-  line-height: 1.4;
 }
 
 .location-client {
   font-size: 0.875rem;
-  font-weight: 400;
   color: #6b7280;
-  line-height: 1.4;
 }
 
-.location-address {
-  font-size: 0.875rem;
-  font-weight: 400;
-  color: #6b7280;
-  line-height: 1.4;
-}
-
+/* Empty state */
 .empty {
   color: #9ca3af;
   font-style: italic;
   text-align: center;
   padding: 2rem 1rem;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
 }
 </style>

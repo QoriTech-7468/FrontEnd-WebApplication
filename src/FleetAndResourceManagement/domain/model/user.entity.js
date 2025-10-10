@@ -1,7 +1,4 @@
-
-import {Vehicle} from "./vehicle.entity.js";
-export class User{
-
+export class User {
     /**
      * Creates an instance of User.
      * @param id
@@ -10,15 +7,13 @@ export class User{
      * @param role
      * @param password
      * @param vehicleId
-     * @param vehicle
      */
-    constructor({id=null,fullname= '',email='', role='',password='', vehicleId=null,vehicle=null }) {
+    constructor({ id = null, fullname = '', email = '', role = '', password = '', vehicleId = null }) {
         this.id = id;
         this.fullname = fullname;
         this.email = email;
         this.role = role;
         this.password = password;
         this.vehicleId = vehicleId;
-        this.vehicle = vehicle instanceof Vehicle ? vehicle: null;
     }
 }

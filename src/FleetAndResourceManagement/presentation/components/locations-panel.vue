@@ -1,7 +1,7 @@
 <template>
   <pv-panel :header="`Locations: ${locationsCountText}`" class="shadow-1">
     <!-- Nada seleccionado -->
-    <div v-if="!selected" class="text-600">Select a client</div>
+    <div v-if="!selected" class="text-600">{{ $t('clients.selectPrompt') }}</div>
 
     <!-- Con cliente -->
     <template v-else>

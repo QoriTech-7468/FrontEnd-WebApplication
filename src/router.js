@@ -8,6 +8,12 @@ const routes = [
         ...managementRoutes,
         { path: 'routes', name: 'management-routes', children: routePlanningRoutes }
     ]},
+    {
+        path: '/',
+        redirect: '/management/routes/list'
+    },
+    //{ path: '/',                redirect: '/management',   children: ['clients'] },
+   // { path: '/:pathMatch(.*)*', name: 'not-found',  component: pageNotFound,    meta: { title: 'Page Not Found' } },
 ];
 
 const router = createRouter({

@@ -39,7 +39,7 @@ const useStore = defineStore('vehicles', () => {
     // Actions
     function fetchVehicles() {
         fleetResourceManagementApi.getVehicles().then(response => {
-            vehicles.value = VehicleAssembler.toEntityfromResponse(response);
+            vehicles.value = VehicleAssembler.toEntitiesFromResponse(response);
             vehiclesLoaded.value = true;
             console.log(vehiclesLoaded.value);
             console.log(vehicles.value);
@@ -83,18 +83,20 @@ const useStore = defineStore('vehicles', () => {
         return vehicles.value.find(vehicles => vehicles["id"] === idNum);
     }
 
-    function addVehicles(vehicles) {
-        fleetResourceManagementApi.createVehicles(vehicles).then(response => {
+    function addVehicles(vehicleData) {
+        return fleetResourceManagementApi.createVehicles(vehicleData).then(response => {
             const resource = response.data;
             const newVehicle = VehicleAssembler.toEntityFromResource(resource);
             vehicles.value.push(newVehicle);
         }).catch(error => {
+            // También es importante ver si hay un error
+            console.error('❌ Error in addVehicles:', error);
             errors.value.push(error);
         });
     }
 
     function updateVehicles(vehicles) {
-        fleetResourceManagementApi.updateVehicles(vehicles).then(response => {
+        return fleetResourceManagementApi.updateVehicles(vehicles).then(response => {
             const resource = response.data;
             const updateVehicles = VehicleAssembler.toEntityFromResource(resource);
             const index = vehicles.value.findIndex(c => c["id"] === updateVehicles.id);
@@ -129,13 +131,23 @@ const useStore = defineStore('vehicles', () => {
     }
 
     function updateUsers(user) {
-        fleetResourceManagementApi.updateUsers(user).then(response => {
+        return fleetResourceManagementApi.updateUsers(user).then(response => {
+            // --- AÑADE ESTOS LOGS ---
+            console.log('--- PASO 2: Respuesta del API (en el Store) ---');
+            console.log('Datos recibidos del API:', response.data);
+
             const resource = response.data;
             const updatedUser = UserAssembler.toEntityFromResource(resource);
-            const index = users.value.findIndex(t => t["id"] === updatedUser.id);
-            if (index !== -1) users.value[index] = updatedUser;
+            console.log('--- PASO 3: Usuario "Ensamblado" ---');
+            console.log('Objeto final que se guardará en el estado:', updatedUser);
+            // --- FIN DE LOS LOGS ---
+
+            const index = users.value.findIndex(t => t.id === updatedUser.id);
+            if (index !== -1) {
+                users.value[index] = updatedUser;
+            }
         }).catch(error => {
-            errors.value.push(error);
+            console.error('❌ Error actualizando el usuario:', error);
         });
     }
 

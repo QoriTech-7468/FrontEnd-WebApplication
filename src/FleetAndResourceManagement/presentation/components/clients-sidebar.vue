@@ -1,11 +1,13 @@
 <template>
-  <pv-panel header="Search by name" class="shadow-1">
+  <pv-panel :header="$t('clients.searchHeader')" class="shadow-1">
     <pv-icon-field iconPosition="left" class="mb-3">
-      <pv-input-icon><i class="pi pi-search" /></pv-input-icon>
-      <pv-input-text v-model="modelQuery" placeholder="Search client" />
+      <pv-input-icon>
+        <i class="pi pi-search" />
+      </pv-input-icon>
+      <pv-input-text v-model="modelQuery" :placeholder="$t('clients.searchPlaceholder')" />
     </pv-icon-field>
 
-    <div class="text-700 mb-2">Clients ({{ filtered.length }})</div>
+    <div class="text-700 mb-2">{{ $t('clients.title') }} ({{ filtered.length }})</div>
 
     <pv-scroll-panel style="height: 52vh">
       <ul class="list-none p-0 m-0">
@@ -17,7 +19,7 @@
             @click="modelSelectedId = c.id"
         >
           <span>{{ c.name }}</span>
-          <pv-tag :value="c.status" :severity="statusSeverity(c.status)" />
+          <pv-tag :value="$t(`clients.status.${c.status.toLowerCase()}`)" :severity="statusSeverity(c.status)" />
         </li>
       </ul>
     </pv-scroll-panel>
