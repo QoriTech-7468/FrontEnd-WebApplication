@@ -1,4 +1,115 @@
 {
+  "navbar": {
+    "clients": "Clients",
+    "users": "Users",
+    "vehicles": "Vehicles",
+    "routes": "Routes"
+  },
+  "clients": {
+    "title": "Clients",
+    "subtitle": "Add or edit your clients",
+    "register": "Register client",
+    "company": "Company name",
+    "searchHeader": "Search by name",
+    "searchPlaceholder": "Search client",
+    "selectPrompt": "Select a client to see details",
+    "edit": "Edit",
+    "registerLocation": "Register location",
+    "mapTitle": "Interactive Map",
+    "mapHint": "Click on the map to create a new location",
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "status2": {
+      "active": "Active",
+      "disactive": "Desactive"
+    },
+    "locations": "Locations: {count}",
+    "selectedLocations": "selected?: {count}",
+    "newLocation": {
+      "title": "New Location",
+      "clientLabel": "Client",
+      "clientPlaceholder": "Select a customer",
+      "typeLabel": "Type",
+      "typePlaceholder": "Select a type",
+      "confirm": "Confirm"
+    }
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "Add new users to your account",
+    "addUser": "Add user",
+    "table": {
+      "fullName": "Full name",
+      "email": "Email",
+      "permission": "Permission",
+      "status": "Status",
+      "isAssigned": "Is Assigned",
+      "actions": "Actions"
+    },
+    "permissions": {
+      "administrator": "Administrator",
+      "driver": "Driver",
+      "client": "Client"
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "boolean": {
+      "true": "True",
+      "false": "False"
+    },
+    "modal": {
+      "title": "Add a new user",
+      "fullNameLabel": "Full name",
+      "fullNamePlaceholder": "John Doe",
+      "emailLabel": "Email",
+      "emailPlaceholder": "john@example.com",
+      "permissionLabel": "Permission",
+      "statusLabel": "Status",
+      "assignedLabel": "Assigned to route",
+      "cancel": "Cancel",
+      "save": "Save User"
+    }
+  },
+  "vehicles": {
+    "title": "Vehicles",
+    "subtitle": "Add or edit your vehicles",
+    "registerVehicle": "Register vehicle",
+    "selectPrompt": "Select a vehicle to see details",
+    "detailsHeader": "Vehicle's details",
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "searchHeader": "Search by plate",
+    "searchPlaceholder": "Search vehicle",
+    "vehiclesList": "Vehicles ({count})",
+    "newVehicle": {
+      "plateLabel": "Licence plate",
+      "capacityLabel": "Load capacity (kg)",
+      "deactivate": "Deactivate",
+      "confirm": "Confirm"
+    },
+    "details": {
+      "plateLabel": "License Plate:",
+      "capacityLabel": "Capacity:",
+      "stateLabel": "State:",
+      "edit": "Edit",
+      "membersTitle": "Team members",
+      "addMembers": "Add team members",
+      "noMembers": "No members"
+    }
+  },
+  "teams": {
+    "title": "Available teams",
+    "select": "Select",
+    "unselect": "Unselect",
+    "available": "Available",
+    "notAvailable": "Not Available"
+  },
   "routes": {
     "title": "Routes",
     "subtitle": "Manage, plan and monitor your logistics routes",
@@ -9,6 +120,7 @@
     "new": "New Route",
 
     "list": {
+      "empty": "routes.list.empty",
       "title": "List of Routes",
       "total": "Total Routes"
     },

@@ -1,11 +1,11 @@
 <template>
-  <Panel header="Locations: {{ selected?.locations.length ?? 0 }}" class="shadow-1">
-    <div v-if="!selected" class="text-600">Select a client</div>
+  <Panel :header="$t('clients.locations', { count: selected?.locations.length ?? 0 })" class="shadow-1">
+    <div v-if="!selected" class="text-600">{{ $t('clients.selectPrompt') }}</div>
 
     <template v-else>
       <div class="border-left-3 border-yellow-500 pl-3 mb-3">
         <div class="text-900 font-medium mb-1">{{ selected.name }}</div>
-        <Tag :value="selected.status" :severity="statusSeverity(selected.status)" />
+        <Tag :value="$t(`clients.status.${selected.status.toLowerCase()}`)" :severity="statusSeverity(selected.status)" />
       </div>
 
       <ScrollPanel style="height: 40vh">
@@ -17,7 +17,7 @@
           <div class="text-900 font-medium">{{ loc.title }}</div>
           <div class="text-600">{{ loc.type }}</div>
           <div class="mt-2">
-            <Tag :value="loc.status" :severity="statusSeverity(loc.status)" />
+            <Tag :value="$t(`clients.status2.${loc.status.toLowerCase()}`)" :severity="statusSeverity(loc.status)" />
           </div>
         </div>
       </ScrollPanel>

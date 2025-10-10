@@ -1,11 +1,11 @@
 <template>
     <div class="flex align-items-center justify-content-between mb-2">
       <div class="mb-3">
-        <div class="text-900 text-3xl font-semibold">Clients</div>
-        <div class="text-600">Add or edit your clients</div>
+        <div class="text-900 text-3xl font-semibold">{{ $t('clients.title') }}</div>
+        <div class="text-600">{{ $t('clients.subtitle') }}</div>
       </div>
       <pv-button
-          label="Register client"
+          :label="$t('clients.register')"
           icon="pi pi-plus-circle"
           class="font-medium"
           @click="openNewClient()"
@@ -31,7 +31,7 @@
               <!-- Estado 1: vacío -->
               <div v-if="!selected" class="flex flex-column align-items-center justify-content-center h-25rem text-600">
                 <i class="pi pi-user text-6xl mb-3"></i>
-                <span>Select a client to see details</span>
+                <span>{{ $t('clients.selectPrompt') }}</span>
               </div>
 
               <!-- Estado 2: seleccionado -->
@@ -39,15 +39,15 @@
                 <div class="flex align-items-center justify-content-between mb-3">
                   <pv-tag :value="selected.status" :severity="statusSeverity(selected.status)" />
                   <div class="flex gap-2">
-                    <pv-button label="Edit" outlined />
-                    <pv-button label="Register location" severity="warning" @click="openNewLocation()" />
+                    <pv-button :label="$t('clients.edit')" outlined />
+                    <pv-button :label="$t('clients.registerLocation')" severity="warning" @click="openNewLocation()" />
                   </div>
                 </div>
 
                 <div class="border-1 surface-border border-round p-3 h-20rem flex flex-column align-items-center justify-content-center">
                   <i class="pi pi-map-marker text-5xl mb-2"></i>
-                  <span class="text-600">Interactive Map</span>
-                  <small class="text-500">Click on the map to create a new location</small>
+                  <span class="text-600">{{ $t('clients.mapTitle') }}</span>
+                  <small class="text-500">{{ $t('clients.mapHint') }}</small>
                 </div>
               </template>
             </pv-panel>

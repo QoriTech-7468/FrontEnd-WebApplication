@@ -38,7 +38,7 @@ const { t } = useI18n()
     <!-- Estado vacío -->
     <div v-else class="empty-state">
       <i class="pi pi-road text-400 text-4xl mb-3"></i>
-      <p class="text-600 text-base">{{ t('routes.list.empty') }}</p>
+      <p class="text-600 text-base">{{ $t('routes.list.empty') }}</p>
     </div>
   </div>
 </template>

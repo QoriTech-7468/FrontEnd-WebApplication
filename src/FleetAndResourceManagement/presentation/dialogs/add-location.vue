@@ -1,16 +1,16 @@
 <template>
-  <Dialog v-model:visible="modelVisible" header="New Location" modal style="width: 520px">
+  <Dialog v-model:visible="modelVisible" :header="$t('clients.newLocation.title')" modal style="width: 520px">
     <div class="flex flex-column gap-3">
       <div>
-        <label class="block text-700 mb-2">Client</label>
-        <Dropdown class="w-full" v-model="clientId" :options="clientOpts" optionLabel="name" optionValue="id" placeholder="Select a Customer" />
+        <label class="block text-700 mb-2">{{ $t('clients.newLocation.clientLabel') }}</label>
+        <Dropdown class="w-full" v-model="clientId" :options="clientOpts" optionLabel="name" optionValue="id" :placeholder="$t('clients.newLocation.clientPlaceholder')" />
       </div>
       <div>
-        <label class="block text-700 mb-2">Type</label>
-        <Dropdown class="w-full" v-model="type" :options="types" placeholder="Select a Type" />
+        <label class="block text-700 mb-2">{{ $t('clients.newLocation.typeLabel') }}</label>
+        <Dropdown class="w-full" v-model="type" :options="types" :placeholder="$t('clients.newLocation.typePlaceholder')" />
       </div>
       <div class="mt-2">
-        <Button label="Confirm" class="w-full" severity="warning" />
+        <Button :label="$t('clients.newLocation.confirm')" class="w-full" severity="warning" />
       </div>
     </div>
   </Dialog>

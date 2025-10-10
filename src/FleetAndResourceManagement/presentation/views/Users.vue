@@ -3,10 +3,10 @@
   <div>
       <div class="flex align-items-center justify-content-between mb-2">
         <div class="mb-3">
-          <div class="text-900 text-3xl font-semibold">Users</div>
-          <div class="text-600">Add new users to your account</div>
+          <div class="text-900 text-3xl font-semibold">{{ $t('users.title') }}</div>
+          <div class="text-600">{{ $t('users.subtitle') }}</div>
         </div>
-         <pv-button label="Add user" icon="pi pi-plus-circle" class="font-medium" @click="showModal = true" />
+         <pv-button :label="$t('users.addUser')" icon="pi pi-plus-circle" class="font-medium" @click="showModal = true" />
       </div>
 
       <!-- Table -->
@@ -14,42 +14,44 @@
         <table class="users-table">
           <thead>
           <tr>
-            <th>Full name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Is Assigned</th>
-            <th>Actions</th>
+            <th>{{ $t('users.table.fullName') }}</th>
+            <th>{{ $t('users.table.email') }}</th>
+            <th>{{ $t('users.table.permission') }}</th>
+            <th>{{ $t('users.table.status') }}</th>
+            <th>{{ $t('users.table.isAssigned') }}</th>
+            <th>{{ $t('users.table.actions') }}</th>
           </tr>
           </thead>
           <tbody>
           <tr
               v-for="(user, index) in users"
-              :key="user.id"
+              :key="index"
               class="table-row"
               :style="{ animationDelay: `${index * 0.1}s` }"
           >
             <td class="user-name">{{ user.fullname }}</td>
             <td class="user-email">{{ user.email }}</td>
             <td>
-              <select v-model="user.role" class="select-input">
-                <option value="Administrator">Administrator</option>
-                <option value="Driver">Driver</option>
+              <select v-model="user.permission" class="select-input">
+                <option v-for="perm in ['Administrator', 'Driver', 'Client']" :key="perm" :value="perm">
+                  {{ $t(`users.permissions.${perm.toLowerCase()}`) }}
+                </option>
               </select>
             </td>
             <td>
               <select v-model="user.status" class="select-input" @change="handleStatusChange(user)">
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
+                <option v-for="stat in ['Active', 'Inactive']" :key="stat" :value="stat">
+                  {{ $t(`users.statuses.${stat.toLowerCase()}`) }}
+                </option>
               </select>
             </td>
             <td>
                 <span class="badge" :class="user.isAssigned ? 'badge-true' : 'badge-false'">
-                  {{ user.isAssigned ? 'True' : 'False' }}
+                 {{ $t(`users.boolean.${user.isAssigned.toString().toLowerCase()}`) }}
                 </span>
             </td>
             <td class="actions-cell">
-              <button class="delete-btn" @click="deleteUser(user.id)" title="Delete user">
+              <button class="delete-btn" @click="deleteUser(index)" title="Delete user">
                 ✕
               </button>
             </td>
@@ -63,22 +65,22 @@
       <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
         <div class="modal animate-modal-up">
           <div class="modal-header">
-            <h3>Add a new user</h3>
+            <h3>{{ $t('users.modal.title') }}</h3>
             <button class="close-btn" @click="showModal = false">✕</button>
           </div>
 
           <div class="modal-body">
             <div class="form-group">
-              <label>Full name</label>
+              <label>{{ $t('users.modal.fullNameLabel') }}</label>
               <input
                   v-model="newUser.fullname"
-                  placeholder="John Doe"
+                  :placeholder="$t('users.modal.fullNamePlaceholder')"
                   class="modal-input"
               />
             </div>
 
             <div class="form-group">
-              <label>Email</label>
+              <label>{{ $t('users.modal.emailLabel') }}</label>
               <input
                   v-model="newUser.email"
                   placeholder="john@example.com"
@@ -89,119 +91,83 @@
 
             <div class="form-row">
               <div class="form-group">
-                <label>Role</label>
-                <select v-model="newUser.role" class="modal-select">
-                  <option value="Administrator">Administrator</option>
-                  <option value="Driver">Driver</option>
+                <label>Permission{{ $t('users.modal.permissionLabel') }}</label>
+                <select v-model="newUser.permission" class="modal-select">
+                  <option v-for="perm in ['Administrator', 'Driver', 'Client']" :key="perm" :value="perm">
+                    {{ $t(`users.permissions.${perm.toLowerCase()}`) }}
+                  </option>
                 </select>
               </div>
 
               <div class="form-group">
-                <label>Status</label>
+                <label>{{ $t('users.modal.statusLabel') }}</label>
                 <select v-model="newUser.status" class="modal-select">
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
+                  <option v-for="stat in ['Active', 'Inactive']" :key="stat" :value="stat">
+                    {{ $t(`users.statuses.${stat.toLowerCase()}`) }}
+                  </option>
                 </select>
               </div>
             </div>
 
             <label class="checkbox-label">
               <input type="checkbox" v-model="newUser.isAssigned" class="checkbox-input" />
-              <span class="checkbox-text">Assigned to route</span>
+              <span class="checkbox-text">{{ $t('users.modal.assignedLabel') }}</span>
             </label>
           </div>
 
           <div class="modal-actions">
-            <button class="btn-cancel" @click="showModal = false">Cancel</button>
-            <button class="btn-save" @click="addUser">Save User</button>
+            <button class="btn-cancel" @click="showModal = false">{{ $t('users.modal.cancel') }}</button>
+            <button class="btn-save" @click="addUser">{{ $t('users.modal.save') }}</button>
           </div>
         </div>
       </div>
     </transition>
 </template>
+
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue"
+import Navbar from "../../../shared/presentation/components/Navbar.vue";
 
-const API_URL = "http://localhost:3000/user";
+const currentTab = ref("Users")
 
-const users = ref([]);
-const showModal = ref(false);
+const users = ref([
+  { fullname: "Jose Cruz Camina Nuñez", email: "jose@rutana.com", permission: "Administrator", status: "Active", isAssigned: true },
+  { fullname: "Jose Cruz Camina Nuñez", email: "jose@rutana.com", permission: "Administrator", status: "Active", isAssigned: true },
+  { fullname: "Jose Cruz Camina Nuñez", email: "jose@rutana.com", permission: "Administrator", status: "Active", isAssigned: true }
+])
 
+const showModal = ref(false)
 const newUser = ref({
   fullname: "",
   email: "",
-  role: "transportista", // o "Administrator"
-  password: "",
-  vehicleId: null,
+  permission: "Client",
   status: "Active",
   isAssigned: false
-});
+})
 
-// --- FUNCIONES CRUD ---
-
-const fetchUsers = async () => {
-  try {
-    const response = await fetch(API_URL);
-    users.value = await response.json();
-  } catch (error) {
-    console.error("Error al cargar los usuarios:", error);
-  }
-};
-
-onMounted(fetchUsers);
-
-const addUser = async () => {
+const addUser = () => {
   if (newUser.value.fullname && newUser.value.email) {
-    try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newUser.value)
-      });
-      const createdUser = await response.json();
-      users.value.push(createdUser);
-
-      newUser.value = { fullname: "", email: "", role: "transportista", password: "", vehicleId: null, status: "Active", isAssigned: false };
-      showModal.value = false;
-    } catch (error) {
-      console.error("Error al añadir el usuario:", error);
-    }
+    users.value.push({ ...newUser.value })
+    newUser.value = { fullname: "", email: "", permission: "Client", status: "Active", isAssigned: false }
+    showModal.value = false
   }
-};
+}
 
-// BORRAR (DELETE)
-const deleteUser = async (userId) => {
+const deleteUser = (index) => {
   if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-    try {
-      await fetch(`${API_URL}/${userId}`, { method: 'DELETE' });
-      users.value = users.value.filter(user => user.id !== userId);
-    } catch (error) {
-      console.error("Error al eliminar el usuario:", error);
-    }
+    users.value.splice(index, 1)
   }
-};
+}
 
-// ACTUALIZAR (PATCH)
-const handleStatusChange = async (user) => {
+const handleStatusChange = (user) => {
+  // Si el status cambia a Inactive, isAssigned se pone en false
   if (user.status === 'Inactive') {
-    user.isAssigned = false;
-  } else if (user.status === 'Active') {
-    user.isAssigned = true;
+    user.isAssigned = false
   }
-
-  try {
-    await fetch(`${API_URL}/${user.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        status: user.status,
-        isAssigned: user.isAssigned,
-      })
-    });
-  } catch (error) {
-    console.error("Error al actualizar el estado:", error);
+  else if (user.status === 'Active'){
+    user.isAssigned = true
   }
-};
+}
 </script>
 
 <style scoped>

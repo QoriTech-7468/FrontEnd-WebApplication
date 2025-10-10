@@ -1,12 +1,12 @@
 <template>
-  <Dialog v-model:visible="modelVisible" header="New Client" modal style="width: 520px">
+  <Dialog v-model:visible="modelVisible" :header="$t('clients.register')" modal style="width: 520px">
     <div class="flex flex-column gap-3">
       <div>
-        <label class="block text-700 mb-2">Company name</label>
-        <InputText v-model="name" class="w-full" placeholder="Company name" />
+        <label class="block text-700 mb-2">{{ $t('clients.company') }}</label>
+        <InputText v-model="name" class="w-full" :placeholder="$t('clients.company')" />
       </div>
       <div class="mt-2">
-        <Button label="Confirm" class="w-full" severity="warning" />
+        <Button :label="$t('clients.newLocation.confirm')" class="w-full" severity="warning" />
       </div>
     </div>
   </Dialog>

@@ -1,11 +1,11 @@
 <template>
-  <Panel header="Search vehicles" class="shadow-1">
+  <Panel :header="$t('vehicles.searchHeader')" class="shadow-1">
     <div class="p-inputgroup mb-3">
       <span class="p-inputgroup-addon"><i class="pi pi-search"></i></span>
-      <InputText v-model="modelQuery" placeholder="Search by license plate" />
+      <InputText v-model="modelQuery" :placeholder="$t('vehicles.searchPlaceholder')" />
     </div>
 
-    <div class="text-700 mb-2">Vehicles ({{ filtered.length }})</div>
+    <div class="text-700 mb-2">{{ $t('vehicles.vehiclesList', { count: filtered.length }) }}</div>
 
     <ScrollPanel style="height: 52vh">
       <ul class="list-none p-0 m-0">
@@ -18,9 +18,9 @@
         >
           <div class="flex flex-column">
             <span class="text-900 font-medium">{{ v.plate }}</span>
-            <small class="text-600">Capacity: {{ v.capacity }}kg</small>
+            <small class="text-600">{{ $t('vehicles.details.capacityLabel') }} {{ v.capacity }} kg</small>
           </div>
-          <Tag :value="v.status" :severity="severity(v.status)" />
+          <Tag :value="$t(`vehicles.status.${v.status.toLowerCase()}`)" :severity="severity(v.status)" />
         </li>
       </ul>
     </ScrollPanel>
