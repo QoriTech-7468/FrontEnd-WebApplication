@@ -1,58 +1,71 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRoutePlanningStore } from '../../application/routeplanning.store.js'
 import RouteList from '../components/routes-view/route-list.vue'
 import NewRouteModal from '../components/routes-view/new-route-modal.vue'
 import TopActions from '../components/routes-view/top-actions.vue'
 
-// Estado general
+const store = useRoutePlanningStore()
 const plannedDate = ref(null)
 const showModal = ref(false)
 
-// Lista reactiva de rutas
-const routes = ref([
-  { id: 'R-2025-001', vehicle: 'ABC-123', status: 'Published', locations: 3, color: '#008000' },
-  { id: 'R-2025-002', vehicle: 'XYZ-125', status: 'Draft', locations: 3, color: '#ff0000' }
-])
+onMounted(async () => {
+  await store.fetchAllRoutes()
+})
 
-// Nueva ruta
-const handleAddRoute = (routeData) => {
-  routes.value.push({
-    id: `R-2025-${String(routes.value.length + 1).padStart(3, '0')}`,
-    vehicle: routeData.vehicle || 'Unassigned',
-    status: 'Draft',
-    locations: 0,
-    color: routeData.color
-  })
+const handleAddRoute = async (routeData) => {
+  try {
+    await store.createDraftRoute({
+      color: routeData.color,
+      vehicleId: routeData.vehicleId ?? null,
+      date: plannedDate.value ?? null
+    });
+  } catch (err) {
+    console.error('Error creating draft route:', err)
+  } finally {
+    showModal.value = false
+  }
+}
+
+const handleCreateClick = () => {
+  showModal.value = true
 }
 </script>
 
 <template>
-  <div class="flex align-items-center justify-content-between mb-2">
+  <div class="routes-view">
+    <!-- Encabezado -->
     <div class="mb-3">
       <div class="text-900 text-3xl font-semibold">Routes</div>
       <div class="text-600">Add or edit your routes for the delivery</div>
     </div>
-    <pv-button label="New route" icon="pi pi-plus-circle" class="font-medium" @click="showModal = true" />
+
+    <!-- Acciones Superiores -->
+    <TopActions
+        v-model="plannedDate"
+        @create-route="handleCreateClick"
+    />
+
+    <!-- Lista de Rutas -->
+    <RouteList :routes="store.routes" />
+
+    <!-- Modal Nueva Ruta -->
+    <NewRouteModal
+        v-if="showModal"
+        @close="showModal = false"
+        @create="handleAddRoute"
+    />
   </div>
-
-  <!-- Top Actions -->
-  <TopActions
-      v-model="plannedDate"
-  />
-
-  <!-- Lista -->
-  <RouteList :routes="routes" />
-
-  <!-- Modal -->
-  <NewRouteModal
-      v-if="showModal"
-      @close="showModal = false"
-      @create="handleAddRoute"
-  />
 </template>
 
 <style scoped>
-/* ===== BUTTON STYLES ===== */
+.routes-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Botones uniformes */
 :deep(.p-button) {
   padding: 12px 20px !important;
   border-radius: 8px !important;
