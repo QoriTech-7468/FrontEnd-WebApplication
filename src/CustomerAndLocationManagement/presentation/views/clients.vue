@@ -42,7 +42,7 @@
                 <div class="flex align-items-center justify-content-between mb-3">
                   <pv-tag :value="selected.status" :severity="statusSeverity(selected.status)" />
                   <div class="flex gap-2">
-                    <pv-button :label="$t('clients.edit')" outlined />
+                    <pv-button label="Edit" icon="pi pi-pencil" @click="openEditDialog" />
                     <pv-button :label="$t('clients.registerLocation')" severity="warning" @click="showAddLocation = true" />
                   </div>
                 </div>
@@ -79,6 +79,11 @@
                            :clients="clientsList"
                            :loading="creatingLocation"
                            @submit="handleCreateLocation" />
+    <UpdateClientsDialog
+        v-model:visible="showUpdate"
+        :client="selected"
+        @saved="refreshClients"
+    />
     <pv-toast />
   </div>
 </template>
@@ -91,16 +96,19 @@ import ClientsSidebar from "../components/clients-sidebar.vue";
 import LocationsPanel from "../components/locations-panel.vue";
 import AddClientsDialog from "../dialogs/add-clients.vue";
 import AddLocationDialog from "../dialogs/add-location.vue";
+import UpdateClientsDialog from "../dialogs/edit-client.vue";
 
-import useStore from "../../application/fleet-resource-management.store.js";
+import customerStore from "/src/CustomerAndLocationManagement/application/customer-location-management.store.js";
+import {Button as PvButton} from "primevue";
 
-const store = useStore();
+const store = customerStore();
 const toast = useToast();
 
 const q = ref("");
 const selectedId = ref(null);
 
 const showCreate = ref(false);
+const showUpdate = ref(false);
 const showAddLocation = ref(false);
 const creating = ref(false);
 
@@ -155,7 +163,13 @@ async function handleCreateLocation(payload) {
     creatingLocation.value = false;
   }
 }
+function openEditDialog() {
+  showUpdate.value = true
+}
 
+function refreshClients() {
+  store.fetchClients()
+}
 </script>
 
 
@@ -179,3 +193,4 @@ async function handleCreateLocation(payload) {
   transform: translateY(0) !important;
 }
 </style>
+a

@@ -9,6 +9,7 @@ import 'primeicons/primeicons.css';
 import {
     Toolbar,
     Button, Toast, ConfirmDialog, ConfirmationService, ToastService,
+    Dialog,
     Panel,
     Tag,
     IconField,
@@ -76,6 +77,7 @@ createApp(App)
     .component('pv-auto-complete', AutoComplete)
     .component('pv-confirm-dialog', ConfirmDialog)
     .component('pv-toast', Toast)
+    .component('pv-dialog', Dialog)
     .use(ToastService)
     .use(ConfirmationService)
     .use(pinia)

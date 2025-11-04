@@ -18,7 +18,7 @@
             :class="{ 'border-left-3 border-yellow-500': c.id === modelSelectedId }"
             @click="modelSelectedId = c.id"
         >
-          <span>{{ c.name }}</span>
+          <span class="text-900 font-medium">{{ c.name }}</span>
           <pv-tag :value= c.status :severity="statusSeverity(c.status)" />
         </li>
       </ul>

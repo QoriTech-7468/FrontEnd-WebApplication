@@ -59,46 +59,5 @@ export class FleetResourceManagementApi extends BaseApi {
 
 
 
-    getClients() {
-        return this.#clientsEndpointPath.getAll();
-    }
-
-
-    getClientsById(id) {
-        return this.#clientsEndpointPath.getById(id);
-    }
-
-    createClients(resource) {
-        return this.#clientsEndpointPath.create(resource);
-    }
-
-    updateClients(resource) {
-        return this.#clientsEndpointPath.update(resource.id, resource);
-    }
-
-    deleteClients(id) {
-        return this.#clientsEndpointPath.delete(id);
-    }
-
-    getLocations(resource) {
-        return this.#locationEndpointPath.getAll();
-    }
-
-
-    getLocationsById(id) {
-        return this.#locationEndpointPath.getById(id);
-    }
-
-    createLocations(resource) {
-        return this.#locationEndpointPath.create(resource);
-    }
-
-    updateLocations(resource) {
-        return this.#locationEndpointPath.update(resource.id, resource);
-    }
-
-    deleteLocations(id) {
-        return this.#locationEndpointPath.delete(id);
-    }
 
 }

@@ -1,11 +1,11 @@
 import {createRouter, createWebHistory} from "vue-router";
-import managementRoutes from "./FleetAndResourceManagement/presentation/management-route.js";
+import managementRoutes from "./FleetAndResourceManagement/presentation/management-vehicle-route.js";
 import routePlanningRoutes from "./RoutePlanningExecution/presentation/routeplanning-route.js";
-
+import ClientRoutes from "./CustomerAndLocationManagement/presentation/management-client-route.js";
 
 const routes = [
     { path: '/management',      name: 'management', children: [
-        ...managementRoutes,
+        ...managementRoutes, {path: 'clients', name: 'clients', children: ClientRoutes},
         { path: 'routes', name: 'management-routes', children: routePlanningRoutes }
     ]},
     {

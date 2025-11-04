@@ -5,7 +5,7 @@
         <form @submit.prevent="saveClients">
           <div>
             <label class="block text-700 mb-2">Company name</label>
-            <InputText v-model="form.name" class="w-full" placeholder="Company name" />
+            <pv-input-text v-model="form.name" class="w-full" placeholder="Company name" />
           </div>
           <div class="mt-2">
             <Button label="Confirm" class="w-full" severity="warning" type="submit"/>
@@ -19,11 +19,10 @@
 <script setup>
 import { computed, ref } from "vue";
 import Dialog from "primevue/dialog";
-import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import {useRoute} from "vue-router";
 
-import useStore from "../../application/fleet-resource-management.store.js";
+import customerStore from "/src/CustomerAndLocationManagement/application/customer-location-management.store.js";
 import {Client} from "../../domain/model/client.entity.js";
 
 const props = defineProps({ visible: Boolean });
@@ -32,7 +31,7 @@ const isEdit = computed(() => !!route.params.id);
 
 const route = useRoute();
 
-const store = useStore();
+const store = customerStore();
 const { errors, addClients } = store;
 
 const saveClients = () => {

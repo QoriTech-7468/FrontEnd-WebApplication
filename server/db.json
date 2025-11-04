@@ -1,13 +1,13 @@
 {
   "user": [
     {
+      "id": 1,
       "fullname": "Santiago",
       "email": "Sant@hotmail.com",
       "role": "Driver",
-      "status": "Inactive",
-      "vehicleId": null,
       "password": "",
-      "id": 1
+      "vehicleId": "aBl-hPs",
+      "status": "Active"
     },
     {
       "fullname": "Yaku",
@@ -17,6 +17,24 @@
       "vehicleId": null,
       "password": "",
       "id": 2
+    },
+    {
+      "fullname": "Lora Carol",
+      "email": "lora@hotmail.com",
+      "role": "Driver",
+      "status": "Active",
+      "vehicleId": null,
+      "password": "",
+      "id": 3
+    },
+    {
+      "fullname": "joh",
+      "email": "hoj@hotmail.com",
+      "role": "Administrator",
+      "status": "Active",
+      "vehicleId": null,
+      "password": "",
+      "id": 4
     }
   ],
   "vehicles": [
@@ -37,13 +55,20 @@
       "plate": "789scd",
       "capacity": 500,
       "isActive": "Enabled"
+    },
+    {
+      "plate": "ABC123",
+      "capacity": 2000,
+      "isActive": "Enabled",
+      "id": "aBl-hPs"
     }
   ],
   "clients": [
     {
       "id": 1,
-      "name": "La Tiendita",
-      "isActive": true
+      "name": "chris",
+      "isActive": true,
+      "status": "Active"
     },
     {
       "id": 2,
@@ -54,6 +79,11 @@
       "id": 3,
       "name": "Mercadillo",
       "isActive": true
+    },
+    {
+      "id": 4,
+      "name": "Antamina",
+      "isActive": false
     }
   ],
   "locations": [
@@ -92,6 +122,24 @@
       "longitude": 13,
       "isActive": true,
       "id": 5
+    },
+    {
+      "clientsId": 4,
+      "address": "Va. La mar",
+      "type": "store",
+      "latitude": 123,
+      "longitude": 983,
+      "isActive": true,
+      "id": 6
+    },
+    {
+      "clientsId": 2,
+      "address": "Av Salaber",
+      "type": "warehouse",
+      "latitude": 12,
+      "longitude": 13,
+      "isActive": true,
+      "id": 7
     }
   ],
   "routes": [
@@ -108,11 +156,41 @@
       "color": "#0000ff",
       "vehicleId": null,
       "date": null,
-      "state": "draft",
+      "state": "published",
       "createdAt": "2025-10-10T04:30:20.744Z",
       "startedAt": null,
       "finishedAt": null,
       "id": "Eel1ZwH"
+    },
+    {
+      "color": "#3f557d",
+      "vehicleId": null,
+      "date": null,
+      "state": "draft",
+      "createdAt": "2025-10-10T13:06:27.225Z",
+      "startedAt": null,
+      "finishedAt": null,
+      "id": "lz1gD71"
+    },
+    {
+      "color": "#6084c7",
+      "vehicleId": null,
+      "date": null,
+      "state": "draft",
+      "createdAt": "2025-10-11T14:55:38.528Z",
+      "startedAt": null,
+      "finishedAt": null,
+      "id": "8mszuus"
+    },
+    {
+      "color": "#003087",
+      "vehicleId": null,
+      "date": null,
+      "state": "draft",
+      "createdAt": "2025-10-21T20:20:08.196Z",
+      "startedAt": null,
+      "finishedAt": null,
+      "id": "-5crRfn"
     }
   ],
   "deliveries": [

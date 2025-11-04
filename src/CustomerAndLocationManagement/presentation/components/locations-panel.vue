@@ -52,9 +52,10 @@ const locationsCountText = computed(() => String(safeLocations.value.length));
 function severity(s) {
   const v = (s || '').toLowerCase();
   if (v === 'enabled' || v === 'active') return 'success';
-  if (v === 'disabled' || v === 'disable') return 'danger';
+  if (v === 'disable' || v === 'disable') return 'danger';
   return 'info';
 }
+
 // Alias para coincidir con el template
 const statusSeverity = severity;
 </script>
@@ -62,3 +63,4 @@ const statusSeverity = severity;
 <style scoped>
 .shadow-1 { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
 </style>
+
