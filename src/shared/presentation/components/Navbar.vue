@@ -16,6 +16,10 @@
 
     <!-- Navegación responsivee -->
     <ul class="nav-menu" :class="{ 'menu-open': isMenuOpen }">
+      <li :class="{ active: currentTab === 'Deliveries' }" @click="selectTab('Deliveries')">
+        <span class="nav-icon">📦</span>
+        Deliveries
+      </li>
       <li :class="{ active: currentTab === 'Users' }" @click="selectTab('Users')">
         <span class="nav-icon">👥</span>
         Users
@@ -40,12 +44,10 @@
 
     <div class="navbar-actions">
       <button class="btn-lang" @click="toggleLanguage">
-         {{ locale === 'en' ? 'EN' : 'ES' }}
+        {{ locale === 'en' ? 'EN' : 'ES' }}
       </button>
       <button class="btn-profile">{{ $t('navbar.profile') }}</button>
     </div>
-
-    <button class="btn-profile">Profile</button>
   </nav>
 </template>
 
@@ -207,6 +209,30 @@ const toggleLanguage = () => {
   background: #ffd700;
 }
 
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 101;
+}
+
+.btn-lang {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-lang:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
 .btn-profile {
   background: #ffd700;
   color: #1e4976;
@@ -218,7 +244,6 @@ const toggleLanguage = () => {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 6px rgba(255, 215, 0, 0.3);
-  z-index: 101;
 }
 
 .btn-profile:hover {
@@ -228,19 +253,27 @@ const toggleLanguage = () => {
 }
 
 /* Tablet */
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .nav-menu {
     gap: 2px;
     margin: 0 20px;
   }
 
   .nav-menu li {
-    padding: 20px 16px;
-    font-size: 14px;
+    padding: 20px 14px;
+    font-size: 13px;
   }
 
   .logo-text {
     font-size: 18px;
+  }
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .nav-menu li {
+    padding: 20px 12px;
+    font-size: 13px;
   }
 }
 
@@ -301,6 +334,11 @@ const toggleLanguage = () => {
     display: none;
   }
 
+  .btn-lang {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
   .btn-profile {
     padding: 8px 16px;
     font-size: 13px;
@@ -325,6 +363,11 @@ const toggleLanguage = () => {
   .nav-menu {
     width: 100%;
     right: -100%;
+  }
+
+  .btn-lang {
+    padding: 5px 8px;
+    font-size: 11px;
   }
 
   .btn-profile {

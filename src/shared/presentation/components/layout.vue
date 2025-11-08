@@ -7,9 +7,10 @@ const drawer = ref(false);
 const toggleDrawer = () => { drawer.value = !drawer.value; };
 
 const items = [
-  {label: 'Clients', to: '/management/clients'},
-  {label: 'Users', to: '/management/Users'},
-  {label: 'Vehicles', to: '/management/vehicles'},
+  { label: 'Deliveries', to: '/management/routes/transportist' },
+  { label: 'Clients', to: '/management/clients' },
+  { label: 'Users', to: '/management/Users' },
+  { label: 'Vehicles', to: '/management/vehicles' },
   { label: 'Routes',  to: '/management/routes/list' }
 ];
 
@@ -24,7 +25,7 @@ const toggleLanguage = () => {
 <template>
   <pv-toast/>
   <pv-confirm-dialog/>
-  
+
   <!-- Header fijo -->
   <div class="header">
     <pv-toolbar class="bg-primary">
@@ -60,7 +61,7 @@ const toggleLanguage = () => {
       </template>
     </pv-toolbar>
   </div>
-  
+
   <!-- Contenido principal con layout -->
   <ContainerLayout>
     <router-view/>
