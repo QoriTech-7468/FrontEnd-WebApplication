@@ -8,7 +8,11 @@ import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import {
     Toolbar,
-    Button, Toast, ConfirmDialog, ConfirmationService, ToastService,
+    Button,
+    Toast,
+    ConfirmDialog,
+    ConfirmationService,
+    ToastService,
     Panel,
     Tag,
     IconField,
@@ -17,7 +21,14 @@ import {
     DatePicker,
     Tabs,
     TabPanel,
-    AutoComplete, Dropdown
+    AutoComplete,
+    Dropdown,
+    RadioButton,
+    Textarea,
+    ProgressSpinner,
+    Select,
+    Badge,
+    ProgressBar
 } from "primevue";
 import InputText from "primevue/inputtext";
 import {definePreset} from "@primeuix/themes";
@@ -76,6 +87,12 @@ createApp(App)
     .component('pv-auto-complete', AutoComplete)
     .component('pv-confirm-dialog', ConfirmDialog)
     .component('pv-toast', Toast)
+    .component('pv-radio-button', RadioButton)
+    .component('pv-textarea', Textarea)
+    .component('pv-progress-spinner', ProgressSpinner)
+    .component('pv-select', Select)
+    .component('pv-badge', Badge)
+    .component('pv-progress-bar', ProgressBar)
     .use(ToastService)
     .use(ConfirmationService)
     .use(pinia)
