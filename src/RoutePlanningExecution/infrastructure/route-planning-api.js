@@ -102,10 +102,30 @@ export class RoutePlanningApi extends BaseApi {
         }
     }
 
-
-
     // --- Deliveries ---
     getAllDeliveries() { return this.#deliveries.getAll().then(r => r.data); }
+
+    async getDeliveriesByRoute(routeId) {
+        try {
+            const response = await this.http.get(`${this.#deliveries.endpointPath}`, {
+                params: { routeId }
+            });
+            return response.data;
+        } catch (err) {
+            console.error('Error fetching deliveries by route:', err);
+            throw err;
+        }
+    }
+
+    async updateDelivery(id, payload) {
+        try {
+            const resp = await this.http.patch(`${this.#deliveries.endpointPath}/${id}`, payload);
+            return resp.data;
+        } catch (err) {
+            console.error('Error updating delivery:', err);
+            throw err;
+        }
+    }
 }
 
 export default RoutePlanningApi;

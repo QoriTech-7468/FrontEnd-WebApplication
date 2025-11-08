@@ -10,6 +10,8 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
     const routes = ref([]);
     const vehicles = ref([]);
     const locations = ref([]);
+    const deliveries = ref([]);
+    const currentRoute = ref(null);
     const errors = ref([]);
 
     // --- CARGA INICIAL ---
@@ -34,9 +36,6 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
             throw err;
         }
     }
-
-
-
 
     async function fetchAllVehicles() {
         try {
@@ -133,12 +132,97 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
         }
     }
 
+    // --- TRANSPORTIST FUNCTIONS ---
 
+    // Obtener la ruta asignada al transportista (por ahora obtenemos la primera publicada)
+    async function fetchTransportistRoute() {
+        try {
+            const allRoutes = await api.getAllRoutes();
+            // Por ahora obtenemos la primera ruta publicada
+            const publishedRoute = allRoutes.find(r => r.state === 'published');
+
+            if (publishedRoute) {
+                currentRoute.value = publishedRoute;
+                // Cargar deliveries de esta ruta
+                await fetchDeliveriesByRoute(publishedRoute.id);
+                return publishedRoute;
+            }
+
+            currentRoute.value = null;
+            deliveries.value = [];
+            return null;
+        } catch (err) {
+            console.error('Error fetching transportist route', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
+
+    // Obtener deliveries de una ruta específica
+    async function fetchDeliveriesByRoute(routeId) {
+        try {
+            const data = await api.getDeliveriesByRoute(routeId);
+            deliveries.value = data;
+            return data;
+        } catch (err) {
+            console.error('Error fetching deliveries by route', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
+
+    // Completar un delivery
+    async function completeDelivery(deliveryId) {
+        try {
+            const updated = await api.updateDelivery(deliveryId, {
+                state: 'completed',
+                updatedAt: new Date().toISOString()
+            });
+
+            // Actualizar en el array local
+            const idx = deliveries.value.findIndex(d => d.id === deliveryId);
+            if (idx !== -1) {
+                deliveries.value[idx] = updated;
+            }
+
+            return updated;
+        } catch (err) {
+            console.error('Error completing delivery', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
+
+    // Rechazar un delivery
+    async function rejectDelivery(deliveryId, reason, note) {
+        try {
+            const updated = await api.updateDelivery(deliveryId, {
+                state: 'rejected',
+                rejectionReason: reason,
+                rejectionNote: note,
+                updatedAt: new Date().toISOString()
+            });
+
+            // Actualizar en el array local
+            const idx = deliveries.value.findIndex(d => d.id === deliveryId);
+            if (idx !== -1) {
+                deliveries.value[idx] = updated;
+            }
+
+            return updated;
+        } catch (err) {
+            console.error('Error rejecting delivery', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
 
     return {
         routes,
         vehicles,
         locations,
+        deliveries,
+        currentRoute,
         errors,
         fetchAllRoutes,
         fetchAllVehicles,
@@ -146,6 +230,11 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
         saveDraftRoute,
         publishRoute,
         deleteDraftRoute,
-        fetchLocationsByRoute
+        fetchLocationsByRoute,
+        // Transportist functions
+        fetchTransportistRoute,
+        fetchDeliveriesByRoute,
+        completeDelivery,
+        rejectDelivery
     };
 });

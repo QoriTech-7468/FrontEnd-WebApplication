@@ -1,15 +1,16 @@
 {
   "navbar": {
-    "users": "Usuarios",
     "clients": "Clientes",
+    "users": "Usuarios",
     "vehicles": "Vehículos",
-    "routes": "Rutas"
+    "routes": "Rutas",
+    "deliveries": "Entregas"
   },
   "clients": {
     "title": "Clientes",
     "subtitle": "Agregar o editar tus clientes",
     "register": "Registrar cliente",
-    "company": "Razón Social",
+    "company": "Nombre de la empresa",
     "searchHeader": "Buscar por nombre",
     "searchPlaceholder": "Buscar cliente",
     "selectPrompt": "Selecciona un cliente para ver detalles",
@@ -22,11 +23,11 @@
       "disabled": "Deshabilitado"
     },
     "status2": {
-      "active": "Activado",
-      "disactive": "Desactivado"
+      "active": "Activo",
+      "disactive": "Desactivo"
     },
     "locations": "Ubicaciones: {count}",
-    "selectedLocations": "¿seleccionado?: {count}",
+    "selectedLocations": "¿seleccionadas?: {count}",
     "newLocation": {
       "title": "Nueva Ubicación",
       "clientLabel": "Cliente",
@@ -38,14 +39,14 @@
   },
   "users": {
     "title": "Usuarios",
-    "subtitle": "Agrega nuevos usuarios a tu cuenta",
+    "subtitle": "Agregar nuevos usuarios a tu cuenta",
     "addUser": "Agregar usuario",
     "table": {
       "fullName": "Nombre completo",
       "email": "Correo electrónico",
       "permission": "Permiso",
       "status": "Estado",
-      "isAssigned": "Asignado",
+      "isAssigned": "Está asignado",
       "actions": "Acciones"
     },
     "permissions": {
@@ -71,12 +72,12 @@
       "statusLabel": "Estado",
       "assignedLabel": "Asignado a ruta",
       "cancel": "Cancelar",
-      "save": "Guardar usuario"
+      "save": "Guardar Usuario"
     }
   },
   "vehicles": {
     "title": "Vehículos",
-    "subtitle": "Agrega o edita tus vehículos",
+    "subtitle": "Agregar o editar tus vehículos",
     "registerVehicle": "Registrar vehículo",
     "selectPrompt": "Selecciona un vehículo para ver detalles",
     "detailsHeader": "Detalles del vehículo",
@@ -99,7 +100,7 @@
       "stateLabel": "Estado:",
       "edit": "Editar",
       "membersTitle": "Miembros del equipo",
-      "addMembers": "Agregar miembros",
+      "addMembers": "Agregar miembros del equipo",
       "noMembers": "Sin miembros"
     }
   },
@@ -112,19 +113,17 @@
   },
   "routes": {
     "title": "Rutas",
-    "subtitle": "Gestiona, planifica y monitorea tus rutas logísticas",
-    "plannedDate": "Fecha Planificada",
+    "subtitle": "Gestionar, planificar y monitorear tus rutas logísticas",
+    "plannedDate": "Fecha planeada",
     "editTitle": "Editar Ruta",
     "vehicleLabel": "Vehículo",
-    "unassigned": "Sin Asignar",
+    "unassigned": "Sin asignar",
     "new": "Nueva Ruta",
-
     "list": {
-      "empty": "rutas.lista.vacía",
+      "empty": "routes.list.empty",
       "title": "Lista de Rutas",
       "total": "Total de Rutas"
     },
-
     "item": {
       "id": "ID",
       "vehicle": "Vehículo",
@@ -135,13 +134,11 @@
         "published": "Publicado"
       }
     },
-
     "status": {
       "draft": "Borrador",
       "published": "Publicado",
       "archived": "Archivado"
     },
-
     "actions": {
       "publish": "Publicar",
       "delete": "Eliminar",
@@ -150,57 +147,50 @@
       "save": "Guardar Borrador",
       "back": "Volver a la Lista"
     },
-
     "buttons": {
       "saveDraft": "Guardar Borrador",
       "publish": "Publicar",
       "deleteDraft": "Eliminar"
     },
-
     "tabs": {
       "locationsTab": "Ubicaciones",
       "teamTab": "Equipo"
     },
-
     "monitor": {
       "title": "Monitoreo de Rutas",
-      "subtitle": "Seguimiento de rutas y equipos en tiempo real",
+      "subtitle": "Rastrea rutas y equipos en tiempo real",
       "completed": "Entregas completadas",
       "effectiveness": "Efectividad de la ruta",
       "pending": "Entregas pendientes"
     },
-
     "notifications": {
-      "created": "Ruta creada con éxito",
-      "deleted": "Ruta eliminada con éxito",
-      "updated": "Ruta actualizada con éxito",
-      "published": "Ruta publicada con éxito",
-      "draftSaved": "Borrador guardado con éxito",
-      "publishSuccess": "Ruta publicada con éxito",
-      "deleteSuccess": "Ruta eliminada con éxito",
-      "saved": "Guardado con éxito"
+      "created": "Ruta creada exitosamente",
+      "deleted": "Ruta eliminada exitosamente",
+      "updated": "Ruta actualizada exitosamente",
+      "published": "Ruta publicada exitosamente",
+      "draftSaved": "Borrador guardado exitosamente",
+      "publishSuccess": "Ruta publicada exitosamente",
+      "deleteSuccess": "Ruta eliminada exitosamente",
+      "saved": "Guardado exitosamente"
     },
-
     "errors": {
       "notFound": "Ruta no encontrada",
       "notFoundDetail": "La ruta que intentas acceder no existe.",
-      "loadError": "Error al cargar la ruta",
-      "saveError": "Error al guardar el borrador",
-      "publishError": "Error al publicar la ruta",
-      "deleteError": "Error al eliminar la ruta"
+      "loadError": "Error cargando ruta",
+      "saveError": "Error guardando borrador",
+      "publishError": "Error publicando ruta",
+      "deleteError": "Error eliminando ruta"
     },
-
-    "confirmDelete": "¿Estás seguro de que deseas eliminar este borrador?"
+    "confirmDelete": "¿Estás seguro de que quieres eliminar este borrador?"
   },
-
   "locations": {
     "title": "Ubicaciones",
-    "subtitle": "Gestiona los puntos de recogida y entrega de esta ruta",
+    "subtitle": "Gestionar puntos de recogida y entrega para esta ruta",
     "select": "Seleccionar",
     "unselect": "Deseleccionar",
     "selected": "Ubicaciones Seleccionadas",
     "details": {
-      "title": "Detalles de la Ubicación",
+      "title": "Detalles de Ubicación",
       "address": "Dirección",
       "client": "Cliente",
       "latitude": "Latitud",
@@ -214,10 +204,9 @@
       "noSelection": "Selecciona una ubicación en el mapa para ver detalles"
     }
   },
-
   "teams": {
     "title": "Equipos Disponibles",
-    "subtitle": "Asigna un equipo a esta ruta",
+    "subtitle": "Asignar un equipo a esta ruta",
     "available": "Disponible",
     "notAvailable": "No Disponible",
     "select": "Seleccionar",
@@ -232,11 +221,10 @@
       "available": "Equipos Disponibles"
     }
   },
-
   "modals": {
     "newRoute": {
       "title": "Crear Nueva Ruta",
-      "description": "Define la información básica para crear un borrador de ruta",
+      "description": "Define información básica para crear un borrador de ruta",
       "color": "Color",
       "vehicle": "Vehículo",
       "date": "Fecha",
@@ -244,13 +232,64 @@
       "cancel": "Cancelar"
     }
   },
-
   "topActions": {
-    "filterByDate": "Filtrar por Fecha Planificada",
+    "filterByDate": "Filtrar por Fecha Planeada",
     "createRoute": "Crear Ruta",
     "refresh": "Actualizar"
   },
-
+  "transportist": {
+    "title": "Ruta de hoy",
+    "stops": "paradas",
+    "progress": "Progreso",
+    "done": "Completado",
+    "map": {
+      "title": "Mapa Interactivo",
+      "subtitle": "Haz clic en el mapa para crear una nueva ubicación"
+    },
+    "filters": {
+      "all": "Todas",
+      "inProgress": "En progreso",
+      "completed": "Completadas",
+      "rejected": "Rechazadas"
+    },
+    "delivery": {
+      "unknownClient": "Cliente Desconocido",
+      "noAddress": "Sin dirección",
+      "complete": "Completar",
+      "reject": "Rechazar",
+      "completedStatus": "Completada",
+      "rejectedStatus": "Rechazada",
+      "noDeliveries": "No hay entregas para este filtro"
+    },
+    "rejectModal": {
+      "title": "Rechazar entrega",
+      "subtitle": "Motivo del rechazo",
+      "reasons": {
+        "absentCustomer": "Cliente ausente",
+        "wrongAddress": "Dirección incorrecta",
+        "customerRefused": "Cliente rechazó la entrega",
+        "other": "Otro"
+      },
+      "detailsLabel": "Detalles",
+      "detailsPlaceholder": "Agregar detalles adicionales...",
+      "confirm": "Confirmar"
+    },
+    "notifications": {
+      "completed": "Entrega completada",
+      "completedDetail": "La entrega ha sido marcada como completada exitosamente",
+      "rejected": "Entrega rechazada",
+      "rejectedDetail": "La entrega ha sido rechazada"
+    },
+    "errors": {
+      "loadError": "Error cargando la ruta",
+      "completeError": "Error completando la entrega",
+      "rejectError": "Error rechazando la entrega"
+    },
+    "noRoute": {
+      "title": "No hay ruta asignada",
+      "subtitle": "No tienes ninguna ruta asignada para hoy"
+    }
+  },
   "common": {
     "loading": "Cargando...",
     "noData": "No hay datos disponibles",

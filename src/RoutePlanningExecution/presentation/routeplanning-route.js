@@ -2,6 +2,7 @@
 const RoutesView = () => import('./views/routes-view.vue');
 const RouteEdit = () => import('./views/route-edit.vue');
 const RouteMonitor = () => import('./views/route-monitor-view.vue');
+const TransportistRoutesView = () => import('./views/transportist-routes-view.vue');
 
 const routePlanningRoutes = [
     {
@@ -21,6 +22,12 @@ const routePlanningRoutes = [
         name: 'route-monitor',
         component: RouteMonitor,
         meta: { title: 'Monitor Route' }
+    },
+    {
+        path: 'transportist',
+        name: 'transportist-routes',
+        component: TransportistRoutesView,
+        meta: { title: 'My Route' }
     }
 ];
 
