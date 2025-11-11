@@ -1,4 +1,3 @@
-a
 import {FleetResourceManagementApi} from "../infrastructure/fleet-resource-management-api.js";
 import {defineStore} from "pinia";
 import {computed, ref} from "vue";
