@@ -12,20 +12,47 @@
             placeholder="Select a Customer"
         />
       </div>
-
       <div>
         <label class="block text-700 mb-2">Address</label>
-        <pv-input-text class="w-full" v-model.trim="address" placeholder="Av. ..." />
+        <pv-input-text
+            class="w-full"
+            v-model.trim="address"
+            placeholder="Av. ..."
+        />
       </div>
 
-      <div class="grid">
+      <transition name="fade">
+        <div v-if="showMapPicker" class="mt-2">
+          <MapPicker
+              v-model:address="address"
+              v-model:latitude="latitude"
+              v-model:longitude="longitude"
+          />
+        </div>
+      </transition>
+
+      <div class="grid mt-2">
         <div class="col-6">
           <label class="block text-700 mb-2">Latitude</label>
-          <pv-input-number class="w-full" v-model="latitude" :useGrouping="false" mode="decimal" />
+          <pv-input-number
+              class="w-full"
+              v-model="latitude"
+              mode="decimal"
+              :useGrouping="false"
+              :minFractionDigits="6"
+              placeholder="-12.046374"
+          />
         </div>
         <div class="col-6">
           <label class="block text-700 mb-2">Longitude</label>
-          <pv-input-number class="w-full" v-model="longitude" :useGrouping="false" mode="decimal" />
+          <pv-input-number
+              class="w-full"
+              v-model="longitude"
+              mode="decimal"
+              :useGrouping="false"
+              :minFractionDigits="6"
+              placeholder="-77.042793"
+          />
         </div>
       </div>
 
@@ -56,7 +83,8 @@
 <script setup>
 import { computed, ref, watch } from "vue";
 import Dialog from "primevue/dialog";
-
+import MapPicker from "../components/google-maps-picker.vue"; // Import del mapa
+import { onMounted, onBeforeUnmount } from "vue";
 
 const props = defineProps({
   visible: Boolean,
@@ -74,9 +102,10 @@ const modelVisible = computed({
 
 const clientId  = ref(null);
 const address   = ref("");
-const latitude  = ref(null);
-const longitude = ref(null);
+const latitude  = ref(0);
+const longitude = ref(0);
 const type      = ref("store");
+const showMapPicker = ref(false);
 
 const clientOpts  = computed(() => props.clients ?? []);
 const typeOptions = [
@@ -94,14 +123,14 @@ watch(
         latitude.value  = null;
         longitude.value = null;
         type.value      = "store";
+        showMapPicker.value = false; // SIEMPRE inicia oculto
       }
     },
     { immediate: true }
 );
 
 function submit() {
-  if (!clientId.value) return;
-  if (!address.value.trim()) return;
+  if (!clientId.value || !address.value.trim()) return;
 
   emit("submit", {
     clientsId: clientId.value,
@@ -112,5 +141,19 @@ function submit() {
     isActive: true
   });
 }
-</script>
 
+onMounted(() => {
+  // Escucha el evento global solo si el diálogo está visible
+  window.addEventListener('open-map-picker', handleOpenMapPicker);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('open-map-picker', handleOpenMapPicker);
+});
+
+function handleOpenMapPicker() {
+  if (props.visible) {
+    showMapPicker.value = true;
+  }
+}
+</script>

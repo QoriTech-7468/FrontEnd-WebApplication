@@ -4,6 +4,7 @@ import {computed, ref} from "vue";
 
 import {ClientAssembler} from "../infrastructure/client.assembler.js";
 import {LocationAssembler} from "../infrastructure/location.assembler.js";
+import {VehicleAssembler} from "../../FleetAndResourceManagement/infrastructure/vehicle.assembler.js";
 
 const customerResourceManagementApi = new CustomerLocationManagementApi();
 
@@ -69,20 +70,15 @@ const customerStore = defineStore('clients', () => {
         });
     }
 
-    function updateClients(client) {
-        return customerResourceManagementApi.updateClients(client).then(response => {
-            const resource = response.data
-            const updatedClient = ClientAssembler.toEntityFromResource(resource)
-            const index = clients.value.findIndex(t => t.id === updatedClient.id)
-            if (index !== -1) {
-                clients.value[index] = {
-                    ...updatedClient,
-                    status: updatedClient.isActive ? 'Active' : 'Disabled'
-                }
-            }
+    function updateClients(clients) {
+        return customerResourceManagementApi.updateClients(clients).then(response => {
+            const resource = response.data;
+            const updateClients = ClientAssembler.toEntityFromResource(resource);
+            const index = clients.value.findIndex(c => c["id"] === updateClients.id);
+            if (index !== -1) clients.value[index] = updateClients;
         }).catch(error => {
-            errors.value.push(error)
-        })
+            errors.value.push(error);
+        });
     }
 
     function deleteClients(clientId) {

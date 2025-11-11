@@ -43,12 +43,13 @@
                   <pv-tag :value="selected.status" :severity="statusSeverity(selected.status)" />
                   <div class="flex gap-2">
                     <pv-button label="Edit" icon="pi pi-pencil" @click="openEditDialog" />
-                    <pv-button :label="$t('clients.registerLocation')" severity="warning" @click="showAddLocation = true" />
+                    <pv-button :label="$t('clients.registerLocation')" severity="warning"   @click="openLocationDialog" />
                   </div>
                 </div>
 
                 <div
-                    class="border-1 surface-border border-round p-3 h-20rem flex flex-column align-items-center justify-content-center"
+                    class="border-1 surface-border border-round p-3 h-20rem flex flex-column align-items-center justify-content-center cursor-pointer hover:surface-hover transition-all"
+                    @click="openMapPickerForSelectedClient"
                 >
                   <i class="pi pi-map-marker text-5xl mb-2" />
                   <span class="text-600">{{ $t('clients.mapTitle') }}</span>
@@ -111,7 +112,7 @@ const showCreate = ref(false);
 const showUpdate = ref(false);
 const showAddLocation = ref(false);
 const creating = ref(false);
-
+const shouldOpenMap = ref(false);
 
 const clientsList = computed(() => store.clients ?? []);
 
@@ -166,9 +167,24 @@ async function handleCreateLocation(payload) {
 function openEditDialog() {
   showUpdate.value = true
 }
+function openMapPickerForSelectedClient() {
+  if (!selected.value) return;
+  shouldOpenMap.value = true; // Indica que se abrió desde el mapa
+  showAddLocation.value = true;
+
+  // Esperar un poco para que el diálogo se monte
+  setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('open-map-picker'));
+  }, 200);
+}
 
 function refreshClients() {
   store.fetchClients()
+}
+
+function openLocationDialog() {
+  shouldOpenMap.value = false; // NO abrir el mapa automáticamente
+  showAddLocation.value = true;
 }
 </script>
 
@@ -193,4 +209,3 @@ function refreshClients() {
   transform: translateY(0) !important;
 }
 </style>
-a

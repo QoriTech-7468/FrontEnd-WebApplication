@@ -52,7 +52,7 @@ const localVisible = computed({
   set: (value) => emit('update:visible', value)
 })
 
-const localClient = ref({ id: null, name: '', status: 'Active' })
+const localClient = ref({ id: null, name: '', isActive: true })
 const statusOptions = [
   { label: 'Active', value: true },
   { label: 'Disabled', value: false }
@@ -68,23 +68,31 @@ function closeDialog() {
 
 async function saveChanges() {
   try {
-    await store.updateClients(localClient.value)
+    const cleanClient = {
+      id: localClient.value.id,
+      name: localClient.value.name.trim(),
+      isActive: localClient.value.isActive
+    };
+
+    await store.updateClients(cleanClient);
+
     toast.add({
       severity: 'success',
       summary: 'Client updated',
-      detail: `${localClient.value.name} saved successfully`,
+      detail: `${cleanClient.name} saved successfully`,
       life: 2500
-    })
-    emit('saved', localClient.value)
-    closeDialog()
+    });
+
+    emit('saved', cleanClient);
+    closeDialog();
   } catch (err) {
-    console.error(err)
+    console.error(err);
     toast.add({
       severity: 'error',
       summary: 'Error',
       detail: 'Could not update client',
       life: 3000
-    })
+    });
   }
 }
 </script>
