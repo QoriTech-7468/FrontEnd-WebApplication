@@ -4,7 +4,6 @@ import {computed, ref} from "vue";
 
 import {ClientAssembler} from "../infrastructure/client.assembler.js";
 import {LocationAssembler} from "../infrastructure/location.assembler.js";
-import {VehicleAssembler} from "../../FleetAndResourceManagement/infrastructure/vehicle.assembler.js";
 
 const customerResourceManagementApi = new CustomerLocationManagementApi();
 
