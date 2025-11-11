@@ -20,7 +20,7 @@
             <span class="text-900 font-medium">{{ v.plate }}</span>
             <small class="text-600">{{ $t('vehicles.details.capacityLabel') }} {{ v.capacity }} kg</small>
           </div>
-          <Tag :value="$t(`vehicles.status.${v.status.toLowerCase()}`)" :severity="severity(v.status)" />
+          <Tag :value="$t(`vehicles.status.${v.isActive.toLowerCase()}`)" :severity="severity(v.isActive)" />
         </li>
       </ul>
     </ScrollPanel>

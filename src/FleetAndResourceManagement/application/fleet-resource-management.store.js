@@ -1,3 +1,4 @@
+a
 import {FleetResourceManagementApi} from "../infrastructure/fleet-resource-management-api.js";
 import {defineStore} from "pinia";
 import {computed, ref} from "vue";
@@ -38,6 +39,7 @@ const useStore = defineStore('vehicles', () => {
             errors.value.push(error);
         });
     }
+
     function fetchUsers() {
         fleetResourceManagementApi.getUsers().then(response => {
             users.value = UserAssembler.toEntitiesFromResponse(response);

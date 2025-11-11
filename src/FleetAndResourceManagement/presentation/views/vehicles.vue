@@ -35,9 +35,14 @@
             </div>
             <div>
               <div class="text-sm text-gray-500">State</div>
-              <span :class="['font-bold', selected.status === 'Enabled' ? 'text-green-500' : 'text-red-500']">{{ selected.status }}</span>
+              <span :class="['font-bold', selected.isActive === 'Enabled' ? 'text-green-500' : 'text-red-500']">{{ selected.isActive }}</span>
             </div>
-            <pv-button label="Edit" icon="pi pi-pencil" class="p-button-text" />
+            <pv-button
+                label="Edit"
+                icon="pi pi-pencil"
+                class="p-button-text"
+                @click="openEdit(selected)"
+            />
           </div>
         </pv-panel>
 
@@ -71,6 +76,11 @@
       :available-users="availableUsers"
       @assign-member="handleAssignMember"
   />
+  <EditVehicleDialog
+      v-model:visible="showEdit"
+      :vehicle="vehicleToEdit"
+      @save="handleUpdateVehicle"
+  />
 </template>
 
 <script setup>
@@ -78,11 +88,15 @@ import { computed, ref, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import useStore from "../../application/fleet-resource-management.store.js";
 
+import EditVehicleDialog from "../dialogs/update-vehicle.vue";
 import VehicleSidebar from "../components/vehicle-sidebar.vue";
 import NewVehicleDialog from "../dialogs/add-vehicle.vue";
 import AddTeamMemberDialog from "../dialogs/add-team-member.vue";
 import PvButton from "primevue/button";
 import PvPanel from "primevue/panel";
+
+const showEdit = ref(false);
+const vehicleToEdit = ref(null);
 
 // Inicialización del Store
 const store = useStore();
@@ -137,6 +151,20 @@ async function handleAssignMember(userToAssign) {
 async function handleDeassignMember(memberToDeassign) {
   const updatedUser = { ...memberToDeassign, vehicleId: null };
   await store.updateUsers(updatedUser);
+}
+
+function openEdit(vehicle) {
+  vehicleToEdit.value = { ...vehicle };
+  showEdit.value = true;
+}
+
+async function handleUpdateVehicle(updatedVehicle) {
+  const finalVehicle = {
+    ...updatedVehicle,
+    isActive: updatedVehicle.isActive === "Enabled" ? "Enabled" : "Disabled",
+  };
+  await store.updateVehicles(finalVehicle);
+  showEdit.value = false;
 }
 </script>
 

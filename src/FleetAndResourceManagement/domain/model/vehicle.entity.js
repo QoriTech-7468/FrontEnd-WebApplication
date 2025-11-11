@@ -10,6 +10,6 @@ export class Vehicle {
         this.id = id;
         this.plate = plate;
         this.capacity = capacity;
-        this.status = isActive;
+        this.isActive = isActive;
     }
 }
