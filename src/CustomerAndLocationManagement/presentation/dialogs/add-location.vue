@@ -12,7 +12,7 @@
             placeholder="Select a Customer"
         />
       </div>
-      <div>
+      <div v-if="!showMapPicker">
         <label class="block text-700 mb-2">Address</label>
         <pv-input-text
             class="w-full"
