@@ -1,41 +1,56 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { storeToRefs } from 'pinia' 
 import TeamCard from './team-card.vue'
+
+import useFleetStore from '../../../../../FleetAndResourceManagement/application/fleet-resource-management.store.js'
 
 const { t } = useI18n()
 
-const teams = ref([
-  {
-    id: 'XYZ-123',
-    members: ['Juan Perez', 'Juan Vargas', 'Pedro Pablo'],
-    available: true
-  },
-  {
-    id: 'XYZ-456',
-    members: ['Maria Lopez', 'Carlos Díaz', 'Luis Ramos'],
-    available: true
-  },
-  {
-    id: 'XYZ-789',
-    members: ['Miguel Torres', 'Rosa Perez', 'Ana Gómez'],
-    available: false
-  },
-  {
-    id: 'XYZ-999',
-    members: ['Jorge Silva', 'Ana Ruiz', 'Marcos León'],
-    available: true
+const props = defineProps({
+  route: {
+    type: Object,
+    required: true
   }
-])
+})
 
-const selectedTeam = ref(null)
+const fleetStore = useFleetStore()
+const { vehicles, users, vehiclesLoaded, usersLoaded } = storeToRefs(fleetStore)
+
+//  cargamos AMBOS, vehículos Y usuarios
+onMounted(() => {
+  if (!vehiclesLoaded.value) {
+    fleetStore.fetchVehicles()
+  }
+  if (!usersLoaded.value) {
+    fleetStore.fetchUsers() 
+  }
+})
+
+// Creamos 'teams' uniendo los vehículos con sus respectivos usuarios
+const teams = computed(() => {
+  return vehicles.value.map(vehicle => {
+    // Para cada vehículo, filtramos la lista de usuarios
+    const vehicleMembers = users.value.filter(user => user.vehicleId === vehicle.id)
+
+    // Devolvemos el objeto del vehículo con sus miembros ya asignados
+    return {
+      ...vehicle,
+      members: vehicleMembers
+    }
+  })
+})
+
+
+const selectedTeamId = computed(() => props.route.vehicleId)
 
 const handleSelect = (team) => {
-  selectedTeam.value = team
+  props.route.vehicleId = team.id
 }
 
 const handleUnselect = () => {
-  selectedTeam.value = null
+  props.route.vehicleId = null
 }
 </script>
 
@@ -50,8 +65,11 @@ const handleUnselect = () => {
           v-for="team in teams"
           :key="team.id"
           :team="team"
-          :isSelected="selectedTeam && selectedTeam.id === team.id"
-          :isAvailable="team.available"
+
+          :isSelected="selectedTeamId && selectedTeamId === team.id"
+
+          :isAvailable="team.status?.toLowerCase() === 'enabled'"
+
           @select="handleSelect"
           @unselect="handleUnselect"
       />
@@ -82,7 +100,7 @@ const handleUnselect = () => {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .title {
     font-size: 1.5rem;
   }
