@@ -12,14 +12,26 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
     const locations = ref([]);
     const errors = ref([]);
 
-    // --- CARGA INICIAL ---
-    async function fetchAllRoutes() {
+    const selectedRoute = ref(null);
+
+    async function fetchAndSelectRoute(routeId) {
         try {
-            const data = await api.getAllRoutes();
-            routes.value = data;
+            const route = await getRouteById(routeId); 
+
+            if (route) {
+                selectedRoute.value = route;
+                locations.value = route.locations || [];
+
+            } else {
+                console.error(`Route with id ${routeId} not found.`);
+                selectedRoute.value = null;
+                locations.value = []; 
+            }
+            return route;
         } catch (err) {
-            console.error('Error fetching routes', err);
+            console.error('Error fetching route', err);
             errors.value.push(err);
+            selectedRoute.value = null;
         }
     }
 
@@ -36,8 +48,6 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
     }
 
 
-
-
     async function fetchAllVehicles() {
         try {
             vehicles.value = await api.getAllVehicles();
@@ -47,7 +57,32 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
         }
     }
 
-    // --- CREAR DRAFT ---
+    async function getRouteById(routeId) {
+        try {
+            const route = await api.getRouteById(routeId); // Llama a la API por 1 ruta
+            
+            const idx = routes.value.findIndex(r => r.id == routeId);
+            if (idx !== -1) routes.value[idx] = route;
+            else routes.value.push(route);
+
+            return route;
+        } catch (err) {
+            console.error('Error fetching single route', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
+
+    async function fetchAllRoutes() {
+        try {
+            const data = await api.getAllRoutes();
+            routes.value = data;
+        } catch (err) {
+            console.error('Error fetching routes', err);
+            errors.value.push(err);
+        }
+    }
+
     async function createDraftRoute(routeData) {
         try {
             const newRoute = await api.createRoute({
@@ -56,7 +91,7 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
             });
             routes.value.push(newRoute);
 
-            // ✅ Redireccionar a la lista
+            //  Redireccionar a la lista
             router.push('/management/routes/list');
             return newRoute;
         } catch (err) {
@@ -66,9 +101,9 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
         }
     }
 
+    // ...
     async function saveDraftRoute(routeData) {
         try {
-            // Si la ruta tiene id, actualizamos; sino, creamos
             let savedRoute;
             if (routeData.id) {
                 savedRoute = await api.updateRoute(routeData.id, {
@@ -82,12 +117,12 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
                 });
             }
 
-            // Actualizamos la lista local
-            await fetchAllRoutes();
-
-            // Redirigimos a la lista principal
-            router.push('/management/routes/list');
-
+            const index = routes.value.findIndex(r => r.id === savedRoute.id);
+            if (index !== -1) {
+                routes.value[index] = savedRoute;
+            } else {
+                routes.value.push(savedRoute);
+            }
             return savedRoute;
         } catch (err) {
             console.error('Error saving draft route', err);
@@ -95,19 +130,17 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
             throw err;
         }
     }
+// ...
 
-    // --- PUBLICAR RUTA ---
     async function publishRoute(routeId) {
         try {
             const updated = await api.publishRoute(routeId);
-
-            // actualizar localmente
             const idx = routes.value.findIndex(r => r.id === routeId);
-            if (idx !== -1) routes.value[idx] = updated;
+            if (idx !== -1) {
+                routes.value[idx].state = updated.state;
+            }
 
-            // ✅ Redireccionar a la lista
-            router.push('/management/routes/list');
-            return updated;
+            return routes.value[idx];
         } catch (err) {
             console.error('Error publishing route', err);
             errors.value.push(err);
@@ -120,10 +153,8 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
         try {
             await api.deleteRoute(routeId);
 
-            // eliminar del array local
             routes.value = routes.value.filter(r => r.id !== routeId);
 
-            // ✅ Redireccionar a la lista
             await router.push('/management/routes/list');
             return true;
         } catch (err) {
@@ -140,12 +171,15 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
         vehicles,
         locations,
         errors,
+        selectedRoute,
         fetchAllRoutes,
         fetchAllVehicles,
+        fetchLocationsByRoute,
+        fetchAndSelectRoute,
+        getRouteById,
         createDraftRoute,
         saveDraftRoute,
         publishRoute,
-        deleteDraftRoute,
-        fetchLocationsByRoute
+        deleteDraftRoute
     };
 });
