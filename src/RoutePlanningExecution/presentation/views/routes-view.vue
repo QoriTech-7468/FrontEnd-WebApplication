@@ -1,25 +1,35 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { storeToRefs } from 'pinia' 
 import { useRoutePlanningStore } from '../../application/routeplanning.store.js'
+
+//  Importar el store de vehículos
+import useFleetStore from '../../../FleetAndResourceManagement/application/fleet-resource-management.store.js'
+
 import RouteList from '../components/routes-view/route-list.vue'
 import NewRouteModal from '../components/routes-view/new-route-modal.vue'
 import TopActions from '../components/routes-view/top-actions.vue'
 
-// --- i18n ---
 const { t } = useI18n()
 
-// --- Estado general ---
 const store = useRoutePlanningStore()
+
+const fleetStore = useFleetStore()
+const { vehiclesLoaded } = storeToRefs(fleetStore) 
+
 const plannedDate = ref(null)
 const showModal = ref(false)
 
-// --- Cargar rutas al montar ---
 onMounted(async () => {
   await store.fetchAllRoutes()
+
+  //  Cargar los vehículos para que los 'route-item' puedan mostrar la placa
+  if (!vehiclesLoaded.value) {
+    await fleetStore.fetchVehicles()
+  }
 })
 
-// --- Crear nueva ruta (draft) ---
 const handleAddRoute = async (routeData) => {
   try {
     await store.createDraftRoute({
@@ -34,7 +44,6 @@ const handleAddRoute = async (routeData) => {
   }
 }
 
-// --- Abrir modal ---
 const handleCreateClick = () => {
   showModal.value = true
 }
@@ -42,7 +51,6 @@ const handleCreateClick = () => {
 
 <template>
   <div class="routes-view">
-    <!-- Encabezado principal -->
     <div class="flex align-items-center justify-content-between mb-3">
       <div>
         <div class="text-900 text-3xl font-semibold">{{ t('routes.title') }}</div>
@@ -65,8 +73,7 @@ const handleCreateClick = () => {
 
     <!-- Lista de Rutas -->
     <RouteList :routes="store.routes" />
-
-    <!-- Modal Nueva Ruta -->
+    
     <NewRouteModal
         v-if="showModal"
         @close="showModal = false"
