@@ -1,5 +1,4 @@
 <script setup>
-// @TODO USAR UN COMPONENTE REUTILIZADO DE MAPA INTERACTIVO
 defineProps({
   team: Object,
   isSelected: Boolean,
@@ -10,11 +9,11 @@ const emits = defineEmits(['select', 'unselect'])
 </script>
 
 <template>
-  <div class="team-card" :class="{ 'selected': isSelected, 'unavailable': !isAvailable }">
+  <div v-if="team" class="team-card" :class="{ 'selected': isSelected, 'unavailable': !isAvailable }">
     <div class="team-header">
       <div class="team-id">
         <i class="pi pi-truck text-xl"></i>
-        <span class="team-code">{{ team.id }}</span>
+        <span class="team-code">{{ team.plate }}</span>
       </div>
       <div class="status-badge" :class="{ 'available': isAvailable, 'unavailable': !isAvailable }">
         <i class="pi" :class="isAvailable ? 'pi-check-circle' : 'pi-times-circle'"></i>
@@ -25,9 +24,13 @@ const emits = defineEmits(['select', 'unselect'])
     <div class="team-members">
       <h4 class="members-title">Team Members</h4>
       <div class="members-list">
-        <div v-for="member in team.members" :key="member" class="member-item">
+
+        <div v-for="member in team.members" :key="member.id" class="member-item">
           <i class="pi pi-user text-sm"></i>
-          <span>{{ member }}</span>
+          <span>{{ member.fullname }}</span> </div>
+
+        <div v-if="!team.members || team.members.length === 0" class="member-item-empty">
+          <span>No members assigned</span>
         </div>
       </div>
     </div>
@@ -159,6 +162,19 @@ const emits = defineEmits(['select', 'unselect'])
   font-size: 0.875rem;
   font-weight: 500;
   color: #374151;
+}
+
+.member-item-empty {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px dashed #e2e8f0;
+  color: #6b7280;
+  font-style: italic;
+  font-size: 0.875rem;
 }
 
 .team-action {
