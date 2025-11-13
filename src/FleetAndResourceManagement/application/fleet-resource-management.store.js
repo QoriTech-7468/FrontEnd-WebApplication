@@ -3,6 +3,8 @@ import {defineStore} from "pinia";
 import {computed, ref} from "vue";
 import {VehicleAssembler} from "../infrastructure/vehicle.assembler.js";
 import {UserAssembler} from "../infrastructure/user.assembler.js";
+import {ClientAssembler} from "../infrastructure/client.assembler.js";
+import {LocationAssembler} from "../infrastructure/location.assembler.js";
 
 const fleetResourceManagementApi = new FleetResourceManagementApi();
 
@@ -14,7 +16,10 @@ const useStore = defineStore('vehicles', () => {
     const vehiclesLoaded = ref(false);
     const users = ref([]);
     const usersLoaded = ref(false);
-
+    const clients = ref([]);
+    const clientsLoaded = ref(false);
+    const locations = ref([]);
+    const locationsLoaded = ref(false);
 
     // Properties
     const vehiclesCount = computed(() => {
@@ -24,8 +29,12 @@ const useStore = defineStore('vehicles', () => {
     const usersCount = computed(() => {
         return usersLoaded ? users.value.length : 0; });
 
+    const clientsCount = computed(() => {
+        return clientsLoaded ? clients.value.length :0 ; });
 
-
+    const locationsCount = computed(() => {
+        return locationsLoaded ? locations.value.length : 0;
+    })
 
     // Actions
     function fetchVehicles() {
@@ -38,7 +47,6 @@ const useStore = defineStore('vehicles', () => {
             errors.value.push(error);
         });
     }
-
     function fetchUsers() {
         fleetResourceManagementApi.getUsers().then(response => {
             users.value = UserAssembler.toEntitiesFromResponse(response);
@@ -48,6 +56,26 @@ const useStore = defineStore('vehicles', () => {
         }).catch(error => {
             errors.value.push(error);
         });
+    }
+    function fetchClients() {
+        fleetResourceManagementApi.getClients().then(response => {
+            clients.value = ClientAssembler.toEntitiesfromResponse(response);
+            clientsLoaded.value = true;
+            console.log(clientsLoaded.value);
+            console.log(clients.value);
+        }).catch(error => {
+            errors.value.push(error);
+        });
+    }
+    function fetchLocations() {
+        fleetResourceManagementApi.getLocations().then(response => {
+            locations.value = LocationAssembler.toEntitiesfromResponse(response);
+            locationsLoaded.value = true;
+            console.log(locationsLoaded.value);
+            console.log(locations.value);
+        }).catch(error => {
+            errors.value.push(error);
+        })
     }
 
     function getVehiclesById(id) {
@@ -104,7 +132,6 @@ const useStore = defineStore('vehicles', () => {
 
     function updateUsers(user) {
         return fleetResourceManagementApi.updateUsers(user).then(response => {
-            // --- AÑADE ESTOS LOGS ---
             console.log('--- PASO 2: Respuesta del API (en el Store) ---');
             console.log('Datos recibidos del API:', response.data);
 
@@ -112,7 +139,6 @@ const useStore = defineStore('vehicles', () => {
             const updatedUser = UserAssembler.toEntityFromResource(resource);
             console.log('--- PASO 3: Usuario "Ensamblado" ---');
             console.log('Objeto final que se guardará en el estado:', updatedUser);
-            // --- FIN DE LOS LOGS ---
 
             const index = users.value.findIndex(t => t.id === updatedUser.id);
             if (index !== -1) {
@@ -132,6 +158,76 @@ const useStore = defineStore('vehicles', () => {
         });
     }
 
+    function getClientsById(id) {
+        let idNum = parseInt(id);
+        return clients.value.find(clients => clients["id"] === idNum);
+    }
+
+    function addClients(client) {
+        fleetResourceManagementApi.createClients(client).then(response => {
+            const resource = response.data;
+            const newClient = ClientAssembler.toEntityFromResource(resource);
+            client.value.push(newClient);
+        }).catch(error => {
+            errors.value.push(error);
+        });
+    }
+
+    function updateClients(client) {
+        fleetResourceManagementApi.updateClients(client).then(response => {
+            const resource = response.data;
+            const updatedClient = ClientAssembler.toEntityFromResource(resource);
+            const index = client.value.findIndex(t => t["id"] === updatedClient.id);
+            if (index !== -1) client.value[index] = updatedClient;
+        }).catch(error => {
+            errors.value.push(error);
+        });
+    }
+
+    function deleteClients(clientId) {
+        fleetResourceManagementApi.deleteClients(clientId).then(() => {
+            const index = clients.value.findIndex(t => t["id"] === clientId);
+            if (index !== -1) clients.value.splice(index, 1);
+        }).catch(error => {
+            errors.value.push(error);
+        });
+    }
+
+    function getLocationById(id) {
+        let idNum = parseInt(id);
+        return locations.value.find(locations => locations["id"] === idNum);
+    }
+
+    function addLocation(client) {
+        fleetResourceManagementApi.createLocations(client).then(response => {
+            const resource = response.data;
+            const newLocation = LocationAssembler.toEntityFromResource(resource);
+            locations.value.push(newLocation);
+        }).catch(error => {
+            errors.value.push(error);
+        });
+    }
+
+    function updateLocation(location) {
+        fleetResourceManagementApi.updateLocations(location).then(response => {
+            const resource = response.data;
+            const updatedLocation = LocationAssembler.toEntityFromResource(resource);
+            const index = location.value.findIndex(t => t["id"] === updatedLocation.id);
+            if (index !== -1) location.value[index] = updatedLocation;
+        }).catch(error => {
+            errors.value.push(error);
+        });
+    }
+
+    function deleteLocation(locationId) {
+        fleetResourceManagementApi.deleteClients(locationId).then(() => {
+            const index = locations.value.findIndex(t => t["id"] === locationId);
+            if (index !== -1) locations.value.splice(index, 1);
+        }).catch(error => {
+            errors.value.push(error);
+        });
+    }
+
     return {
         // State
         vehicles,
@@ -139,15 +235,20 @@ const useStore = defineStore('vehicles', () => {
         vehiclesLoaded,
         users,
         usersLoaded,
-
+        clients,
+        clientsLoaded,
+        locations,
+        locationsLoaded,
         // Properties
         vehiclesCount,
         usersCount,
-
+        clientsCount,
+        locationsCount,
         // Actions
         fetchVehicles,
         fetchUsers,
-
+        fetchClients,
+        fetchLocations,
         getVehiclesById,
         addVehicles,
         updateVehicles,
@@ -156,6 +257,14 @@ const useStore = defineStore('vehicles', () => {
         addUsers,
         updateUsers,
         deleteUsers,
+        getClientsById,
+        addClients,
+        updateClients,
+        deleteClients,
+        getLocationById,
+        addLocation,
+        updateLocation,
+        deleteLocation
     };
 
 });
