@@ -1,75 +1,47 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, computed } from 'vue' // Importar 'computed'
+import { storeToRefs } from 'pinia'
 import SelectedLocationsList from './selected-locations-list.vue'
 import LocationDetails from './location-details.vue'
 import InteractiveMap from './interactive-map.vue'
-import { useRoutePlanningStore } from '../../../../application/routeplanning.store.js'
+
+// Importar el store de FLOTA
+import useFleetStore from '../../../../../FleetAndResourceManagement/application/fleet-resource-management.store.js'
 
 const props = defineProps({
-  route: { type: Object, required: false, default: null }
+  route: { type: Object, required: true }
 })
 
-const store = useRoutePlanningStore()
-const loading = ref(false)
+const fleetStore = useFleetStore()
+
+const { locations: allLocations, locationsLoaded } = storeToRefs(fleetStore)
 const selectedLocation = ref(null)
-const locations = ref([]) // locations asociadas a la ruta
-const allLocations = ref([]) // todas las posibles ubicaciones
 
-// 📦 Cargar locations asociadas a la ruta
-const loadLocations = async () => {
-  if (!props.route) {
-    locations.value = []
-    return
+// Cargar todas las locaciones disponibles (para el mapa)
+onMounted(() => {
+  if (!locationsLoaded.value) {
+    fleetStore.fetchLocations()
   }
-
-  loading.value = true
-  try {
-    // fetchLocationsByRoute devuelve entities (array normalizado)
-    const data = await store.fetchLocationsByRoute(props.route.id)
-    locations.value = data ?? []
-  } catch (err) {
-    console.error('Error loading locations by route:', err)
-    // fallback si el store falla
-    locations.value = props.route.locations ?? []
-  } finally {
-    loading.value = false
-  }
-}
-
-// 🗺️ Cargar todas las ubicaciones disponibles (para mostrar en el mapa)
-const loadAllLocations = async () => {
-  try {
-    allLocations.value = await store.fetchAllLocations?.() ?? []
-  } catch (err) {
-    console.warn('No se pudieron cargar todas las ubicaciones:', err)
-    allLocations.value = []
-  }
-}
-
-onMounted(async () => {
-  await Promise.all([loadLocations(), loadAllLocations()])
 })
 
-// 🔁 Reaccionar a cambios en la ruta actual
-watch(() => props.route?.id, async (newVal, oldVal) => {
-  if (newVal !== oldVal) await loadLocations()
+const isSelected = computed(() => {
+  if (!selectedLocation.value || !props.route.locations) return false
+  return props.route.locations.some(l => l.id === selectedLocation.value.id)
 })
 
-// 📍 Seleccionar ubicación
 const handleSelectLocation = (loc) => {
   selectedLocation.value = loc
 }
 
-// ➕ Agregar ubicación a la ruta
 const handleAddToSelected = (loc) => {
-  if (!locations.value.some(l => l.id === loc.id)) {
-    locations.value.push(loc)
+  if (!props.route.locations.some(l => l.id === loc.id)) {
+    props.route.locations.push(loc)
   }
 }
 
-// ➖ Quitar ubicación de la ruta
 const handleRemoveFromSelected = (loc) => {
-  locations.value = locations.value.filter(l => l.id !== loc.id)
+  props.route.locations = props.route.locations.filter(l => l.id !== loc.id)
+  
   if (selectedLocation.value && selectedLocation.value.id === loc.id) {
     selectedLocation.value = null
   }
@@ -78,26 +50,22 @@ const handleRemoveFromSelected = (loc) => {
 
 <template>
   <div class="locations-tab">
-    <!-- 📋 Lista de ubicaciones asignadas -->
     <SelectedLocationsList
-        :locations="locations"
+        :locations="route.locations"
         :selectedLocation="selectedLocation"
         @select="handleSelectLocation"
     />
 
-    <!-- 🔍 Zona central con detalles y mapa -->
     <div class="search-locations-section">
       <LocationDetails
           :location="selectedLocation"
-          :isSelected="selectedLocation && locations.some(l => l.id === selectedLocation.id)"
-          :isReadOnly="false"
+          :isSelected="isSelected" :isReadOnly="false"
           @select="handleAddToSelected"
           @unselect="handleRemoveFromSelected"
       />
 
       <InteractiveMap
-          :locations="allLocations"
-          :selectedLocation="selectedLocation"
+          :locations="allLocations" :selectedLocation="selectedLocation"
           @select="handleSelectLocation"
       />
     </div>
@@ -111,7 +79,6 @@ const handleRemoveFromSelected = (loc) => {
   min-height: 420px;
 }
 
-/* Contenedor de la sección derecha (detalles + mapa) */
 .search-locations-section {
   display: flex;
   flex-direction: column;
@@ -119,7 +86,6 @@ const handleRemoveFromSelected = (loc) => {
   gap: 1rem;
 }
 
-/* Diseño limpio para estructura consistente */
 .selected-list,
 .location-details,
 .interactive-map {
