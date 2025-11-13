@@ -1,6 +1,10 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { computed } from 'vue' //  computed
+
+import useFleetStore from '../../../../FleetAndResourceManagement/application/fleet-resource-management.store.js'
+
 import RouteStatusBadge from './route-status-badge.vue'
 
 const props = defineProps({
@@ -12,6 +16,15 @@ const props = defineProps({
 
 const router = useRouter()
 const { t } = useI18n()
+
+//  Inicializar el store
+const fleetStore = useFleetStore()
+
+const assignedVehicle = computed(() => {
+  if (!props.route.vehicleId) return null
+  
+  return fleetStore.vehicles.find(v => v.id === props.route.vehicleId)
+})
 
 const handleClick = () => {
   if (props.route.state === 'draft') {
@@ -29,18 +42,17 @@ const handleClick = () => {
 <template>
   <button class="route-item" @click="handleClick">
     <div class="route-info">
-      <!-- Cabecera -->
       <div class="flex align-items-center gap-2 mb-2">
         <div class="text-900 text-lg font-semibold">
-          {{ t('routes.item.id', { id: route.id }) }}
+          {{ route.id }}
         </div>
         <RouteStatusBadge :status="route.state" />
       </div>
 
-      <!-- Vehículo -->
       <div class="text-600 text-sm mb-1">
-        <span v-if="route.vehicleId">
-          {{ t('routes.item.vehicle', { id: route.vehicleId }) }}
+        <span v-if="assignedVehicle">
+          <i class="pi pi-truck text-xs mr-1"></i>
+          {{ assignedVehicle.plate }}
         </span>
         <span v-else class="italic text-500">
           {{ t('routes.item.noVehicle') }}
@@ -48,7 +60,6 @@ const handleClick = () => {
       </div>
     </div>
 
-    <!-- Meta info -->
     <div class="route-meta">
       <div class="text-500 text-sm">{{ t('routes.item.created') }}</div>
       <div class="text-700 font-medium">
