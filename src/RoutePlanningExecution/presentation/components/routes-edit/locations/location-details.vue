@@ -9,7 +9,7 @@ const emits = defineEmits(['select', 'unselect'])
 
 <template>
   <div class="details">
-    <h4 class="title">Location Details</h4>
+    <h4 class="title">Location details</h4>
 
     <div v-if="location" class="info">
       <div class="info-grid">
