@@ -19,7 +19,6 @@ const activeTabIndex = ref(0)
 const loading = ref(true)
 const saving = ref(false)
 
-// Helpers
 const isDraft = computed(() => !!currentRoute.value && String(currentRoute.value.state).toLowerCase() === 'draft')
 const isPublished = computed(() => !!currentRoute.value && String(currentRoute.value.state).toLowerCase() === 'published')
 
@@ -27,13 +26,12 @@ const isPublished = computed(() => !!currentRoute.value && String(currentRoute.v
 async function loadRoute() {
   loading.value = true
   try {
-    if (!store.routes || store.routes.length === 0) {
-      await store.fetchAllRoutes()
-    }
-
     const rid = route.params.routeId
-    currentRoute.value = store.routes.find(r => String(r.id) === String(rid))
-
+    currentRoute.value = await store.getRouteById(rid)
+    
+    if (currentRoute.value && !Array.isArray(currentRoute.value.locations)) {
+      currentRoute.value.locations = []
+    }
     if (!currentRoute.value) {
       toast.add({
         severity: 'warn',
@@ -60,52 +58,23 @@ onMounted(() => {
   loadRoute()
 })
 
-// --- Acciones ---
-const saveDraft = async () => {
-  if (!currentRoute.value) return
-  saving.value = true
-  try {
-    await store.saveDraftRoute(currentRoute.value)
-    toast.add({
-      severity: 'success',
-      summary: t('routes.notifications.saved'),
-      detail: t('routes.notifications.draftSaved'),
-      life: 2500
-    })
-    await router.push('/management/routes/list')
-  } catch (err) {
-    console.error('saveDraft error', err)
-    toast.add({
-      severity: 'error',
-      summary: t('common.error'),
-      detail: t('routes.errors.saveError'),
-      life: 2500
-    })
-  } finally {
-    saving.value = false
-  }
-}
-
 const publishDraft = async () => {
   if (!currentRoute.value || !isDraft.value) return
   saving.value = true
   try {
-    await store.publishRoute(currentRoute.value.id)
+    await store.saveDraftRoute(currentRoute.value);
+    
+    await store.publishRoute(currentRoute.value.id);
+
     toast.add({
       severity: 'success',
       summary: t('routes.notifications.published'),
       detail: t('routes.notifications.publishSuccess'),
       life: 2500
     })
-    await router.push('/management/routes/list')
+    await router.push('/management/routes/list') 
   } catch (err) {
-    console.error('publishDraft error', err)
-    toast.add({
-      severity: 'error',
-      summary: t('common.error'),
-      detail: t('routes.errors.publishError'),
-      life: 2500
-    })
+    // ...
   } finally {
     saving.value = false
   }
@@ -132,6 +101,25 @@ const deleteDraft = async () => {
       detail: t('routes.errors.deleteError'),
       life: 2500
     })
+  } finally {
+    saving.value = false
+  }
+}
+
+const saveDraft = async () => {
+  if (!currentRoute.value) return
+  saving.value = true
+  try {
+    await store.saveDraftRoute(currentRoute.value)
+    toast.add({
+      severity: 'success',
+      summary: t('routes.notifications.saved'),
+      detail: t('routes.notifications.draftSaved'),
+      life: 2500
+    })
+    await router.push('/management/routes/list') 
+  } catch (err) {
+    // ...
   } finally {
     saving.value = false
   }
