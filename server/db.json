@@ -10,39 +10,54 @@
       "status": "Active"
     },
     {
+      "id": 2,
       "fullname": "Yaku",
       "email": "yaku@hotmail.com",
       "role": "Driver",
-      "status": "Inactive",
-      "vehicleId": null,
       "password": "",
-      "id": 2
+      "vehicleId": "aBl-hPs"
     },
     {
+      "id": 3,
       "fullname": "Lora Carol",
       "email": "lora@hotmail.com",
       "role": "Driver",
-      "status": "Active",
-      "vehicleId": null,
       "password": "",
-      "id": 3
+      "vehicleId": "1"
     },
     {
+      "id": 4,
       "fullname": "joh",
       "email": "hoj@hotmail.com",
       "role": "Administrator",
-      "status": "Active",
-      "vehicleId": null,
       "password": "",
-      "id": 4
+      "vehicleId": "1"
     }
   ],
   "vehicles": [
     {
       "id": "1",
-      "plate": "123bcd",
-      "capacity": 400,
-      "isActive": "Enabled"
+      "plate": "123bcs",
+      "capacity": 402,
+      "isActive": "Enabled",
+      "members": [
+        {
+          "id": 3,
+          "fullname": "Lora Carol",
+          "email": "lora@hotmail.com",
+          "role": "Driver",
+          "password": "",
+          "vehicleId": "1"
+        },
+        {
+          "id": 4,
+          "fullname": "joh",
+          "email": "hoj@hotmail.com",
+          "role": "Administrator",
+          "password": "",
+          "vehicleId": "1"
+        }
+      ]
     },
     {
       "id": "2",
@@ -67,8 +82,7 @@
     {
       "id": 1,
       "name": "chris",
-      "isActive": true,
-      "status": "Active"
+      "isActive": true
     },
     {
       "id": 2,
@@ -93,13 +107,13 @@
       "latitude": -11.1075,
       "longitude": -77.6053,
       "address": "Av. Juan Velasco, Huacho",
-      "type": "store",
+      "proximity": "far",
       "isActive": true
     },
     {
       "clientsId": 1,
       "address": "Av.LaMar",
-      "type": "store",
+      "proximity": "close",
       "latitude": 12,
       "longitude": 12,
       "isActive": true,
@@ -108,7 +122,7 @@
     {
       "clientsId": 2,
       "address": "av.salavery",
-      "type": "local",
+      "proximity": "far",
       "latitude": 12,
       "longitude": 13,
       "isActive": true,
@@ -117,7 +131,7 @@
     {
       "clientsId": 2,
       "address": "av.salavery",
-      "type": "local",
+      "proximity": "mid",
       "latitude": 12,
       "longitude": 13,
       "isActive": true,
@@ -126,7 +140,7 @@
     {
       "clientsId": 4,
       "address": "Va. La mar",
-      "type": "store",
+      "proximity": "mid",
       "latitude": 123,
       "longitude": 983,
       "isActive": true,
@@ -135,11 +149,20 @@
     {
       "clientsId": 2,
       "address": "Av Salaber",
-      "type": "warehouse",
+      "proximity": "far",
       "latitude": 12,
       "longitude": 13,
       "isActive": true,
       "id": 7
+    },
+    {
+      "clientsId": 1,
+      "address": "WWQ7+WCJ, Av. Venezuela, Lima 15081, Peru",
+      "proximity": "close",
+      "latitude": -12.058876756396177,
+      "longitude": -77.08620626369013,
+      "isActive": true,
+      "id": 8
     }
   ],
   "routes": [
