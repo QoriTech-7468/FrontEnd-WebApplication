@@ -17,7 +17,6 @@
             <th>Full name</th>
             <th>Email</th>
             <th>Role</th>
-            <th>Status</th>
             <th>Is Assigned</th>
             <th>Actions</th>
           </tr>
@@ -35,12 +34,6 @@
               <select v-model="user.role" class="select-input">
                 <option value="Administrator">Administrator</option>
                 <option value="Driver">Driver</option>
-              </select>
-            </td>
-            <td>
-              <select v-model="user.status" class="select-input" @change="handleStatusChange(user)">
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
               </select>
             </td>
             <td>
@@ -95,14 +88,6 @@
                   <option value="Driver">Driver</option>
                 </select>
               </div>
-
-              <div class="form-group">
-                <label>Status</label>
-                <select v-model="newUser.status" class="modal-select">
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              </div>
             </div>
           </div>
 
@@ -118,8 +103,6 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 
-// NOTA: Para ser consistente, deberías usar tu store de Pinia aquí también,
-// pero por ahora mantendremos tu lógica de 'fetch' para solucionar el problema.
 const API_URL = "http://localhost:3001/user";
 
 const usersFromApi = ref([]);
@@ -129,7 +112,6 @@ const newUser = ref({
   fullname: "",
   email: "",
   role: "Driver",
-  status: "Active",
   vehicleId: null
 });
 
@@ -158,7 +140,7 @@ const addUser = async () => {
   if (newUser.value.fullname && newUser.value.email) {
     const userToSave = {
       ...newUser.value,
-      password: "" // Aseguramos que la contraseña no vaya vacía si es requerida
+      password: ""
     };
 
     try {
@@ -168,10 +150,9 @@ const addUser = async () => {
         body: JSON.stringify(userToSave)
       });
       const createdUser = await response.json();
-      usersFromApi.value.push(createdUser); // Añadimos a la lista original
+      usersFromApi.value.push(createdUser);
 
-      // Reseteamos el formulario
-      newUser.value = { fullname: "", email: "", role: "Driver", status: "Active", vehicleId: null };
+      newUser.value = { fullname: "", email: "", role: "Driver", vehicleId: null };
       showModal.value = false;
     } catch (error) {
       console.error("Error al añadir el usuario:", error);
@@ -188,21 +169,6 @@ const deleteUser = async (userId) => {
     } catch (error) {
       console.error("Error al eliminar el usuario:", error);
     }
-  }
-};
-// ACTUALIZAR (PATCH) - LÓGICA SIMPLIFICADA
-const handleStatusChange = async (user) => {
-  try {
-    // 'isAssigned' se recalculará
-    await fetch(`${API_URL}/${user.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        status: user.status
-      })
-    });
-  } catch (error) {
-    console.error("Error al actualizar el estado:", error);
   }
 };
 </script>
