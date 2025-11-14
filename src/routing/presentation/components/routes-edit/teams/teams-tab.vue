@@ -68,8 +68,7 @@ const handleUnselect = () => {
 
           :isSelected="selectedTeamId && selectedTeamId === team.id"
 
-          :isAvailable="team.status?.toLowerCase() === 'enabled'"
-
+          :isAvailable="team.isActive?.toLowerCase() === 'enabled'"
           @select="handleSelect"
           @unselect="handleUnselect"
       />
