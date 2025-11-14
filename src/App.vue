@@ -1,9 +1,10 @@
 <script setup>
 import Layout from "./shared/presentation/components/layout.vue";
+import Login from "./IdentityAndManagement/presentation/views/LoginRegister.vue";
 </script>
 
 <template>
-  <layout />
+  <login />
 </template>
 
 <style scoped>

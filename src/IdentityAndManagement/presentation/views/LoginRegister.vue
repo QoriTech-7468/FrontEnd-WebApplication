@@ -85,21 +85,7 @@
               >
             </div>
 
-            <div class="checkbox-wrapper animate-input" style="animation-delay: 0.3s">
-              <div
-                  class="custom-checkbox"
-                  :class="{ checked: loginForm.rememberMe }"
-                  @click="loginForm.rememberMe = !loginForm.rememberMe"
-              >
-                <span v-if="loginForm.rememberMe" class="checkmark-animated">✓</span>
-              </div>
-              <label
-                  class="checkbox-label"
-                  @click="loginForm.rememberMe = !loginForm.rememberMe"
-              >
-                Mantener sesión iniciada
-              </label>
-            </div>
+
 
             <button type="submit" class="btn-primary animate-input" style="animation-delay: 0.4s" :disabled="isLoading">
               <span v-if="!isLoading">Iniciar Sesión</span>
@@ -109,36 +95,12 @@
               </span>
             </button>
 
-            <div class="forgot-password animate-input" style="animation-delay: 0.5s">
-              <a href="#" @click.prevent="handleForgotPassword">¿Olvidaste tu contraseña?</a>
-            </div>
+
           </form>
 
           <!-- Register Form -->
           <form v-else @submit.prevent="handleRegister" class="auth-form" key="register">
-            <div class="form-section animate-input" style="animation-delay: 0.1s">
-              <label class="section-label">Tipo de Cuenta</label>
-              <div class="user-type-grid">
-                <div
-                    class="user-type-card"
-                    :class="{ selected: registerForm.userType === 'transportista' }"
-                    @click="selectUserType('transportista')"
-                >
-                  <div class="user-type-icon">🚛</div>
-                  <div class="user-type-title">Transportista</div>
-                  <div class="user-type-desc">Conductor o empresa de transporte</div>
-                </div>
-                <div
-                    class="user-type-card"
-                    :class="{ selected: registerForm.userType === 'cliente' }"
-                    @click="selectUserType('cliente')"
-                >
-                  <div class="user-type-icon">🏢</div>
-                  <div class="user-type-title">Cliente</div>
-                  <div class="user-type-desc">Empresa que solicita servicios</div>
-                </div>
-              </div>
-            </div>
+
 
             <div class="form-section">
               <div class="form-group animate-input" style="animation-delay: 0.2s">
@@ -235,6 +197,77 @@
                 >
               </div>
             </div>
+            <div class="form-group animate-input" style="animation-delay: 0.1s">
+              <div class="checkbox-wrapper">
+                <div
+                    class="custom-checkbox"
+                    :class="{ checked: registerForm.ownCompany }"
+                    @click="registerForm.ownCompany = !registerForm.ownCompany"
+                >
+                  <span v-if="registerForm.ownCompany" class="checkmark-animated">✓</span>
+                </div>
+                <label
+                    class="checkbox-label"
+                    @click="registerForm.ownCompany = !registerForm.ownCompany"
+                >
+                  I own a company
+                </label>
+              </div>
+            </div>
+
+            <!-- Formulario desplegable (solo si ownCompany = true) -->
+            <transition name="slide-fade">
+              <div v-if="registerForm.ownCompany" class="pl-8 space-y-4">
+                <div class="form-group">
+                  <label for="companyNameInput">Company’s name</label>
+                  <input
+                      type="text"
+                      id="companyNameInput"
+                      class="form-control"
+                      placeholder="Enter the company's name"
+                      v-model="registerForm.companyName"
+                      required
+                  >
+                  <p class="text-xs text-red-500 mt-1" v-if="!registerForm.companyName && registerForm.ownCompany">
+                    This field is required
+                  </p>
+                </div>
+
+                <div class="form-group">
+                  <label for="rucInput">RUC</label>
+                  <input
+                      type="text"
+                      id="rucInput"
+                      class="form-control"
+                      placeholder="Enter RUC number"
+                      v-model="registerForm.companyRuc"
+                      maxlength="11"
+                      @input="validateCompanyRUC"
+                      required
+                  >
+                  <p class="text-xs text-red-500 mt-1" v-if="!registerForm.companyRuc && registerForm.ownCompany">
+                    This field is required
+                  </p>
+                </div>
+
+                <div class="form-group">
+                  <label for="planSelect">Select the plan</label>
+                  <select
+                      id="planSelect"
+                      class="form-control"
+                      v-model="registerForm.plan"
+                      required
+                  >
+                    <option value="" disabled>Plan</option>
+                    <option value="economic">Economic</option>
+                    <option value="professional">Professional Plan</option>
+                    <option value="enterprise">Enterprise Plan</option>
+                  </select>
+                </div>
+              </div>
+            </transition>
+
+
 
             <div class="checkbox-wrapper animate-input" style="animation-delay: 0.7s">
               <div
@@ -287,7 +320,11 @@ export default {
         dni: '',
         ruc: '',
         password: '',
-        acceptTerms: false
+        acceptTerms: false,
+        ownCompany: false,
+        companyName: '',
+        companyRuc: '',
+        plan: ''
       }
     }
   },
