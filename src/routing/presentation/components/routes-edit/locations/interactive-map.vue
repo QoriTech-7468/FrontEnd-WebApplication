@@ -1,35 +1,155 @@
 <script setup>
-// @TODO USAR UN COMPONENTE REUTILIZADO DE MAPA INTERACTIVO
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
-import { ref, computed } from 'vue'
-const props = defineProps({ 
+const props = defineProps({
   locations: Array,
-  selectedLocation: Object 
-})
-const emits = defineEmits(['select'])
-const selectedClient = ref(null)
+  selectedLocation: Object
+});
+const emits = defineEmits(['select']);
 
-// Crear lista única de clientes para el autocomplete
+const selectedClient = ref(null);
 const clients = computed(() => {
-  const uniqueClients = [...new Set(props.locations.map(loc => loc.client))]
-  return uniqueClients.map(client => ({ label: client, value: client }))
-})
-
-// Filtrar ubicaciones por cliente seleccionado
+  if (!props.locations) return [];
+  const clientNames = props.locations.map(loc => loc.client?.name || loc.clientsId || `Client ${loc.customerId}` || 'Unknown');
+  const uniqueClients = [...new Set(clientNames)];
+  return uniqueClients.map(client => ({ label: client, value: client }));
+});
 const filteredLocations = computed(() => {
   if (!selectedClient.value) {
-    return props.locations
+    return props.locations || [];
   }
-  return props.locations.filter(loc => loc.client === selectedClient.value.value)
-})
-
+  const clientKey = selectedClient.value.value;
+  return props.locations.filter(loc => {
+    const name = loc.client?.name || loc.clientsId || `Client ${loc.customerId}` || 'Unknown';
+    return name === clientKey;
+  });
+});
 const handleClientSelect = (event) => {
-  selectedClient.value = event.value
+};
+
+// --- Lógica de Google Maps ---
+const mapContainer = ref(null);
+const loading = ref(true);
+const error = ref(null);
+
+let map, geocoder;
+let activeMarkers = [];
+
+async function loadGoogleMaps() {
+  return new Promise((resolve, reject) => {
+    if (window.google && window.google.maps) {
+      return resolve(window.google.maps);
+    }
+    const existingScript = document.querySelector(`script[src*="maps.googleapis.com"]`);
+    if (existingScript) {
+      existingScript.addEventListener('load', () => resolve(window.google.maps));
+      existingScript.addEventListener('error', reject);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve(window.google.maps);
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
 }
+
+/**
+ * Función principal para inicializar el mapa 
+ */
+async function initializeMap() {
+  try {
+    const googleMaps = await loadGoogleMaps();
+    loading.value = false;
+    
+    const defaultCenter = { lat: -12.0464, lng: -77.0428 };
+
+    map = new googleMaps.Map(mapContainer.value, {
+      center: defaultCenter,
+      zoom: 12, // Zoom para ver la ciudad
+      mapTypeControl: false,
+      streetViewControl: false,
+    });
+
+    geocoder = new googleMaps.Geocoder();
+    
+    drawMarkers(googleMaps, true);
+
+  } catch (err) {
+    console.error("Error cargando Google Maps en InteractiveMap:", err);
+    error.value = "No se pudo cargar Google Maps. Revisa la API Key y la conexión.";
+    loading.value = false;
+  }
+}
+
+/**
+ * Dibuja los pines en el mapa 
+ */
+function drawMarkers(googleMaps, isInitialLoad = false) { // 3. Nuevo parámetro
+  if (!map) return;
+
+  activeMarkers.forEach(marker => marker.setMap(null));
+  activeMarkers = [];
+
+  if (filteredLocations.value.length === 0) return;
+
+  const bounds = new googleMaps.LatLngBounds();
+  let hasValidPins = false; 
+
+  filteredLocations.value.forEach(loc => {
+    if (loc.latitude && loc.longitude) { // Solo si tiene coords
+      hasValidPins = true;
+      const latLng = { lat: loc.latitude, lng: loc.longitude };
+      const isSelected = props.selectedLocation && props.selectedLocation.id === loc.id;
+
+      const marker = new googleMaps.Marker({
+        position: latLng,
+        map: map,
+        title: loc.address,
+        icon: isSelected
+            ? 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png' // Pin azul
+            : 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'  // Pin rojo
+      });
+
+      marker.addListener('click', () => {
+        emits('select', loc);
+      });
+
+      activeMarkers.push(marker);
+      bounds.extend(latLng);
+    }
+  });
+  
+  if (hasValidPins && !isInitialLoad) {
+    map.fitBounds(bounds);
+    if (activeMarkers.length === 1) map.setZoom(15);
+  }
+}
+
+watch([filteredLocations, () => props.selectedLocation], () => {
+  if (window.google && window.google.maps) {
+    // 5. Avisar que NO es la carga inicial
+    drawMarkers(window.google.maps, false);
+  }
+});
+
+// Ciclo de Vida (Sin cambios)
+onMounted(() => {
+  initializeMap();
+});
+
+onUnmounted(() => {
+  if (window.google && window.google.maps) {
+    activeMarkers.forEach(marker => window.google.maps.event.clearInstanceListeners(marker));
+  }
+});
 </script>
 
 <template>
   <div class="map-container">
+
     <div class="search-bar">
       <pv-auto-complete
           v-model="selectedClient"
@@ -41,15 +161,17 @@ const handleClientSelect = (event) => {
       />
     </div>
 
-    <div class="map">
-      <div v-for="loc in filteredLocations"
-           :key="loc.id"
-           class="mock-marker"
-           :class="{ 'selected': selectedLocation && selectedLocation.id === loc.id }"
-           @click="$emit('select', loc)">
-        📍 {{ loc.client }}
-      </div>
+    <div v-if="error" class="overlay error-overlay">
+      <i class="pi pi-exclamation-triangle"></i>
+      <span>{{ error }}</span>
     </div>
+    <div v-if="loading" class="overlay loading-overlay">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>Cargando Mapa...</span>
+    </div>
+
+    <div ref="mapContainer" class="map"></div>
+
   </div>
 </template>
 
@@ -63,54 +185,50 @@ const handleClientSelect = (event) => {
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative; /* Para los overlays */
 }
 
 .search-bar {
   margin-bottom: 1rem;
+  z-index: 2; /* Por encima del mapa */
 }
 
+/* El contenedor del mapa real */
 .map {
   flex: 1;
   background: #f8fafc;
-  border: 1px dashed #cbd5e1;
   border-radius: 8px;
+  min-height: 400px;
+  width: 100%;
+}
+
+/* --- Superposiciones --- */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  z-index: 10;
   padding: 1rem;
-  min-height: 400px;
+  text-align: center;
+  border-radius: 12px;
 }
-
-.mock-marker {
-  cursor: pointer;
-  background: white;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+.loading-overlay .pi {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
-
-.mock-marker:hover {
-  border-color: #043873;
-  background: #f8fafc;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(4, 56, 115, 0.1);
+.error-overlay {
+  background: rgba(240, 219, 219, 0.9);
+  color: #721c24;
 }
-
-.mock-marker.selected {
-  border-color: #043873;
-  background: #043873;
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(4, 56, 115, 0.2);
-}
-
-.mock-marker.selected:hover {
-  background: #032a5a;
+.error-overlay .pi {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 </style>
