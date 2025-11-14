@@ -141,7 +141,7 @@ const handleLocationSelect = (location) => {
         <div v-if="currentVehicle" class="team-section">
           <TeamCard
               :team="currentVehicle" :isSelected="true"
-              :isAvailable="currentVehicle.status?.toLowerCase() === 'enabled'"
+              :isAvailable="currentVehicle.isActive?.toLowerCase() === 'enabled'"
               :isReadOnly="true"
           />
         </div>
