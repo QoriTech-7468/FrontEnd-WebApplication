@@ -13,6 +13,7 @@ import {
     ConfirmDialog,
     ConfirmationService,
     ToastService,
+    Dialog,
     Panel,
     Tag,
     IconField,
@@ -93,6 +94,7 @@ createApp(App)
     .component('pv-select', Select)
     .component('pv-badge', Badge)
     .component('pv-progress-bar', ProgressBar)
+    .component('pv-dialog', Dialog)
     .use(ToastService)
     .use(ConfirmationService)
     .use(pinia)

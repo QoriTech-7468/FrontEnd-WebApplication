@@ -1,30 +1,63 @@
 {
   "user": [
     {
+      "id": 1,
       "fullname": "Santiago",
       "email": "Sant@hotmail.com",
       "role": "Driver",
-      "status": "Inactive",
-      "vehicleId": null,
       "password": "",
-      "id": 1
+      "vehicleId": "aBl-hPs",
+      "status": "Active"
     },
     {
+      "id": 2,
       "fullname": "Yaku",
       "email": "yaku@hotmail.com",
       "role": "Driver",
-      "status": "Inactive",
-      "vehicleId": null,
       "password": "",
-      "id": 2
+      "vehicleId": "aBl-hPs"
+    },
+    {
+      "id": 3,
+      "fullname": "Lora Carol",
+      "email": "lora@hotmail.com",
+      "role": "Driver",
+      "password": "",
+      "vehicleId": "1"
+    },
+    {
+      "id": 4,
+      "fullname": "joh",
+      "email": "hoj@hotmail.com",
+      "role": "Administrator",
+      "password": "",
+      "vehicleId": "1"
     }
   ],
   "vehicles": [
     {
       "id": "1",
-      "plate": "123bcd",
-      "capacity": 400,
-      "isActive": "Enabled"
+      "plate": "123bcs",
+      "capacity": 402,
+      "isActive": "Enabled",
+      "members": [
+        {
+          "id": 3,
+          "fullname": "Lora Carol",
+          "email": "lora@hotmail.com",
+          "role": "Driver",
+          "password": "",
+          "vehicleId": "1"
+        },
+        {
+          "id": 4,
+          "fullname": "joh",
+          "email": "hoj@hotmail.com",
+          "role": "Administrator",
+          "password": "",
+          "vehicleId": "1"
+        }
+      ]
     },
     {
       "id": "2",
@@ -37,12 +70,18 @@
       "plate": "789scd",
       "capacity": 500,
       "isActive": "Enabled"
+    },
+    {
+      "plate": "ABC123",
+      "capacity": 2000,
+      "isActive": "Enabled",
+      "id": "aBl-hPs"
     }
   ],
   "clients": [
     {
       "id": 1,
-      "name": "La Tiendita",
+      "name": "chris",
       "isActive": true
     },
     {
@@ -54,6 +93,11 @@
       "id": 3,
       "name": "Mercadillo",
       "isActive": true
+    },
+    {
+      "id": 4,
+      "name": "Antamina",
+      "isActive": false
     }
   ],
   "locations": [
@@ -63,14 +107,14 @@
       "latitude": -11.1075,
       "longitude": -77.6053,
       "address": "Av. Juan Velasco, Huacho",
-      "type": "store",
+      "proximity": "far",
       "isActive": true
     },
     {
       "clientsId": 1,
       "address": "Av.LaMar",
-      "type": "store",
-      "latitude": 12,
+      "proximity": "close",
+      "latitude": -12.058876756396177,
       "longitude": 12,
       "isActive": true,
       "id": 3
@@ -78,8 +122,8 @@
     {
       "clientsId": 2,
       "address": "av.salavery",
-      "type": "local",
-      "latitude": 12,
+      "proximity": "far",
+      "latitude": -12.058876756396177,
       "longitude": 13,
       "isActive": true,
       "id": 4
@@ -87,11 +131,38 @@
     {
       "clientsId": 2,
       "address": "av.salavery",
-      "type": "local",
-      "latitude": 12,
+      "proximity": "mid",
+      "latitude": -12.058876756396177,
       "longitude": 13,
       "isActive": true,
       "id": 5
+    },
+    {
+      "clientsId": 4,
+      "address": "Va. La mar",
+      "proximity": "mid",
+      "latitude": -12.058876756396177,
+      "longitude": 983,
+      "isActive": true,
+      "id": 6
+    },
+    {
+      "clientsId": 2,
+      "address": "Av Salaber",
+      "proximity": "far",
+      "latitude": -12.058876756396177,
+      "longitude": 13,
+      "isActive": true,
+      "id": 7
+    },
+    {
+      "clientsId": 1,
+      "address": "WWQ7+WCJ, Av. Venezuela, Lima 15081, Peru",
+      "proximity": "close",
+      "latitude": -12.058876756396177,
+      "longitude": -77.08620626369013,
+      "isActive": true,
+      "id": 8
     }
   ],
   "routes": [
@@ -105,14 +176,27 @@
       "finishedAt": null
     },
     {
-      "color": "#0000ff",
-      "vehicleId": null,
+      "color": "#1a3466",
+      "vehicleId": "1",
       "date": null,
-      "state": "draft",
-      "createdAt": "2025-10-10T04:30:20.744Z",
+      "state": "published",
+      "createdAt": "2025-11-14T22:51:08.408Z",
       "startedAt": null,
       "finishedAt": null,
-      "id": "Eel1ZwH"
+      "id": "JpGnYPg",
+      "locations": [
+        {
+          "id": 1,
+          "latitude": -11.1075,
+          "longitude": -77.6053,
+          "address": "Av. Juan Velasco, Huacho",
+          "proximity": "far",
+          "isActive": true,
+          "clientsId": null,
+          "clients": null,
+          "status": "Active"
+        }
+      ]
     }
   ],
   "deliveries": [
