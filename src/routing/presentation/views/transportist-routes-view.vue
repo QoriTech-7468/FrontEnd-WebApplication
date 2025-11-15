@@ -1,9 +1,9 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoutePlanningStore } from '../../application/routeplanning.store.js'
+import { useRoutePlanningStore} from "../../application/routing.store.js";
 import { useToast } from 'primevue/usetoast'
-import MapPlaceholder from '../components/transportist-routes/map-placeholder.vue'
+import InteractiveRouteMap from '../components/transportist-routes/interactive-route-map.vue'
 import RouteProgressCard from '../components/transportist-routes/route-progress-card.vue'
 import DeliveryList from '../components/transportist-routes/delivery-list.vue'
 import RejectDeliveryModal from '../components/transportist-routes/reject-delivery-modal.vue'
@@ -20,12 +20,14 @@ const currentFilter = ref('all')
 onMounted(async () => {
   try {
     loading.value = true
+    // ✅ SOLUCIÓN: Solo llamar fetchTransportistRoute()
+    // Ya carga locations y deliveries automáticamente
     await store.fetchTransportistRoute()
 
-    // Cargar locations para mostrar detalles
-    if (store.currentRoute) {
-      await store.fetchLocationsByRoute(store.currentRoute.id)
-    }
+    // ❌ REMOVIDO: No volver a cargar locations
+    // if (store.currentRoute) {
+    //   await store.fetchLocationsByRoute(store.currentRoute.id)
+    // }
   } catch (err) {
     console.error('Error loading transportist route:', err)
     toast.add({
@@ -98,6 +100,12 @@ const closeRejectModal = () => {
 }
 
 const hasRoute = computed(() => !!store.currentRoute)
+
+const handleDeliveryClick = (delivery) => {
+  console.log('Clicked delivery:', delivery)
+  // Aquí puedes hacer scroll a la card correspondiente en el sidebar
+}
+
 </script>
 
 <template>
@@ -118,7 +126,12 @@ const hasRoute = computed(() => !!store.currentRoute)
     <div v-else class="content-grid">
       <!-- Map Area -->
       <div class="map-area">
-        <MapPlaceholder />
+        <InteractiveRouteMap
+            :deliveries="store.deliveries"
+            :locations="store.locations"
+            :current-route="store.currentRoute"
+            @delivery-click="handleDeliveryClick"
+        />
       </div>
 
       <!-- Sidebar -->
