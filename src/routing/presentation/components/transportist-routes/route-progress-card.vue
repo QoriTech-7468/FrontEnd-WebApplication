@@ -50,8 +50,11 @@ const filterOptions = [
   { value: 'rejected', label: 'transportist.filters.rejected' }
 ]
 
+// ✅ FIX: PrimeVue Select emite un objeto con event.value
 const handleFilterChange = (event) => {
-  emit('update:filter', event.value)
+  // Extraer solo el valor del evento
+  const value = event?.value ?? event
+  emit('update:filter', value)
 }
 </script>
 
@@ -82,6 +85,7 @@ const handleFilterChange = (event) => {
     </div>
 
     <div class="filter-section">
+      <!-- ✅ FIX: Usar @update:model-value que es el evento correcto -->
       <pv-select
           :model-value="filter"
           :options="filterOptions"
@@ -91,7 +95,9 @@ const handleFilterChange = (event) => {
           class="filter-select"
       >
         <template #value="slotProps">
-          <span v-if="slotProps.value">{{ t(filterOptions.find(o => o.value === slotProps.value)?.label) }}</span>
+          <span v-if="slotProps.value">
+            {{ t(filterOptions.find(o => o.value === slotProps.value)?.label || 'transportist.filters.all') }}
+          </span>
         </template>
         <template #option="slotProps">
           <span>{{ t(slotProps.option.label) }}</span>
