@@ -23,9 +23,15 @@ const handleConfirm = () => {
     reason: selectedReason.value,
     note: details.value
   })
+  // ✅ Limpiar después de confirmar
+  selectedReason.value = ''
+  details.value = ''
 }
 
 const handleClose = () => {
+  // ✅ Limpiar al cerrar
+  selectedReason.value = ''
+  details.value = ''
   emit('close')
 }
 </script>
@@ -66,12 +72,21 @@ const handleClose = () => {
         />
       </div>
 
-      <pv-button
-          :label="t('transportist.rejectModal.confirm')"
-          class="confirm-button"
-          @click="handleConfirm"
-          :disabled="!selectedReason"
-      />
+      <div class="button-group">
+        <pv-button
+            :label="t('common.cancel')"
+            severity="secondary"
+            outlined
+            class="cancel-button"
+            @click="handleClose"
+        />
+        <pv-button
+            :label="t('transportist.rejectModal.confirm')"
+            class="confirm-button"
+            @click="handleConfirm"
+            :disabled="!selectedReason"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -124,12 +139,21 @@ const handleClose = () => {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.reason-option:hover {
+  background: #f7fafc;
 }
 
 .reason-label {
   font-size: 0.95rem;
   color: #2d3748;
   cursor: pointer;
+  flex: 1;
 }
 
 .details-group {
@@ -148,11 +172,22 @@ const handleClose = () => {
   width: 100%;
 }
 
+.button-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.cancel-button {
+  flex: 1;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+}
+
 .confirm-button {
-  width: 100%;
-  background: #FFC700 !important;
+  flex: 1;
+  background: #ef4444 !important;
   border: none !important;
-  color: #1a202c !important;
+  color: white !important;
   font-weight: 700 !important;
   padding: 0.875rem !important;
   font-size: 1rem !important;
@@ -161,9 +196,9 @@ const handleClose = () => {
 }
 
 .confirm-button:hover:not(:disabled) {
-  background: #f0b900 !important;
+  background: #dc2626 !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 199, 0, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4) !important;
 }
 
 .confirm-button:disabled {

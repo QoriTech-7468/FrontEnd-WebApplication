@@ -8,7 +8,9 @@ export class RouteAssembler {
             createdAt: resource.createdAt ?? null,
             startedAt: resource.startedAt ?? null,
             finishedAt: resource.finishedAt ?? null,
-            meta: resource.meta ?? {}
+            meta: resource.meta ?? {},
+
+            locations: resource.locations ?? []
         };
     }
 
@@ -19,4 +21,5 @@ export class RouteAssembler {
         return resources.map(r => this.toEntityFromResource(r));
     }
 }
+
 export default RouteAssembler;
