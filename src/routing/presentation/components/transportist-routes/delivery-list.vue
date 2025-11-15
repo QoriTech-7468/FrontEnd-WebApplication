@@ -22,14 +22,16 @@ const emit = defineEmits(['complete', 'reject'])
 
 const { t } = useI18n()
 
+// ✅ FIX: Mejorar la lógica de filtros
 const filteredDeliveries = computed(() => {
   if (props.filter === 'all') {
     return props.deliveries
   }
 
   if (props.filter === 'in_progress') {
+    // Mostrar pending e in_progress (todo lo que no está completado ni rechazado)
     return props.deliveries.filter(d =>
-        d.state !== 'completed' && d.state !== 'rejected'
+        d.state === 'pending' || d.state === 'in_progress'
     )
   }
 
