@@ -39,6 +39,7 @@
     </ul>
 
     <div class="navbar-actions">
+
       <button class="btn-lang" @click="toggleLanguage">
          {{ locale === 'en' ? 'EN' : 'ES' }}
       </button>

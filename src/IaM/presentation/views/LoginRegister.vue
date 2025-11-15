@@ -10,24 +10,24 @@
         </div>
 
         <h1 class="animate-fade-in">Rutana</h1>
-        <p class="animate-fade-in-delay">La plataforma web más completa para transportistas y empresas de logística en el Perú</p>
+        <p class="animate-fade-in-delay">The most complete web platform for carriers and logistics companies in Peru</p>
 
         <div class="features">
           <div class="feature animate-slide-in" style="animation-delay: 0.1s">
             <div class="feature-icon">📋</div>
-            <span>Gestión completa de rutas y pedidos</span>
+            <span>Complete management of routes and orders</span>
           </div>
           <div class="feature animate-slide-in" style="animation-delay: 0.2s">
             <div class="feature-icon">📍</div>
-            <span>Seguimiento GPS en tiempo real</span>
+            <span>Real-time GPS tracking</span>
           </div>
           <div class="feature animate-slide-in" style="animation-delay: 0.3s">
             <div class="feature-icon">💼</div>
-            <span>Panel administrativo avanzado</span>
+            <span>Advanced admin panel</span>
           </div>
           <div class="feature animate-slide-in" style="animation-delay: 0.4s">
             <div class="feature-icon">📊</div>
-            <span>Reportes y análisis detallados</span>
+            <span>Detailed reports and analytics</span>
           </div>
         </div>
       </div>
@@ -37,8 +37,8 @@
     <div class="right-panel">
       <div class="auth-container animate-fade-up">
         <div class="auth-header">
-          <h2 class="animate-title">{{ isLogin ? 'Iniciar Sesión' : 'Crear Cuenta' }}</h2>
-          <p class="animate-subtitle">{{ isLogin ? 'Accede a tu cuenta de Rutana' : 'Únete a la plataforma Rutana' }}</p>
+          <h2 class="animate-title">{{ isLogin ? 'Log In' : 'Create Account' }}</h2>
+          <p class="animate-subtitle">{{ isLogin ? 'Access your Rutana account' : 'Join the Rutana platform' }}</p>
         </div>
 
         <div class="auth-tabs">
@@ -47,14 +47,14 @@
               :class="{ active: isLogin }"
               @click="switchToLogin"
           >
-            Iniciar Sesión
+            Log In
           </div>
           <div
               class="auth-tab"
               :class="{ active: !isLogin }"
               @click="switchToRegister"
           >
-            Crear Cuenta
+            Create Account
           </div>
         </div>
 
@@ -74,12 +74,12 @@
             </div>
 
             <div class="form-group animate-input" style="animation-delay: 0.2s">
-              <label for="loginPassword">Contraseña</label>
+              <label for="loginPassword">Password</label>
               <input
                   type="password"
                   id="loginPassword"
                   class="form-control"
-                  placeholder="Tu contraseña"
+                  placeholder="Your password"
                   v-model="loginForm.password"
                   required
               >
@@ -87,11 +87,11 @@
 
 
 
-            <button type="submit" class="btn-primary animate-input" style="animation-delay: 0.4s" :disabled="isLoading">
-              <span v-if="!isLoading">Iniciar Sesión</span>
+            <button type="submit" class="btn-rutana animate-input" style="animation-delay: 0.4s" :disabled="isLoading">
+              <span v-if="!isLoading">Log In</span>
               <span v-else class="loading-text">
                 <span class="loading-spinner"></span>
-                Iniciando sesión...
+                Signing in...
               </span>
             </button>
 
@@ -104,32 +104,32 @@
 
             <div class="form-section">
               <div class="form-group animate-input" style="animation-delay: 0.2s">
-                <label for="registerName">Nombre Completo</label>
+                <label for="registerName">Name</label>
                 <input
                     type="text"
                     id="registerName"
                     class="form-control"
-                    placeholder="Juan Pérez García"
+                    placeholder="Juan"
                     v-model="registerForm.name"
                     required
                 >
               </div>
 
               <div class="form-group animate-input" style="animation-delay: 0.3s">
-                <label for="registerEmail">Email</label>
+                <label for="registerEmail">Last Name</label>
                 <input
-                    type="email"
-                    id="registerEmail"
+                    type="text"
+                    id="registerName"
                     class="form-control"
-                    placeholder="juan@empresa.com"
-                    v-model="registerForm.email"
+                    placeholder="Pérez García"
+                    v-model="registerForm.lastname"
                     required
                 >
               </div>
 
               <div class="form-row animate-input" style="animation-delay: 0.4s">
                 <div class="form-group">
-                  <label for="registerPhone">Teléfono</label>
+                  <label for="registerPhone">Phone</label>
                   <input
                       type="tel"
                       id="registerPhone"
@@ -140,12 +140,12 @@
                   >
                 </div>
                 <div class="form-group">
-                  <label for="companyName">Empresa</label>
+                  <label for="companyName">Company</label>
                   <input
                       type="text"
                       id="companyName"
                       class="form-control"
-                      placeholder="Nombre de empresa"
+                      placeholder="Company name"
                       v-model="registerForm.company"
                       required
                   >
@@ -155,15 +155,13 @@
               <!-- Campos específicos por tipo de usuario -->
               <transition name="slide-fade">
                 <div v-if="registerForm.userType === 'transportista'" class="form-group animate-input" style="animation-delay: 0.5s">
-                  <label for="dniTransportista">DNI</label>
+                  <label for="dniTransportista">Email</label>
                   <input
-                      type="text"
-                      id="dniTransportista"
+                      type="email"
+                      id="registerEmail"
                       class="form-control"
-                      placeholder="12345678"
-                      v-model="registerForm.dni"
-                      maxlength="8"
-                      @input="validateDNI"
+                      placeholder="juan@empresa.com"
+                      v-model="registerForm.email"
                       required
                   >
                 </div>
@@ -186,12 +184,12 @@
               </transition>
 
               <div class="form-group animate-input" style="animation-delay: 0.6s">
-                <label for="registerPassword">Contraseña</label>
+                <label for="registerPassword">Password</label>
                 <input
                     type="password"
                     id="registerPassword"
                     class="form-control"
-                    placeholder="Crea tu contraseña"
+                    placeholder="Create your password"
                     v-model="registerForm.password"
                     required
                 >
@@ -259,7 +257,7 @@
                       required
                   >
                     <option value="" disabled>Plan</option>
-                    <option value="economic">Economic</option>
+                    <option value="economic">Starter Plan</option>
                     <option value="professional">Professional Plan</option>
                     <option value="enterprise">Enterprise Plan</option>
                   </select>
@@ -285,11 +283,11 @@
               </label>
             </div>
 
-            <button type="submit" class="btn-primary animate-input" style="animation-delay: 0.8s" :disabled="isLoading || !registerForm.acceptTerms">
-              <span v-if="!isLoading">Crear Cuenta</span>
+            <button type="submit" class="btn-rutana animate-input" style="animation-delay: 0.8s" :disabled="isLoading || !registerForm.acceptTerms">
+              <span v-if="!isLoading">Create Account</span>
               <span v-else class="loading-text">
                 <span class="loading-spinner"></span>
-                Creando cuenta...
+                Creating account ...
               </span>
             </button>
           </form>
@@ -314,10 +312,10 @@ export default {
       registerForm: {
         userType: 'transportista',
         name: '',
-        email: '',
+        lastname: '',
         phone: '',
         company: '',
-        dni: '',
+        email: '',
         ruc: '',
         password: '',
         acceptTerms: false,
@@ -348,10 +346,10 @@ export default {
       this.registerForm = {
         userType: 'transportista',
         name: '',
-        email: '',
+        lastname: '',
         phone: '',
         company: '',
-        dni: '',
+        email: '',
         ruc: '',
         password: '',
         acceptTerms: false
@@ -931,9 +929,26 @@ export default {
 
 .btn-primary:active:not(:disabled) {
   transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(255, 214, 10, 0.3);
 }
 
 .btn-primary:disabled {
+  background: #ffd60a;
+  color: #043873;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(255, 214, 10, 0.3);
+  width: 100%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
   opacity: 0.7;
   cursor: not-allowed;
   transform: none;
@@ -969,6 +984,52 @@ export default {
 
 .forgot-password a:hover {
   color: #0f172a;
+}
+.btn-rutana {
+  background: #ffd60a;
+  color: #043873;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(255, 214, 10, 0.3);
+  width: 100%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.btn-rutana:hover:not(:disabled) {
+  background: #fbbf24;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 214, 10, 0.4);
+}
+
+.btn-rutana:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(255, 214, 10, 0.3);
+}
+
+.btn-rutana:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Spinner: ahora en azul oscuro (#043873) para contraste */
+.btn-rutana .loading-spinner {
+  border: 2px solid rgba(4, 56, 115, 0.3);
+  border-top-color: #043873;
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  vertical-align: middle;
 }
 
 /* Media Queries */

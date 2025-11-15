@@ -3,8 +3,18 @@
     "users": "Usuarios",
     "clients": "Clientes",
     "vehicles": "Vehículos",
-    "routes": "Rutas"
+    "routes": "Rutas",
+    "profile": "Profile"
   },
+  "invitations": {
+    "title": "Invitaciones",
+    "no_invitations": "Aún no tienes invitaciones.",
+    "ask_admin": "Pídele al dueño de tu empresa o administrador que te agregue con tu correo.",
+    "error_accept": "Error al aceptar la invitación",
+    "error_cancel": "Error al cancelar",
+    "confirm_cancel": "¿Seguro que deseas cancelar esta invitación?"
+  },
+
   "clients": {
     "title": "Clientes",
     "subtitle": "Agregar o editar tus clientes",
@@ -256,6 +266,7 @@
     "noData": "No hay datos disponibles",
     "actions": "Acciones",
     "confirm": "Confirmar",
+    "accept": "Aceptar",
     "cancel": "Cancelar",
     "back": "Volver",
     "save": "Guardar",

@@ -3,7 +3,16 @@
     "clients": "Clients",
     "users": "Users",
     "vehicles": "Vehicles",
-    "routes": "Routes"
+    "routes": "Routes",
+    "profile": "Profile"
+  },
+  "invitations": {
+    "title": "Invitations",
+    "no_invitations": "You don’t have any invitations yet.",
+    "ask_admin": "Ask your company owner or administrator to add you using your email.",
+    "error_accept": "Error accepting the invitation",
+    "error_cancel": "Error canceling the invitation",
+    "confirm_cancel": "Are you sure you want to cancel this invitation?"
   },
   "clients": {
     "title": "Clients",
@@ -256,6 +265,7 @@
     "noData": "No data available",
     "actions": "Actions",
     "confirm": "Confirm",
+    "accept": "Accept",
     "cancel": "Cancel",
     "back": "Back",
     "save": "Save",

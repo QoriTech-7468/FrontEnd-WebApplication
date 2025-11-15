@@ -3,10 +3,10 @@
     {
       "fullname": "Santiago",
       "email": "Sant@hotmail.com",
-      "role": "Driver",
-      "status": "Inactive",
+      "role": "Management",
+      "status": "Active",
       "vehicleId": null,
-      "password": "",
+      "password": "1239",
       "id": 1
     },
     {
@@ -15,7 +15,7 @@
       "role": "Driver",
       "status": "Inactive",
       "vehicleId": null,
-      "password": "",
+      "password": "1238",
       "id": 2
     }
   ],
