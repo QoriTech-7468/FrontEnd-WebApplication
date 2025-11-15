@@ -1,4 +1,7 @@
 <template>
+  import { useRouter } from 'vue-router';
+  const router = useRouter();
+
   <div class="auth-page">
     <!-- Left Panel - Branding -->
     <div class="left-panel">
@@ -368,7 +371,7 @@ export default {
       try {
         await new Promise(resolve => setTimeout(resolve, 1500));
         console.log('Login data:', this.loginForm);
-        this.$router.push('/users');
+        this.$router.push('/layout');
       } catch (error) {
         console.error('Error en login:', error);
       } finally {
@@ -394,7 +397,7 @@ export default {
       try {
         await new Promise(resolve => setTimeout(resolve, 1500));
         console.log('Register data:', this.registerForm);
-        this.$router.push('/users');
+        this.$router.push('/layout');
       } catch (error) {
         console.error('Error en registro:', error);
       } finally {
