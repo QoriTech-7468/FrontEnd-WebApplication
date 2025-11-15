@@ -52,8 +52,8 @@
         <label class="block text-700 mb-2">Proximity</label>
         <pv-dropdown
             class="w-full"
-            v-model="type"
-            :options="typeOptions"
+            v-model="proximity"
+            :options="proximityOptions"
             optionLabel="label"
             optionValue="value"
             placeholder="Select a Type"
@@ -96,14 +96,14 @@ const clientId  = ref(null);
 const address   = ref("");
 const latitude  = ref(0);
 const longitude = ref(0);
-const type      = ref("store");
+const proximity      = ref("store");
 const showMapPicker = ref(false);
 
 const clientOpts  = computed(() => props.clients ?? []);
-const typeOptions = [
-  { label: "Store",     value: "store" },
-  { label: "Local",     value: "local" },
-  { label: "Warehouse", value: "warehouse" }
+const proximityOptions = [
+  { label: "Close",     value: "close" },
+  { label: "Mid",     value: "mid" },
+  { label: "Far", value: "far" }
 ];
 
 watch(
@@ -114,7 +114,7 @@ watch(
         address.value   = "";
         latitude.value  = null;
         longitude.value = null;
-        type.value      = "store";
+        proximity.value      = "close";
         showMapPicker.value = false; // SIEMPRE inicia oculto
       }
     },

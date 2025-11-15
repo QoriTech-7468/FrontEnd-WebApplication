@@ -47,15 +47,20 @@
                   </div>
                 </div>
 
-                <div
-                    class="border-1 surface-border border-round p-3 h-20rem flex flex-column align-items-center justify-content-center cursor-pointer hover:surface-hover transition-all"
-                    @click="openMapPickerForSelectedClient"
-                >
-                  <i class="pi pi-map-marker text-5xl mb-2" />
-                  <span class="text-600">{{ $t('clients.mapTitle') }}</span>
-                  <small class="text-500">{{ $t('clients.mapHint') }}</small>
-                </div>
+                <LocationsMap
+                    :locations="selectedWithLocations?.locations || []"
+                    @marker-click="openEditLocationDialog"
+                />
+
+                <pv-button
+                    label="Edit location"
+                    class="mt-3"
+                    severity="info"
+                    :disabled="!locationToEdit"
+                    @click="showEditLocation = true"
+                />
               </template>
+
             </pv-panel>
           </div>
 
@@ -85,8 +90,16 @@
         :client="selected"
         @saved="refreshClients"
     />
+
+    <EditLocation
+        v-model:visible="showEditLocation"
+        :location="locationToEdit"
+        @save="saveLocationEdit"
+    />
+
     <pv-toast />
   </div>
+
 </template>
 
 <script setup>
@@ -98,9 +111,11 @@ import LocationsPanel from "../components/locations-panel.vue";
 import AddClientsDialog from "../dialogs/add-clients.vue";
 import AddLocationDialog from "../dialogs/add-location.vue";
 import UpdateClientsDialog from "../dialogs/edit-client.vue";
+import LocationsMap from "../components/locations-map.vue";
 
 import customerStore from "/src/crm/application/customer-location-management.store.js";
 import {Button as PvButton} from "primevue";
+import EditLocation from "../dialogs/edit-location.vue";
 
 const store = customerStore();
 const toast = useToast();
@@ -113,6 +128,9 @@ const showUpdate = ref(false);
 const showAddLocation = ref(false);
 const creating = ref(false);
 const shouldOpenMap = ref(false);
+
+const showEditLocation = ref(false);
+const locationToEdit = ref(null);
 
 const clientsList = computed(() => store.clients ?? []);
 
@@ -182,9 +200,15 @@ function refreshClients() {
   store.fetchClients()
 }
 
-function openLocationDialog() {
-  shouldOpenMap.value = false; // NO abrir el mapa automáticamente
-  showAddLocation.value = true;
+function openEditLocationDialog(location) {
+  locationToEdit.value = location;
+  showEditLocation.value = true;
+}
+
+async function saveLocationEdit(updated) {
+  await store.updateLocation(updated);
+  showEditLocation.value = false;
+  store.fetchLocations(); // Refresh
 }
 </script>
 

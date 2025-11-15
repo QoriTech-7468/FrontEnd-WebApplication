@@ -114,7 +114,7 @@
       "clientsId": 1,
       "address": "Av.LaMar",
       "proximity": "close",
-      "latitude": 12,
+      "latitude": -12.058876756396177,
       "longitude": 12,
       "isActive": true,
       "id": 3
@@ -123,7 +123,7 @@
       "clientsId": 2,
       "address": "av.salavery",
       "proximity": "far",
-      "latitude": 12,
+      "latitude": -12.058876756396177,
       "longitude": 13,
       "isActive": true,
       "id": 4
@@ -132,7 +132,7 @@
       "clientsId": 2,
       "address": "av.salavery",
       "proximity": "mid",
-      "latitude": 12,
+      "latitude": -12.058876756396177,
       "longitude": 13,
       "isActive": true,
       "id": 5
@@ -141,7 +141,7 @@
       "clientsId": 4,
       "address": "Va. La mar",
       "proximity": "mid",
-      "latitude": 123,
+      "latitude": -12.058876756396177,
       "longitude": 983,
       "isActive": true,
       "id": 6
@@ -150,7 +150,7 @@
       "clientsId": 2,
       "address": "Av Salaber",
       "proximity": "far",
-      "latitude": 12,
+      "latitude": -12.058876756396177,
       "longitude": 13,
       "isActive": true,
       "id": 7
@@ -176,44 +176,27 @@
       "finishedAt": null
     },
     {
-      "color": "#0000ff",
-      "vehicleId": null,
+      "color": "#1a3466",
+      "vehicleId": "1",
       "date": null,
       "state": "published",
-      "createdAt": "2025-10-10T04:30:20.744Z",
+      "createdAt": "2025-11-14T22:51:08.408Z",
       "startedAt": null,
       "finishedAt": null,
-      "id": "Eel1ZwH"
-    },
-    {
-      "color": "#3f557d",
-      "vehicleId": null,
-      "date": null,
-      "state": "draft",
-      "createdAt": "2025-10-10T13:06:27.225Z",
-      "startedAt": null,
-      "finishedAt": null,
-      "id": "lz1gD71"
-    },
-    {
-      "color": "#6084c7",
-      "vehicleId": null,
-      "date": null,
-      "state": "draft",
-      "createdAt": "2025-10-11T14:55:38.528Z",
-      "startedAt": null,
-      "finishedAt": null,
-      "id": "8mszuus"
-    },
-    {
-      "color": "#003087",
-      "vehicleId": null,
-      "date": null,
-      "state": "draft",
-      "createdAt": "2025-10-21T20:20:08.196Z",
-      "startedAt": null,
-      "finishedAt": null,
-      "id": "-5crRfn"
+      "id": "JpGnYPg",
+      "locations": [
+        {
+          "id": 1,
+          "latitude": -11.1075,
+          "longitude": -77.6053,
+          "address": "Av. Juan Velasco, Huacho",
+          "proximity": "far",
+          "isActive": true,
+          "clientsId": null,
+          "clients": null,
+          "status": "Active"
+        }
+      ]
     }
   ],
   "deliveries": [

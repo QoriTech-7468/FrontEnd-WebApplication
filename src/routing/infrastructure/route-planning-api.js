@@ -1,6 +1,6 @@
 import { BaseApi } from "../../shared/infrastructure/base-api.js";
 import { BaseEndpoint } from "../../shared/infrastructure/base-endpoints.js";
-import axios from "axios";
+
 
 const usersEndpointPath = import.meta.env.VITE_RUTANA_USERS_ENDPOINT_PATH ?? '/user';
 const vehiclesEndpointPath = import.meta.env.VITE_RUTANA_VEHICLES_ENDPOINT_PATH ?? '/vehicles';
