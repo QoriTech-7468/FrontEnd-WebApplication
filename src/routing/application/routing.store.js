@@ -10,28 +10,53 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
     const routes = ref([]);
     const vehicles = ref([]);
     const locations = ref([]);
+    const deliveries = ref([]);
     const errors = ref([]);
 
     const selectedRoute = ref(null);
+    const currentRoute = ref(null);
 
-    async function fetchAndSelectRoute(routeId) {
+    // SIMULACION DE USUARIOS, cambiar dependiendo del id del trasnportista logueado
+
+    const CURRENT_DRIVER_ID = 2;
+
+    async function fetchAllRoutes() {
         try {
-            const route = await getRouteById(routeId);
+            const data = await api.getAllRoutes();
+            routes.value = data;
+            return data;
+        } catch (err) {
+            console.error('Error fetching routes', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
 
-            if (route) {
-                selectedRoute.value = route;
-                locations.value = route.locations || [];
-
+    async function getRouteById(routeId) {
+        try {
+            const route = await api.getRouteById(routeId);
+            const idx = routes.value.findIndex(r => r.id == routeId);
+            if (idx !== -1) {
+                routes.value[idx] = route;
             } else {
-                console.error(`Route with id ${routeId} not found.`);
-                selectedRoute.value = null;
-                locations.value = [];
+                routes.value.push(route);
             }
             return route;
         } catch (err) {
-            console.error('Error fetching route', err);
+            console.error('Error fetching single route', err);
             errors.value.push(err);
-            selectedRoute.value = null;
+            throw err;
+        }
+    }
+
+    async function fetchAllVehicles() {
+        try {
+            vehicles.value = await api.getAllVehicles();
+            return vehicles.value;
+        } catch (err) {
+            console.error('Error fetching vehicles', err);
+            errors.value.push(err);
+            throw err;
         }
     }
 
@@ -47,39 +72,23 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
         }
     }
 
-
-    async function fetchAllVehicles() {
+    async function fetchAndSelectRoute(routeId) {
         try {
-            vehicles.value = await api.getAllVehicles();
-        } catch (err) {
-            console.error('Error fetching vehicles', err);
-            errors.value.push(err);
-        }
-    }
-
-    async function getRouteById(routeId) {
-        try {
-            const route = await api.getRouteById(routeId); // Llama a la API por 1 ruta
-
-            const idx = routes.value.findIndex(r => r.id == routeId);
-            if (idx !== -1) routes.value[idx] = route;
-            else routes.value.push(route);
-
+            const route = await getRouteById(routeId);
+            if (route) {
+                selectedRoute.value = route;
+                locations.value = route.locations || [];
+            } else {
+                console.error(`Route with id ${routeId} not found.`);
+                selectedRoute.value = null;
+                locations.value = [];
+            }
             return route;
         } catch (err) {
-            console.error('Error fetching single route', err);
+            console.error('Error fetching and selecting route', err);
             errors.value.push(err);
+            selectedRoute.value = null;
             throw err;
-        }
-    }
-
-    async function fetchAllRoutes() {
-        try {
-            const data = await api.getAllRoutes();
-            routes.value = data;
-        } catch (err) {
-            console.error('Error fetching routes', err);
-            errors.value.push(err);
         }
     }
 
@@ -90,8 +99,6 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
                 state: 'draft'
             });
             routes.value.push(newRoute);
-
-            //  Redireccionar a la lista
             router.push('/management/routes/list');
             return newRoute;
         } catch (err) {
@@ -101,7 +108,6 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
         }
     }
 
-    // ...
     async function saveDraftRoute(routeData) {
         try {
             let savedRoute;
@@ -116,7 +122,6 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
                     state: 'draft',
                 });
             }
-
             const index = routes.value.findIndex(r => r.id === savedRoute.id);
             if (index !== -1) {
                 routes.value[index] = savedRoute;
@@ -130,17 +135,15 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
             throw err;
         }
     }
-// ...
 
     async function publishRoute(routeId) {
         try {
             const updated = await api.publishRoute(routeId);
             const idx = routes.value.findIndex(r => r.id === routeId);
             if (idx !== -1) {
-                routes.value[idx].state = updated.state;
+                routes.value[idx] = updated;
             }
-
-            return routes.value[idx];
+            return updated;
         } catch (err) {
             console.error('Error publishing route', err);
             errors.value.push(err);
@@ -148,13 +151,10 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
         }
     }
 
-    // --- ELIMINAR DRAFT ---
     async function deleteDraftRoute(routeId) {
         try {
             await api.deleteRoute(routeId);
-
             routes.value = routes.value.filter(r => r.id !== routeId);
-
             await router.push('/management/routes/list');
             return true;
         } catch (err) {
@@ -164,22 +164,218 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
         }
     }
 
+    async function fetchTransportistRoute() {
+        try {
+            const currentUser = await api.getUserById(CURRENT_DRIVER_ID);
 
+            if (!currentUser || !currentUser.vehicleId) {
+                console.warn('Driver no tiene vehículo asignado');
+                currentRoute.value = null;
+                deliveries.value = [];
+                locations.value = [];
+                return null;
+            }
+
+            console.log(`🚗 Driver: ${currentUser.fullname}, Vehicle: ${currentUser.vehicleId}`);
+
+            const allRoutes = await api.getAllRoutes();
+            const driverRoute = allRoutes.find(r =>
+                r.state === 'published' &&
+                String(r.vehicleId) === String(currentUser.vehicleId)
+            );
+
+            if (!driverRoute) {
+                console.warn('No hay rutas publicadas para este vehículo');
+                currentRoute.value = null;
+                deliveries.value = [];
+                locations.value = [];
+                return null;
+            }
+
+            console.log(`Ruta encontrada: ${driverRoute.id}`);
+            console.log(`driverRoute completo:`, driverRoute);
+            console.log(`driverRoute.locations:`, driverRoute.locations);
+            console.log(`DEBUG - Es array?:`, Array.isArray(driverRoute.locations));
+            currentRoute.value = driverRoute;
+
+            // ✅ SOLUCIÓN: Usar SOLO las locations de la ruta
+            if (driverRoute.locations && Array.isArray(driverRoute.locations) && driverRoute.locations.length > 0) {
+                locations.value = driverRoute.locations.map(loc => ({
+                    ...loc,
+                    customerId: loc.customerId || loc.clientsId || null,
+                    type: loc.type || 'store'
+                }));
+                console.log(`✅ Locations cargadas desde la ruta: ${locations.value.length}`);
+            } else {
+                console.warn('⚠️ Ruta sin locations embebidas');
+                locations.value = [];
+            }
+
+            // Cargar deliveries existentes
+            await fetchDeliveriesByRoute(driverRoute.id);
+
+            // Auto-crear deliveries si no existen
+            if (deliveries.value.length === 0 && locations.value.length > 0) {
+                console.log('⚠️ No hay deliveries, creando automáticamente...');
+                await autoCreateDeliveries(driverRoute.id);
+            }
+
+            return driverRoute;
+        } catch (err) {
+            console.error('Error fetching transportist route', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
+
+    async function autoCreateDeliveries(routeId) {
+        try {
+            // ✅ SOLUCIÓN CRÍTICA: Usar SOLO las locations del currentRoute
+            // NO usar locations.value global
+            if (!currentRoute.value || !currentRoute.value.locations) {
+                console.warn('No hay locations en currentRoute para crear deliveries');
+                return [];
+            }
+
+            const routeLocations = currentRoute.value.locations;
+            console.log(`📦 Creando deliveries para ${routeLocations.length} locations de la ruta...`);
+
+            const newDeliveries = [];
+
+            for (const loc of routeLocations) {
+                // Verificar que no exista ya
+                const existingDelivery = deliveries.value.find(
+                    d => d.routeId === routeId && d.locationId === loc.id
+                );
+
+                if (existingDelivery) {
+                    console.log(`⏭️ Ya existe delivery para location ${loc.id}, saltando...`);
+                    continue;
+                }
+
+                const delivery = await api.createDelivery({
+                    routeId: routeId,
+                    locationId: loc.id,
+                    state: 'pending',
+                    rejectionReason: null,
+                    rejectionNote: null,
+                    evidenceUrl: null,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: null
+                });
+
+                newDeliveries.push(delivery);
+                console.log(`✅ Delivery creado para location ${loc.id}`);
+            }
+
+            deliveries.value = [...deliveries.value, ...newDeliveries];
+            console.log(`✅ Total: ${newDeliveries.length} nuevos deliveries creados`);
+
+            return newDeliveries;
+        } catch (err) {
+            console.error('Error auto-creating deliveries', err);
+            throw err;
+        }
+    }
+
+    async function fetchDeliveriesByRoute(routeId) {
+        try {
+            const data = await api.getDeliveriesByRoute(routeId);
+            deliveries.value = data;
+            return data;
+        } catch (err) {
+            console.error('Error fetching deliveries by route', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
+
+    async function completeDelivery(deliveryId, evidenceUrl = null) {
+        try {
+            const updated = await api.updateDelivery(deliveryId, {
+                state: 'completed',
+                evidenceUrl: evidenceUrl,
+                updatedAt: new Date().toISOString()
+            });
+
+            const idx = deliveries.value.findIndex(d => d.id === deliveryId);
+            if (idx !== -1) {
+                deliveries.value[idx] = updated;
+            }
+
+            return updated;
+        } catch (err) {
+            console.error('Error completing delivery', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
+
+    async function rejectDelivery(deliveryId, reason, note = '') {
+        try {
+            const updated = await api.updateDelivery(deliveryId, {
+                state: 'rejected',
+                rejectionReason: reason,
+                rejectionNote: note,
+                updatedAt: new Date().toISOString()
+            });
+
+            const idx = deliveries.value.findIndex(d => d.id === deliveryId);
+            if (idx !== -1) {
+                deliveries.value[idx] = updated;
+            }
+
+            return updated;
+        } catch (err) {
+            console.error('Error rejecting delivery', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
+
+    async function startDelivery(deliveryId) {
+        try {
+            const updated = await api.updateDelivery(deliveryId, {
+                state: 'in_progress',
+                updatedAt: new Date().toISOString()
+            });
+
+            const idx = deliveries.value.findIndex(d => d.id === deliveryId);
+            if (idx !== -1) {
+                deliveries.value[idx] = updated;
+            }
+
+            return updated;
+        } catch (err) {
+            console.error('Error starting delivery', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
 
     return {
         routes,
         vehicles,
         locations,
+        deliveries,
         errors,
         selectedRoute,
+        currentRoute,
+        CURRENT_DRIVER_ID,
         fetchAllRoutes,
+        getRouteById,
         fetchAllVehicles,
         fetchLocationsByRoute,
         fetchAndSelectRoute,
-        getRouteById,
         createDraftRoute,
         saveDraftRoute,
         publishRoute,
-        deleteDraftRoute
+        deleteDraftRoute,
+        fetchTransportistRoute,
+        fetchDeliveriesByRoute,
+        completeDelivery,
+        rejectDelivery,
+        startDelivery,
+        autoCreateDeliveries
     };
 });

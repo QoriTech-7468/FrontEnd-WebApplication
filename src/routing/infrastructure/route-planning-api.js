@@ -1,6 +1,8 @@
 import { BaseApi } from "../../shared/infrastructure/base-api.js";
 import { BaseEndpoint } from "../../shared/infrastructure/base-endpoints.js";
-
+import RouteAssembler from './route.assembler.js';
+import DeliveryAssembler from './delivery.assembler.js';
+import LocationAssembler from './location.assembler.js';
 
 const usersEndpointPath = import.meta.env.VITE_RUTANA_USERS_ENDPOINT_PATH ?? '/user';
 const vehiclesEndpointPath = import.meta.env.VITE_RUTANA_VEHICLES_ENDPOINT_PATH ?? '/vehicles';
@@ -37,19 +39,31 @@ export class RoutePlanningApi extends BaseApi {
 
     // --- Customers & Locations ---
     getAllCustomers() { return this.#customers.getAll().then(r => r.data); }
-    getAllLocations() { return this.#locations.getAll().then(r => r.data); }
-    createLocation(payload) { return this.#locations.create(payload).then(r => r.data); }
-    getLocationById(id) { return this.#locations.getById(id).then(r => r.data); }
+
+    async getAllLocations() {
+        const resp = await this.#locations.getAll();
+        return LocationAssembler.toEntitiesFromResponse(resp);
+    }
+
+    async createLocation(payload) {
+        const resp = await this.#locations.create(payload);
+        return LocationAssembler.toEntityFromResource(resp.data);
+    }
+
+    async getLocationById(id) {
+        const resp = await this.#locations.getById(id);
+        return LocationAssembler.toEntityFromResource(resp.data);
+    }
 
     // --- Routes ---
     async getAllRoutes() {
         const resp = await this.#routes.getAll();
-        return resp.data;
+        return RouteAssembler.toEntitiesFromResponse(resp);
     }
 
     async getRouteById(id) {
         const resp = await this.#routes.getById(id);
-        return resp.data;
+        return RouteAssembler.toEntityFromResource(resp.data);
     }
 
     async createRoute(route) {
@@ -61,18 +75,17 @@ export class RoutePlanningApi extends BaseApi {
             finishedAt: route.finishedAt ?? null
         };
         const resp = await this.#routes.create(newRoute);
-        return resp.data;
+        return RouteAssembler.toEntityFromResource(resp.data);
     }
 
     async updateRoute(id, payload) {
         const resp = await this.#routes.update(id, payload);
-        return resp.data;
+        return RouteAssembler.toEntityFromResource(resp.data);
     }
 
     async deleteRoute(id) {
         try {
             const resp = await this.http.delete(`${this.#routes.endpointPath}/${id}`);
-            // json-server normalmente devuelve 200 o 204
             if (![200, 204].includes(resp.status)) {
                 throw new Error(`Unexpected status deleting route ${id}: ${resp.status}`);
             }
@@ -84,9 +97,8 @@ export class RoutePlanningApi extends BaseApi {
     }
 
     async publishRoute(id) {
-        // json-server soporta PATCH
         const resp = await this.http.patch(`${this.#routes.endpointPath}/${id}`, { state: "published" });
-        return resp.data;
+        return RouteAssembler.toEntityFromResource(resp.data);
     }
 
     // --- OBTENER LOCATIONS POR RUTA ---
@@ -95,7 +107,7 @@ export class RoutePlanningApi extends BaseApi {
             const response = await this.http.get(`${this.#locations.endpointPath}`, {
                 params: { routeId }
             });
-            return response.data;
+            return LocationAssembler.toEntitiesFromResponse(response);
         } catch (err) {
             console.error('Error fetching locations by route:', err);
             throw err;
@@ -103,14 +115,17 @@ export class RoutePlanningApi extends BaseApi {
     }
 
     // --- Deliveries ---
-    getAllDeliveries() { return this.#deliveries.getAll().then(r => r.data); }
+    async getAllDeliveries() {
+        const resp = await this.#deliveries.getAll();
+        return DeliveryAssembler.toEntitiesFromResponse(resp);
+    }
 
     async getDeliveriesByRoute(routeId) {
         try {
             const response = await this.http.get(`${this.#deliveries.endpointPath}`, {
                 params: { routeId }
             });
-            return response.data;
+            return DeliveryAssembler.toEntitiesFromResponse(response);
         } catch (err) {
             console.error('Error fetching deliveries by route:', err);
             throw err;
@@ -120,9 +135,32 @@ export class RoutePlanningApi extends BaseApi {
     async updateDelivery(id, payload) {
         try {
             const resp = await this.http.patch(`${this.#deliveries.endpointPath}/${id}`, payload);
-            return resp.data;
+            return DeliveryAssembler.toEntityFromResource(resp.data);
         } catch (err) {
             console.error('Error updating delivery:', err);
+            throw err;
+        }
+    }
+
+    async createDelivery(payload) {
+        try {
+            const resp = await this.http.post(`${this.#deliveries.endpointPath}`, payload);
+            return DeliveryAssembler.toEntityFromResource(resp.data);
+        } catch (err) {
+            console.error('Error creating delivery:', err);
+            throw err;
+        }
+    }
+
+    // --- Route-Locations (relación muchos a muchos) ---
+    async getRouteLocations(routeId) {
+        try {
+            const response = await this.http.get('/route-locations', {
+                params: { routeId }
+            });
+            return response.data;
+        } catch (err) {
+            console.error('Error fetching route-locations:', err);
             throw err;
         }
     }
