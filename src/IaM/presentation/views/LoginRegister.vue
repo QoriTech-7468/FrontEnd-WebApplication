@@ -369,11 +369,33 @@ export default {
       this.isLoading = true;
 
       try {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        console.log('Login data:', this.loginForm);
-        this.$router.push('/layout');
-      } catch (error) {
-        console.error('Error en login:', error);
+        // simulación de llamada al servidor
+        await new Promise(resolve => setTimeout(resolve, 600));
+
+        const { email, password } = this.loginForm;
+        console.log('[DEBUG] loginAttempt', { email, password });
+
+        // uso de credenciales hardcoded para el caso de prueba
+        if (email === 'yaku@hotmail.com' && password === '1238') {
+          const role = 'Driver'; // /simulación: role viene del backend
+
+          if (role === 'Driver') {
+            console.log('[DEBUG] role Driver -> redirigiendo a /invitations');
+            this.$router.push({ name: 'invitations' });
+            return;
+          }
+
+          // Para otros roles:
+          this.$router.push({ name: 'layout' });
+          return;
+        }
+
+        // credenciales incorrectas
+        alert('Credenciales incorrectas');
+        console.warn('[WARN] Credenciales incorrectas', { email });
+
+      } catch (err) {
+        console.error('[ERROR] handleLogin', err);
       } finally {
         this.isLoading = false;
       }

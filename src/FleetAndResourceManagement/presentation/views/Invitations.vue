@@ -50,10 +50,10 @@ const cancelInvitation = (id) => {
 }
 
 const acceptInvitation = (id) => {
-  // Lógica para aceptar: e.g., API call, redirect to dashboard
-  console.log(`Invitation ${id} accepted`)
-  router.push('layout')
-}
+  console.log(`[DEBUG] Invitation ${id} accepted`);
+  // redirige a layout (ruta padre). Usamos nombre de ruta para evitar problemas de path
+  router.push({ name: 'layout' });
+};
 </script>
 
 <style scoped>

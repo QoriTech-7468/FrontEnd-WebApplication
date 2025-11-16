@@ -1,30 +1,37 @@
-﻿import { createRouter, createWebHistory } from 'vue-router'
-import LoginRegister from '../IaM/presentation/views/LoginRegister.vue'
-import Invitations from '../FleetAndResourceManagement/presentation/views/Invitations.vue'
-import Layout from '../shared/presentation/components/layout.vue'
+﻿import { createRouter, createWebHistory } from 'vue-router';
+
+// views / components
+import LoginRegister from '@/IaM/presentation/views/LoginRegister.vue';
+import Invitations from '@/FleetAndResourceManagement/presentation/views/Invitations.vue';
+import Layout from '@/shared/presentation/components/layout.vue';
+
+// rutas del módulo management (lazy)
+import managementRoutes from '@/FleetAndResourceManagement/presentation/management-route.js';
 
 const routes = [
     { path: '/', redirect: '/login' },
-    { path: '/login', component: LoginRegister },
-    { path: '/invitations', component: Invitations },
+
+    { path: '/login', name: 'login', component: LoginRegister },
+
+    { path: '/invitations', name: 'invitations', component: Invitations },
+
     {
         path: '/layout',
+        name: 'layout',
         component: Layout,
-        meta: { requiresAuth: true }
-    }
-]
+        children: [
+            // aquí insertamos las rutas de management-route, que son relativas
+            ...managementRoutes
+        ]
+    },
 
-export const router = createRouter({
+    // fallback
+    { path: '/:pathMatch(.*)*', redirect: '/login' }
+];
+
+const router = createRouter({
     history: createWebHistory(),
     routes
-})
+});
 
-// Guardia de autenticación
-router.beforeEach((to, from, next) => {
-    const token = localStorage.getItem('rutana_token')
-    if (to.meta.requiresAuth && !token) {
-        next('/login')
-    } else {
-        next()
-    }
-})
+export default router;
