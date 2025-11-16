@@ -52,12 +52,12 @@ const cancelInvitation = (id) => {
 const acceptInvitation = (id) => {
   // Lógica para aceptar: e.g., API call, redirect to dashboard
   console.log(`Invitation ${id} accepted`)
-  router.push('/dashboard')
+  router.push('layout')
 }
 </script>
 
 <style scoped>
-/* Estilos basados en el tema de Rutana: Azul principal (#007BFF o similar), fondos blancos/grises */
+
 .invitations-container {
   display: flex;
   height: 100vh;
