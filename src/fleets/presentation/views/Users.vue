@@ -103,7 +103,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 
-const API_URL = "http://localhost:3001/user";
+const API_URL = import.meta.env.VITE_RUTANA_API_URL + import.meta.env.VITE_RUTANA_USERS_ENDPOINT_PATH;
 
 const usersFromApi = ref([]);
 const showModal = ref(false);
@@ -116,6 +116,7 @@ const newUser = ref({
 });
 
 const users = computed(() => {
+  if (!Array.isArray(usersFromApi.value)) return [];
   return usersFromApi.value.map(user => ({
     ...user,
     isAssigned: user.vehicleId !== null
@@ -127,10 +128,22 @@ const users = computed(() => {
 const fetchUsers = async () => {
   try {
     const response = await fetch(API_URL);
-    usersFromApi.value = await response.json();
-    console.log('Datos de usuarios cargados desde el API:', usersFromApi.value);
+
+    if (!response.ok) {
+      throw new Error("API returned " + response.status);
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      throw new Error("API did not return an array");
+    }
+
+    usersFromApi.value = data;
+
   } catch (error) {
     console.error("Error al cargar los usuarios:", error);
+    usersFromApi.value = []; // evita romper el template
   }
 };
 

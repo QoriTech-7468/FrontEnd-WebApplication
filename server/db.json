@@ -98,6 +98,26 @@
       "id": 4,
       "name": "Antamina",
       "isActive": false
+    },
+    {
+      "id": 5,
+      "name": "nuevo",
+      "isActive": true
+    },
+    {
+      "id": 6,
+      "name": "nuevo 3",
+      "isActive": true
+    },
+    {
+      "id": 7,
+      "name": "nuevo 3",
+      "isActive": true
+    },
+    {
+      "id": 8,
+      "name": "nuevo 2",
+      "isActive": false
     }
   ],
   "locations": [
@@ -167,32 +187,34 @@
   ],
   "routes": [
     {
-      "id": "1",
-      "vehicleId": 1,
-      "state": "published",
-      "color": "#FFF223",
-      "createdAt": "2025-12-01T08:00:00Z",
-      "startedAt": null,
-      "finishedAt": null
-    },
-    {
-      "color": "#1a3466",
+      "id": 1,
       "vehicleId": "1",
-      "date": null,
       "state": "published",
-      "createdAt": "2025-11-14T22:51:08.408Z",
+      "color": "#003087",
+      "createdAt": "2025-11-16T20:46:06.776Z",
       "startedAt": null,
       "finishedAt": null,
-      "id": "JpGnYPg",
+      "meta": {},
       "locations": [
         {
-          "id": 1,
-          "latitude": -11.1075,
-          "longitude": -77.6053,
-          "address": "Av. Juan Velasco, Huacho",
-          "proximity": "far",
+          "id": 8,
+          "latitude": -12.058876756396177,
+          "longitude": -77.08620626369013,
+          "address": "WWQ7+WCJ, Av. Venezuela, Lima 15081, Peru",
+          "proximity": "close",
           "isActive": true,
-          "clientsId": null,
+          "clientsId": 1,
+          "clients": null,
+          "status": "Active"
+        },
+        {
+          "id": 6,
+          "latitude": -12.058876756396177,
+          "longitude": 983,
+          "address": "Va. La mar",
+          "proximity": "mid",
+          "isActive": true,
+          "clientsId": 4,
           "clients": null,
           "status": "Active"
         }
