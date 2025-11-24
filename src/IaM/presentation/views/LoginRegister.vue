@@ -142,17 +142,7 @@
                       required
                   >
                 </div>
-                <div class="form-group">
-                  <label for="companyName">Company</label>
-                  <input
-                      type="text"
-                      id="companyName"
-                      class="form-control"
-                      placeholder="Company name"
-                      v-model="registerForm.company"
-                      required
-                  >
-                </div>
+
               </div>
 
               <!-- Campos específicos por tipo de usuario -->
@@ -198,75 +188,6 @@
                 >
               </div>
             </div>
-            <div class="form-group animate-input" style="animation-delay: 0.1s">
-              <div class="checkbox-wrapper">
-                <div
-                    class="custom-checkbox"
-                    :class="{ checked: registerForm.ownCompany }"
-                    @click="registerForm.ownCompany = !registerForm.ownCompany"
-                >
-                  <span v-if="registerForm.ownCompany" class="checkmark-animated">✓</span>
-                </div>
-                <label
-                    class="checkbox-label"
-                    @click="registerForm.ownCompany = !registerForm.ownCompany"
-                >
-                  I own a company
-                </label>
-              </div>
-            </div>
-
-            <!-- Formulario desplegable (solo si ownCompany = true) -->
-            <transition name="slide-fade">
-              <div v-if="registerForm.ownCompany" class="pl-8 space-y-4">
-                <div class="form-group">
-                  <label for="companyNameInput">Company’s name</label>
-                  <input
-                      type="text"
-                      id="companyNameInput"
-                      class="form-control"
-                      placeholder="Enter the company's name"
-                      v-model="registerForm.companyName"
-                      required
-                  >
-                  <p class="text-xs text-red-500 mt-1" v-if="!registerForm.companyName && registerForm.ownCompany">
-                    This field is required
-                  </p>
-                </div>
-
-                <div class="form-group">
-                  <label for="rucInput">RUC</label>
-                  <input
-                      type="text"
-                      id="rucInput"
-                      class="form-control"
-                      placeholder="Enter RUC number"
-                      v-model="registerForm.companyRuc"
-                      maxlength="11"
-                      @input="validateCompanyRUC"
-                      required
-                  >
-                  <p class="text-xs text-red-500 mt-1" v-if="!registerForm.companyRuc && registerForm.ownCompany">
-                    This field is required
-                  </p>
-                </div>
-
-                <div class="form-group">
-                  <label for="planSelect">Select the plan</label>
-                  <select
-                      id="planSelect"
-                      class="form-control"
-                      v-model="registerForm.plan"
-                      required
-                  >
-                    <option value="" disabled>Plan</option>
-                    <option value="economic">Starter Plan</option>
-                    <option value="professional">Professional Plan</option>
-                    <option value="enterprise">Enterprise Plan</option>
-                  </select>
-                </div>
-              </div>
-            </transition>
 
 
 

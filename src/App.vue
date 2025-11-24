@@ -1,6 +1,6 @@
 <script setup>
 import Layout from "./shared/presentation/components/layout.vue";
-import Login from "./IaM/presentation/views/LoginRegister.vue";
+import Login from "./FleetAndResourceManagement/presentation/views/Invitations.vue";
 
 </script>
 
