@@ -85,22 +85,6 @@
               >
             </div>
 
-            <div class="checkbox-wrapper animate-input" style="animation-delay: 0.3s">
-              <div
-                  class="custom-checkbox"
-                  :class="{ checked: loginForm.rememberMe }"
-                  @click="loginForm.rememberMe = !loginForm.rememberMe"
-              >
-                <span v-if="loginForm.rememberMe" class="checkmark-animated">✓</span>
-              </div>
-              <label
-                  class="checkbox-label"
-                  @click="loginForm.rememberMe = !loginForm.rememberMe"
-              >
-                Mantener sesión iniciada
-              </label>
-            </div>
-
             <button type="submit" class="btn-primary animate-input" style="animation-delay: 0.4s" :disabled="isLoading">
               <span v-if="!isLoading">Iniciar Sesión</span>
               <span v-else class="loading-text">
@@ -108,47 +92,31 @@
                 Iniciando sesión...
               </span>
             </button>
-
-            <div class="forgot-password animate-input" style="animation-delay: 0.5s">
-              <a href="#" @click.prevent="handleForgotPassword">¿Olvidaste tu contraseña?</a>
-            </div>
           </form>
 
           <!-- Register Form -->
           <form v-else @submit.prevent="handleRegister" class="auth-form" key="register">
-            <div class="form-section animate-input" style="animation-delay: 0.1s">
-              <label class="section-label">Tipo de Cuenta</label>
-              <div class="user-type-grid">
-                <div
-                    class="user-type-card"
-                    :class="{ selected: registerForm.userType === 'transportista' }"
-                    @click="selectUserType('transportista')"
-                >
-                  <div class="user-type-icon">🚛</div>
-                  <div class="user-type-title">Transportista</div>
-                  <div class="user-type-desc">Conductor o empresa de transporte</div>
-                </div>
-                <div
-                    class="user-type-card"
-                    :class="{ selected: registerForm.userType === 'cliente' }"
-                    @click="selectUserType('cliente')"
-                >
-                  <div class="user-type-icon">🏢</div>
-                  <div class="user-type-title">Cliente</div>
-                  <div class="user-type-desc">Empresa que solicita servicios</div>
-                </div>
-              </div>
-            </div>
-
             <div class="form-section">
-              <div class="form-group animate-input" style="animation-delay: 0.2s">
-                <label for="registerName">Nombre Completo</label>
+              <div class="form-group animate-input" style="animation-delay: 0.1s">
+                <label for="registerFirstName">Nombres</label>
                 <input
                     type="text"
-                    id="registerName"
+                    id="registerFirstName"
                     class="form-control"
-                    placeholder="Juan Pérez García"
-                    v-model="registerForm.name"
+                    placeholder="Juan"
+                    v-model="registerForm.firstName"
+                    required
+                >
+              </div>
+
+              <div class="form-group animate-input" style="animation-delay: 0.2s">
+                <label for="registerLastName">Apellidos</label>
+                <input
+                    type="text"
+                    id="registerLastName"
+                    class="form-control"
+                    placeholder="Pérez García"
+                    v-model="registerForm.lastName"
                     required
                 >
               </div>
@@ -165,65 +133,19 @@
                 >
               </div>
 
-              <div class="form-row animate-input" style="animation-delay: 0.4s">
-                <div class="form-group">
-                  <label for="registerPhone">Teléfono</label>
-                  <input
-                      type="tel"
-                      id="registerPhone"
-                      class="form-control"
-                      placeholder="+51 999 999 999"
-                      v-model="registerForm.phone"
-                      required
-                  >
-                </div>
-                <div class="form-group">
-                  <label for="companyName">Empresa</label>
-                  <input
-                      type="text"
-                      id="companyName"
-                      class="form-control"
-                      placeholder="Nombre de empresa"
-                      v-model="registerForm.company"
-                      required
-                  >
-                </div>
+              <div class="form-group animate-input" style="animation-delay: 0.4s">
+                <label for="registerPhone">Teléfono</label>
+                <input
+                    type="tel"
+                    id="registerPhone"
+                    class="form-control"
+                    placeholder="+51 999 999 999"
+                    v-model="registerForm.phone"
+                    required
+                >
               </div>
 
-              <!-- Campos específicos por tipo de usuario -->
-              <transition name="slide-fade">
-                <div v-if="registerForm.userType === 'transportista'" class="form-group animate-input" style="animation-delay: 0.5s">
-                  <label for="dniTransportista">DNI</label>
-                  <input
-                      type="text"
-                      id="dniTransportista"
-                      class="form-control"
-                      placeholder="12345678"
-                      v-model="registerForm.dni"
-                      maxlength="8"
-                      @input="validateDNI"
-                      required
-                  >
-                </div>
-              </transition>
-
-              <transition name="slide-fade">
-                <div v-if="registerForm.userType === 'cliente'" class="form-group animate-input" style="animation-delay: 0.5s">
-                  <label for="rucEmpresa">RUC</label>
-                  <input
-                      type="text"
-                      id="rucEmpresa"
-                      class="form-control"
-                      placeholder="20123456789"
-                      v-model="registerForm.ruc"
-                      maxlength="11"
-                      @input="validateRUC"
-                      required
-                  >
-                </div>
-              </transition>
-
-              <div class="form-group animate-input" style="animation-delay: 0.6s">
+              <div class="form-group animate-input" style="animation-delay: 0.5s">
                 <label for="registerPassword">Contraseña</label>
                 <input
                     type="password"
@@ -236,23 +158,7 @@
               </div>
             </div>
 
-            <div class="checkbox-wrapper animate-input" style="animation-delay: 0.7s">
-              <div
-                  class="custom-checkbox"
-                  :class="{ checked: registerForm.acceptTerms }"
-                  @click="registerForm.acceptTerms = !registerForm.acceptTerms"
-              >
-                <span v-if="registerForm.acceptTerms" class="checkmark-animated">✓</span>
-              </div>
-              <label
-                  class="checkbox-label"
-                  @click="registerForm.acceptTerms = !registerForm.acceptTerms"
-              >
-                Acepto los <a href="#" @click.prevent>términos y condiciones</a>
-              </label>
-            </div>
-
-            <button type="submit" class="btn-primary animate-input" style="animation-delay: 0.8s" :disabled="isLoading || !registerForm.acceptTerms">
+            <button type="submit" class="btn-primary animate-input" style="animation-delay: 0.6s" :disabled="isLoading">
               <span v-if="!isLoading">Crear Cuenta</span>
               <span v-else class="loading-text">
                 <span class="loading-spinner"></span>
@@ -276,18 +182,14 @@ export default {
       loginForm: {
         email: '',
         password: '',
-        rememberMe: false
       },
       registerForm: {
-        userType: 'transportista',
-        name: '',
+        userType: 'not_assigned',
         email: '',
-        phone: '',
-        company: '',
-        dni: '',
-        ruc: '',
         password: '',
-        acceptTerms: false
+        firstName: '',
+        lastName: '',
+        phone: '',
       }
     }
   },
@@ -306,25 +208,15 @@ export default {
       this.loginForm = {
         email: '',
         password: '',
-        rememberMe: false
       };
       this.registerForm = {
-        userType: 'transportista',
-        name: '',
+        userType: 'not_assigned',
         email: '',
-        phone: '',
-        company: '',
-        dni: '',
-        ruc: '',
         password: '',
-        acceptTerms: false
+        firstName: '',
+        lastName: '',
+        phone: '',
       };
-    },
-
-    selectUserType(type) {
-      this.registerForm.userType = type;
-      this.registerForm.dni = '';
-      this.registerForm.ruc = '';
     },
 
     async handleLogin() {
@@ -342,18 +234,6 @@ export default {
     },
 
     async handleRegister() {
-      if (this.registerForm.userType === 'transportista') {
-        if (this.registerForm.dni.length !== 8) {
-          alert('El DNI debe tener 8 dígitos');
-          return;
-        }
-      } else {
-        if (this.registerForm.ruc.length !== 11) {
-          alert('El RUC debe tener 11 dígitos');
-          return;
-        }
-      }
-
       this.isLoading = true;
 
       try {
@@ -365,18 +245,6 @@ export default {
       } finally {
         this.isLoading = false;
       }
-    },
-
-    handleForgotPassword() {
-      this.$emit('forgot-password');
-    },
-
-    validateDNI(event) {
-      this.registerForm.dni = event.target.value.replace(/\D/g, '').substring(0, 8);
-    },
-
-    validateRUC(event) {
-      this.registerForm.ruc = event.target.value.replace(/\D/g, '').substring(0, 11);
     }
   }
 }
@@ -538,8 +406,10 @@ export default {
 .auth-page {
   background: #f8fafc;
   min-height: 100vh;
+  min-height: 100dvh; /* Soporte para viewport dinámico en móviles */
   display: grid;
   grid-template-columns: 1fr 1fr;
+  overflow-x: hidden; /* Prevenir scroll horizontal */
 }
 
 .left-panel {
@@ -654,11 +524,18 @@ export default {
   align-items: center;
   padding: 40px;
   background: white;
+  overflow-y: auto; /* Permitir scroll si el contenido es muy largo */
+  -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
 }
 
 .auth-container {
   width: 100%;
   max-width: 420px;
+  margin: 0 auto;
+}
+
+.auth-form {
+  width: 100%;
 }
 
 .auth-header {
@@ -892,6 +769,26 @@ export default {
   color: #0f172a;
 }
 
+.btn-primary {
+  width: 100%;
+  padding: 14px 24px;
+  background: #1e293b;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 8px;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #0f172a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 41, 59, 0.3);
+}
+
 .btn-primary:active:not(:disabled) {
   transform: translateY(0);
 }
@@ -934,7 +831,9 @@ export default {
   color: #0f172a;
 }
 
-/* Media Queries */
+/* ===== MEDIA QUERIES - RESPONSIVE DESIGN ===== */
+
+/* Tablet y pantallas medianas (768px - 1024px) */
 @media (max-width: 1024px) {
   .auth-page {
     grid-template-columns: 1fr;
@@ -946,37 +845,292 @@ export default {
 
   .right-panel {
     min-height: 100vh;
+    padding: 32px 24px;
+  }
+
+  .auth-container {
+    max-width: 480px;
+  }
+
+  .auth-header h2 {
+    font-size: 26px;
+  }
+
+  .auth-header p {
+    font-size: 15px;
+  }
+
+  .auth-tabs {
+    margin-bottom: 28px;
+  }
+
+  .auth-tab {
+    padding: 10px 20px;
+    font-size: 15px;
   }
 }
 
-@media (max-width: 640px) {
-  .form-row {
-    grid-template-columns: 1fr;
+/* Tablets pequeñas y móviles grandes (481px - 768px) */
+@media (max-width: 768px) {
+  .right-panel {
+    padding: 24px 20px;
+    justify-content: flex-start;
+    padding-top: 40px;
   }
 
-  .user-type-grid {
-    grid-template-columns: 1fr;
+  .auth-container {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .auth-header {
+    margin-bottom: 24px;
+  }
+
+  .auth-header h2 {
+    font-size: 24px;
+  }
+
+  .auth-header p {
+    font-size: 14px;
+  }
+
+  .auth-tabs {
+    margin-bottom: 24px;
+    padding: 4px;
+  }
+
+  .auth-tab {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .form-control {
+    padding: 12px 14px;
+    font-size: 16px; /* Previene zoom en iOS */
+  }
+
+  .form-group label {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .btn-primary {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+
+  .form-section {
+    margin-bottom: 20px;
+  }
+}
+
+/* Móviles pequeños y medianos (320px - 480px) */
+@media (max-width: 480px) {
+  .auth-page {
+    background: white;
   }
 
   .right-panel {
-    padding: 20px;
+    padding: 20px 16px;
+    padding-top: 32px;
+    background: white;
   }
 
   .auth-container {
     max-width: 100%;
   }
 
-  .brand-logo-placeholder {
-    width: 100px;
-    height: 100px;
+  .auth-header {
+    margin-bottom: 20px;
+  }
+
+  .auth-header h2 {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+
+  .auth-header p {
+    font-size: 13px;
+  }
+
+  .auth-tabs {
+    margin-bottom: 20px;
+    padding: 4px;
+    border-radius: 10px;
+  }
+
+  .auth-tab {
+    padding: 10px 12px;
+    font-size: 13px;
+    border-radius: 6px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-control {
+    padding: 12px 14px;
+    font-size: 16px; /* Previene zoom automático en iOS */
+    border-radius: 8px;
+    border-width: 1.5px;
+  }
+
+  .form-control:focus {
+    box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.08);
+    transform: none; /* Eliminar transform en móvil para mejor UX */
+  }
+
+  .form-group label {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .btn-primary {
+    padding: 14px 20px;
+    font-size: 15px;
+    border-radius: 8px;
+    margin-top: 4px;
+    /* Área táctil más grande en móviles */
+    min-height: 48px;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    transform: none; /* Eliminar hover effects en móvil */
+  }
+
+  .form-section {
+    margin-bottom: 16px;
+  }
+
+  /* Mejorar espaciado en formularios largos */
+  .auth-form {
+    padding-bottom: 20px;
+  }
+
+  /* Ajustar animaciones para móviles */
+  .animate-input {
+    animation-duration: 0.3s;
+  }
+}
+
+/* Móviles muy pequeños (hasta 360px) */
+@media (max-width: 360px) {
+  .right-panel {
+    padding: 16px 12px;
+    padding-top: 24px;
+  }
+
+  .auth-header h2 {
+    font-size: 20px;
+  }
+
+  .auth-header p {
+    font-size: 12px;
+  }
+
+  .auth-tab {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .form-control {
+    padding: 10px 12px;
+    font-size: 16px;
+  }
+
+  .btn-primary {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
+
+/* Orientación landscape en móviles */
+@media (max-width: 768px) and (orientation: landscape) {
+  .right-panel {
+    padding: 16px 20px;
+    justify-content: center;
+  }
+
+  .auth-header {
+    margin-bottom: 16px;
+  }
+
+  .auth-header h2 {
+    font-size: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 12px;
+  }
+
+  .form-section {
+    margin-bottom: 12px;
+  }
+}
+
+/* Pantallas muy grandes (más de 1440px) */
+@media (min-width: 1440px) {
+  .auth-container {
+    max-width: 480px;
+  }
+
+  .left-panel {
+    padding: 60px;
+  }
+
+  .brand-content {
+    max-width: 500px;
   }
 
   .brand-content h1 {
-    font-size: 28px;
+    font-size: 42px;
   }
 
   .brand-content p {
-    font-size: 16px;
+    font-size: 20px;
+  }
+}
+
+/* Mejoras de accesibilidad táctil */
+@media (hover: none) and (pointer: coarse) {
+  /* Dispositivos táctiles */
+  .auth-tab {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-primary {
+    min-height: 48px;
+  }
+
+  .form-control {
+    min-height: 44px;
+  }
+
+  /* Eliminar efectos hover en dispositivos táctiles */
+  .form-control:hover {
+    border-color: #e5e7eb;
+  }
+
+  .auth-tab:hover {
+    color: #64748b;
+  }
+}
+
+/* Prevenir zoom en inputs en iOS */
+@supports (-webkit-touch-callout: none) {
+  @media (max-width: 768px) {
+    .form-control {
+      font-size: 16px !important;
+    }
   }
 }
 </style>
