@@ -9,6 +9,9 @@ export const authenticationGuard = (to, from, next) => {
     // Rutas públicas que no requieren autenticación
     const publicRoutes = ['iam-sign-in-up'];
     
+    // Rutas que requieren autenticación pero no organización
+    const routesWithoutOrg = ['invitations'];
+    
     // Verificar token en localStorage
     const token = localStorage.getItem('token');
     
@@ -27,17 +30,55 @@ export const authenticationGuard = (to, from, next) => {
     
     const isAuthenticated = store.isSignedIn || !!token;
     const isPublicRoute = publicRoutes.includes(to.name);
+    const isRouteWithoutOrg = routesWithoutOrg.includes(to.name);
     
-    // Si está intentando ir a /auth/login pero está autenticado, redirigir a management
-    if (to.path === '/auth/login' && isAuthenticated) {
+    // Obtener organizationId del store o del localStorage
+    const organizationId = store.currentUserOrganizationId || 
+                          (() => {
+                              try {
+                                  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                                  return userData.organizationId || null;
+                              } catch {
+                                  return null;
+                              }
+                          })();
+    
+    // Si está autenticado pero no tiene organizationId, debe ir a invitations
+    if (isAuthenticated && !organizationId && !isRouteWithoutOrg && !isPublicRoute) {
+        // Si ya está en invitations, permitir navegación
+        if (to.name === 'invitations') {
+            next();
+            return;
+        }
+        // Si intenta ir a otra ruta protegida sin organizationId, redirigir a invitations
+        next({ name: 'invitations' });
+        return;
+    }
+    
+    // Si tiene organizationId e intenta ir a invitations, redirigir a management
+    if (isAuthenticated && organizationId && to.name === 'invitations') {
         next({ name: 'management' });
         return;
     }
     
-    // Si está en la ruta raíz, redirigir según autenticación
+    // Si está intentando ir a /auth/login pero está autenticado, redirigir según organizationId
+    if (to.path === '/auth/login' && isAuthenticated) {
+        if (!organizationId) {
+            next({ name: 'invitations' });
+        } else {
+            next({ name: 'management' });
+        }
+        return;
+    }
+    
+    // Si está en la ruta raíz, redirigir según autenticación y organizationId
     if (to.path === '/' || to.name === undefined) {
         if (isAuthenticated) {
-            next({ name: 'management' });
+            if (!organizationId) {
+                next({ name: 'invitations' });
+            } else {
+                next({ name: 'management' });
+            }
             return;
         } else {
             next({ name: 'iam-sign-in-up' });
@@ -45,14 +86,18 @@ export const authenticationGuard = (to, from, next) => {
         }
     }
     
-    // Si está autenticado e intenta ir a una ruta pública (login), redirigir a management
+    // Si está autenticado e intenta ir a una ruta pública (login), redirigir según organizationId
     if (isAuthenticated && isPublicRoute) {
-        next({ name: 'management' });
+        if (!organizationId) {
+            next({ name: 'invitations' });
+        } else {
+            next({ name: 'management' });
+        }
         return;
     }
     
     // Si no está autenticado e intenta acceder a una ruta protegida, redirigir a login
-    if (!isAuthenticated && !isPublicRoute) {
+    if (!isAuthenticated && !isPublicRoute && !isRouteWithoutOrg) {
         next({ name: 'iam-sign-in-up' });
         return;
     }

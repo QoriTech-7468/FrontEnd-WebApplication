@@ -85,7 +85,12 @@ const useIamStore = defineStore('iam', () => {
                     isSignedIn.value = true;
                     console.log(`User ${currentUserName.value} signed in successfully.`);
                     errors.value = [];
-                    router.push({ name: 'management' });
+                    // Si no tiene organizationId, redirigir a invitations, sino a management
+                    if (!currentUser.organizationId) {
+                        router.push({ name: 'invitations' });
+                    } else {
+                        router.push({ name: 'management' });
+                    }
                 } else {
                     isSignedIn.value = false;
                     console.log('Sign-in failed: Invalid response.');

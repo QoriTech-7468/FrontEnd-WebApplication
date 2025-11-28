@@ -1,5 +1,3 @@
-
-
 <template>
   <!-- Header superior -->
   <header class="topbar">
@@ -132,7 +130,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import useIamStore from '../application/iam.store.js'
+import { storeToRefs } from 'pinia'
+
+const router = useRouter()
+const iamStore = useIamStore()
+const { currentUserName, currentUserSurname } = storeToRefs(iamStore)
 
 // Datos de ejemplo (reemplaza con fetch de API)
 const invitations = ref([
@@ -154,10 +159,18 @@ const cancelInvitation = (id) => {
 const acceptInvitation = (id) => {
   console.log(`[DEBUG] Invitation ${id} accepted`);
   // redirige a layout (ruta padre). Usamos nombre de ruta para evitar problemas de path
-  router.push({ name: 'layout' });
+  router.push({ name: 'management' });
 };
 
-const userName = ref('Yaku')
+// Obtener nombre de usuario del store
+const userName = computed(() => {
+  if (currentUserName.value && currentUserSurname.value) {
+    return `${currentUserName.value} ${currentUserSurname.value}`
+  } else if (currentUserName.value) {
+    return currentUserName.value
+  }
+  return 'User'
+})
 
 const isUserMenuOpen = ref(false)
 
@@ -166,10 +179,7 @@ const toggleUserMenu = () => {
 }
 
 const signOut = () => {
-  console.log('Signing out...')
-  // Aquí puedes limpiar tokens y redirigir al login
-  // localStorage.clear()
-  // router.push('/login')
+  iamStore.signOut(router)
 }
 const isPurchaseModalOpen = ref(false)
 const isOrgModalOpen = ref(false)

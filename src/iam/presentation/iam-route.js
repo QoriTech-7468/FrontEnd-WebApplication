@@ -1,6 +1,6 @@
 // Lazy-loaded components
 const LoginRegister = () => import('./views/LoginRegister.vue');
-const Invitations = () => import('../../fleets/presentation/views/invitations.vue');
+const Invitations = () => import('./views/invitations.vue');
 
 const iamRoutes = [
     { 
@@ -13,12 +13,12 @@ const iamRoutes = [
         component: LoginRegister,
         meta: { title: 'Login' }
     },
-    // { 
-    //     path: 'invitations', 
-    //     name: 'invitations', 
-    //     component: Invitations,
-    //     meta: { title: 'Invitations' }
-    // },
+    { 
+        path: 'invitations', 
+        name: 'invitations', 
+        component: Invitations,
+        meta: { title: 'Invitations' }
+    },
     // fallback
     { 
         path: ':pathMatch(.*)*', 
