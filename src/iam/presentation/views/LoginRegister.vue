@@ -58,6 +58,12 @@
           </div>
         </div>
 
+        <!-- Error Message -->
+        <div v-if="hasErrors" class="error-message animate-input">
+          <div class="error-icon">⚠️</div>
+          <span>{{ errorMessage }}</span>
+        </div>
+
         <!-- Login Form -->
         <transition name="form-fade" mode="out-in">
           <form v-if="isLogin" @submit.prevent="handleLogin" class="auth-form" key="login">
@@ -172,82 +178,128 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'LoginRegister',
-  data() {
-    return {
-      isLogin: true,
-      isLoading: false,
-      loginForm: {
-        email: '',
-        password: '',
-      },
-      registerForm: {
-        userType: 'not_assigned',
-        email: '',
-        password: '',
-        firstName: '',
-        lastName: '',
-        phone: '',
-      }
-    }
-  },
-  methods: {
-    switchToLogin() {
-      this.isLogin = true;
-      this.resetForms();
-    },
+<script setup>
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import useIamStore from '../application/iam.store.js';
+import { storeToRefs } from 'pinia';
 
-    switchToRegister() {
-      this.isLogin = false;
-      this.resetForms();
-    },
+const router = useRouter();
+const iamStore = useIamStore();
+const { errors } = storeToRefs(iamStore);
 
-    resetForms() {
-      this.loginForm = {
-        email: '',
-        password: '',
-      };
-      this.registerForm = {
-        userType: 'not_assigned',
-        email: '',
-        password: '',
-        firstName: '',
-        lastName: '',
-        phone: '',
-      };
-    },
+// Reactive state
+const isLogin = ref(true);
+const isLoading = ref(false);
+const loginForm = ref({
+  email: '',
+  password: '',
+});
+const registerForm = ref({
+  email: '',
+  password: '',
+  firstName: '',
+  lastName: '',
+  phone: '',
+});
 
-    async handleLogin() {
-      this.isLoading = true;
+// Computed properties
+const hasErrors = computed(() => {
+  return errors.value && errors.value.length > 0;
+});
 
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        console.log('Login data:', this.loginForm);
-        this.$router.push('/users');
-      } catch (error) {
-        console.error('Error en login:', error);
-      } finally {
-        this.isLoading = false;
-      }
-    },
-
-    async handleRegister() {
-      this.isLoading = true;
-
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        console.log('Register data:', this.registerForm);
-        this.$router.push('/users');
-      } catch (error) {
-        console.error('Error en registro:', error);
-      } finally {
-        this.isLoading = false;
-      }
-    }
+const errorMessage = computed(() => {
+  if (hasErrors.value) {
+    return errors.value[errors.value.length - 1]?.message || 'Ha ocurrido un error';
   }
-}
+  return '';
+});
+
+// Methods
+const switchToLogin = () => {
+  isLogin.value = true;
+  resetForms();
+  clearErrors();
+};
+
+const switchToRegister = () => {
+  isLogin.value = false;
+  resetForms();
+  clearErrors();
+};
+
+const resetForms = () => {
+  loginForm.value = {
+    email: '',
+    password: '',
+  };
+  registerForm.value = {
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
+  };
+};
+
+const clearErrors = () => {
+  if (iamStore.errors) {
+    iamStore.errors = [];
+  }
+};
+
+const handleLogin = async () => {
+  isLoading.value = true;
+  clearErrors();
+
+  try {
+    const signInCommand = {
+      email: loginForm.value.email,
+      password: loginForm.value.password
+    };
+
+    // Llamar a signIn del store (maneja la navegación internamente)
+    iamStore.signIn(signInCommand, router);
+    
+    // Esperar un momento para que se complete la operación
+    await new Promise(resolve => setTimeout(resolve, 1500));
+  } catch (error) {
+    console.error('Error en login:', error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const handleRegister = async () => {
+  isLoading.value = true;
+  clearErrors();
+
+  try {
+    const signUpCommand = {
+      email: registerForm.value.email,
+      password: registerForm.value.password,
+      name: registerForm.value.firstName,
+      surname: registerForm.value.lastName,
+      phone: registerForm.value.phone
+    };
+
+    // Llamar a signUp del store
+    iamStore.signUp(signUpCommand);
+    
+    // Esperar un momento para que se complete la operación
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Si no hay errores, cambiar a la vista de login
+    if (!hasErrors.value) {
+      isLogin.value = true;
+      resetForms();
+    }
+  } catch (error) {
+    console.error('Error en registro:', error);
+  } finally {
+    isLoading.value = false;
+  }
+};
 </script>
 
 <style scoped>
@@ -829,6 +881,37 @@ export default {
 
 .forgot-password a:hover {
   color: #0f172a;
+}
+
+/* Error Message Styles */
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #991b1b;
+  font-size: 14px;
+  margin-bottom: 20px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.error-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ===== MEDIA QUERIES - RESPONSIVE DESIGN ===== */
