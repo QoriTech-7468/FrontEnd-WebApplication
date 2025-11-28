@@ -1,27 +1,5 @@
 <template>
-  <!-- Header superior -->
-  <header class="topbar">
-    <div class="topbar-right">
-      <!-- Botón Purchase -->
-      <button class="btn-purchase" @click="openPurchaseModal">
-        Purchase
-      </button>
-
-      <!-- Botón Usuario con desplegable -->
-      <div class="user-dropdown">
-        <button class="btn-user" @click="toggleUserMenu">
-          {{ userName }}
-          <span class="arrow">▼</span>
-        </button>
-
-        <div v-if="isUserMenuOpen" class="dropdown-menu">
-          <button class="dropdown-item" @click="signOut">
-            Sign out
-          </button>
-        </div>
-      </div>
-    </div>
-  </header>
+  <InvitationsHeader @open-purchase-modal="openPurchaseModal" />
 
   <div class="invitations-container">
     <!-- MODAL: Select Plan -->
@@ -105,81 +83,101 @@
     <main class="invitations-main">
       <h1>Invitations</h1>
 
+      <!-- Estado de carga -->
+      <div v-if="isLoading && !invitationsLoaded" class="empty-state">
+        <div class="empty-icon">⏳</div>
+        <p>Loading invitations...</p>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div v-else-if="errorMessage" class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <p>{{ errorMessage }}</p>
+      </div>
+
       <!-- Estado: Sin invitaciones -->
-      <div v-if="invitations.length === 0" class="empty-state">
-        <div class="empty-icon">📧</div> <!-- Ícono de sobre (puedes usar SVG o FontAwesome) -->
+      <div v-else-if="invitations.length === 0 && invitationsLoaded" class="empty-state">
+        <div class="empty-icon">📧</div>
         <p>You don't have any invitations yet</p>
         <p class="subtitle">Ask your company owner or administrator to add you using your email address.</p>
       </div>
 
       <!-- Estado: Con invitaciones -->
       <div v-else class="invitations-list">
-        <div v-for="invitation in invitations" :key="invitation.id" class="invitation-item">
-          <div class="invitation-details">
-            <span class="invitation-id" v-if="invitation.id">Invitation ID: {{ invitation.id }}</span>
-            <span class="invitation-user" v-if="invitation.user">
-              {{ invitation.user.name }} {{ invitation.user.surname }} 
-              <span v-if="invitation.user.role">({{ invitation.user.role }})</span>
-            </span>
-            <span class="invitation-organization" v-if="invitation.organization">
-              Organization: {{ invitation.organization.name }}
-            </span>
-          </div>
-          <div class="invitation-actions">
-            <button class="btn-cancel" @click="cancelInvitation(invitation.id)">Cancel</button>
-            <button class="btn-accept" @click="acceptInvitation(invitation.id)">Accept</button>
-          </div>
-        </div>
+        <InvitationCard
+          v-for="invitation in invitations"
+          :key="invitation.id"
+          :invitation="invitation"
+          :is-loading="loadingInvitationId !== null"
+          :loading-id="loadingInvitationId"
+          @accept="acceptInvitation"
+          @cancel="cancelInvitation"
+        />
       </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import useIamStore from '../application/iam.store.js'
+import useInvitationsStore from '../application/invitations.store.js'
 import { storeToRefs } from 'pinia'
+import InvitationsHeader from '../components/invitations-header.vue'
+import InvitationCard from '../components/invitation-card.vue'
 
 const router = useRouter()
-const iamStore = useIamStore()
-const { currentUserName, currentUserSurname } = storeToRefs(iamStore)
+const invitationsStore = useInvitationsStore()
+const { invitations, invitationsLoaded } = storeToRefs(invitationsStore)
 
-// Datos de ejemplo (reemplaza con fetch de API)
-const invitations = ref([])
+const isLoading = ref(false)
+const loadingInvitationId = ref(null)
+const errorMessage = ref(null)
 
-// Funciones de manejo de acciones
-const cancelInvitation = (id) => {
-  // Lógica para cancelar: e.g., API call, remove from list
-  invitations.value = invitations.value.filter(inv => inv.id !== id)
-  console.log(`Invitation ${id} cancelled`)
-}
-
-const acceptInvitation = (id) => {
-  console.log(`[DEBUG] Invitation ${id} accepted`);
-  // redirige a layout (ruta padre). Usamos nombre de ruta para evitar problemas de path
-  router.push({ name: 'management' });
-};
-
-// Obtener nombre de usuario del store
-const userName = computed(() => {
-  if (currentUserName.value && currentUserSurname.value) {
-    return `${currentUserName.value} ${currentUserSurname.value}`
-  } else if (currentUserName.value) {
-    return currentUserName.value
+// Cargar invitaciones cuando el componente se monte
+onMounted(async () => {
+  try {
+    isLoading.value = true
+    errorMessage.value = null
+    await invitationsStore.fetchUserInvitations()
+  } catch (error) {
+    console.error('Error loading invitations:', error)
+    errorMessage.value = 'Failed to load invitations. Please try again.'
+  } finally {
+    isLoading.value = false
   }
-  return 'User'
 })
 
-const isUserMenuOpen = ref(false)
-
-const toggleUserMenu = () => {
-  isUserMenuOpen.value = !isUserMenuOpen.value
+// Funciones de manejo de acciones
+const cancelInvitation = async (id) => {
+  try {
+    loadingInvitationId.value = id
+    errorMessage.value = null
+    await invitationsStore.rejectInvitation(id)
+    console.log(`Invitation ${id} rejected successfully`)
+  } catch (error) {
+    console.error(`Error rejecting invitation ${id}:`, error)
+    errorMessage.value = 'Failed to reject invitation. Please try again.'
+  } finally {
+    loadingInvitationId.value = null
+  }
 }
 
-const signOut = () => {
-  iamStore.signOut(router)
+const acceptInvitation = async (id) => {
+  try {
+    loadingInvitationId.value = id
+    errorMessage.value = null
+    await invitationsStore.acceptInvitation(id)
+    console.log(`Invitation ${id} accepted successfully`)
+    // Redirigir a management después de aceptar la invitación
+    router.push({ name: 'management' })
+  } catch (error) {
+    console.error(`Error accepting invitation ${id}:`, error)
+    errorMessage.value = 'Failed to accept invitation. Please try again.'
+    loadingInvitationId.value = null
+  }
 }
+
 const isPurchaseModalOpen = ref(false)
 const isOrgModalOpen = ref(false)
 
@@ -232,148 +230,17 @@ const createOrganization = () => {
 </script>
 
 <style scoped>
-/* Topbar */
-.topbar {
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: 60px;
-  background: #043873;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 0 30px;
-  z-index: 200;
-}
-
-/* Contenedor derecha */
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-/* Botón Purchase */
-.btn-purchase {
-  background: #ffffff;
-  color: #043873;
-  border: none;
-  padding: 8px 20px;
-  font-weight: 600;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-purchase:hover {
-  background: #e6e6e6;
-}
-
-/* Botón usuario */
-.btn-user {
-  background: #ffd700;
-  color: #1e4976;
-  border: none;
-  padding: 8px 18px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(255, 215, 0, 0.3);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn-user:hover {
-  background: #ffed4e;
-}
-
-/* Dropdown */
-.user-dropdown {
-  position: relative;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 110%;
-  right: 0;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  min-width: 140px;
-  overflow: hidden;
-  z-index: 300;
-}
-
-.dropdown-item {
-  width: 100%;
-  padding: 10px 16px;
-  border: none;
-  background: none;
-  text-align: left;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.dropdown-item:hover {
-  background: #f2f2f2;
-}
-
-/* Ajuste del contenido principal para que no se esconda bajo la barra */
-.invitations-main {
-  margin-top: 70px;
-}
-
 .invitations-container {
   display: flex;
   height: 100vh;
   font-family: 'Arial', sans-serif;
 }
 
-.app-header {
-  background-color: #004080; /* Azul oscuro para header */
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  width: 250px; /* Sidebar fijo */
-  flex-shrink: 0;
-}
-
-.logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar li {
-  margin: 1rem 0;
-}
-
-.sidebar a {
-  color: white;
-  text-decoration: none;
-}
-
-.sidebar a:hover {
-  text-decoration: underline;
-}
-
-.profile {
-  margin-top: auto;
-  padding-top: 2rem;
-}
-
 .invitations-main {
   flex: 1;
   padding: 2rem;
   background-color: #f8f9fa; /* Gris claro */
+  margin-top: 70px;
 }
 
 h1 {
@@ -402,66 +269,6 @@ h1 {
 /* Lista de invitaciones */
 .invitations-list {
   max-width: 600px;
-}
-
-.invitation-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-}
-
-.invitation-details {
-  flex: 1;
-}
-
-.invitation-id {
-  display: block;
-  font-weight: bold;
-  color: #004080;
-}
-
-.invitation-user, .invitation-organization {
-  display: block;
-  color: #6c757d;
-  font-size: 0.9rem;
-  margin-top: 0.25rem;
-}
-
-.invitation-organization {
-  font-weight: 600;
-  color: #004080;
-}
-
-.invitation-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.btn-cancel, .btn-accept {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.btn-cancel {
-  background-color: #dc3545; /* Rojo para cancelar */
-  color: white;
-}
-
-.btn-accept {
-  background-color: #28a745; /* Verde para aceptar */
-  color: white;
-}
-
-.btn-cancel:hover, .btn-accept:hover {
-  opacity: 0.8;
 }
 /* ===== MODALS ===== */
 .modal-overlay {
