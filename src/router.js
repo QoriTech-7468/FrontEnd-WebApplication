@@ -11,6 +11,7 @@ const routes = [
         path: '/management',      
         name: 'management',
         component: Layout,
+        redirect: '/management/routes/list',
         children: [
             ...managementRoutes, 
             { path: 'clients', name: 'clients', children: ClientRoutes},

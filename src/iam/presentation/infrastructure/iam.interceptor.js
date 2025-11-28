@@ -23,8 +23,9 @@ export const iamInterceptor = (config) => {
         console.log('🚫 Endpoint público - No se agrega token');
         // Asegurarse de eliminar cualquier token que pueda estar presente
         delete config.headers.Authorization;
-    } else if (store.isSignedIn) {
-        // Solo agregar token si está autenticado Y NO es un endpoint público
+    } else {
+        // Para endpoints protegidos, agregar token si existe
+        // Verificar tanto en el store como en localStorage (para inicialización)
         const token = store.currentUserToken || localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;

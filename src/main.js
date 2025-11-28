@@ -36,6 +36,7 @@ import {definePreset} from "@primeuix/themes";
 import router from "./router.js";
 import pinia from "./pinia.js";
 import InputNumber from "primevue/inputnumber";
+import useIamStore from "./iam/presentation/application/iam.store.js";
 
 const MyPreset = definePreset(Aura, {
     semantic: {
@@ -67,7 +68,7 @@ const MyPreset = definePreset(Aura, {
         }
     }
 });
-createApp(App)
+const app = createApp(App)
     .use(PrimeVue, {theme:{preset:MyPreset, options: {darkModeSelector: 'never'}}}
     )
     .use(router)
@@ -97,5 +98,17 @@ createApp(App)
     .component('pv-dialog', Dialog)
     .use(ToastService)
     .use(ConfirmationService)
-    .use(pinia)
-    .mount('#app')
+    .use(pinia);
+
+app.mount('#app');
+
+// Inicializar usuario si hay token al cargar la app
+// Se hace después de montar para asegurar que Pinia esté disponible
+const iamStore = useIamStore();
+const token = localStorage.getItem('token');
+if (token) {
+    // Inicializar usuario en background (valida token y actualiza datos)
+    iamStore.initializeUser().catch(error => {
+        console.error('Error al inicializar usuario al cargar la app:', error);
+    });
+}

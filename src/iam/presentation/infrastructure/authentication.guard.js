@@ -1,17 +1,27 @@
 import useIamStore from "../application/iam.store.js";
 
+// Flag para evitar múltiples inicializaciones simultáneas
+let isInitializing = false;
+
 export const authenticationGuard = (to, from, next) => {
     const store = useIamStore();
     
     // Rutas públicas que no requieren autenticación
     const publicRoutes = ['iam-sign-in-up'];
     
-    // Verificar token en localStorage como respaldo si el store no está inicializado
-    // Esto es importante para cuando se refresca la página
+    // Verificar token en localStorage
     const token = localStorage.getItem('token');
-    if (token && !store.isSignedIn) {
-        // Si hay token pero el store no está inicializado, establecer como autenticado
-        // Nota: En producción, deberías validar el token con el backend
+    
+    // Si hay token pero el store no está inicializado, inicializar usuario
+    // Esto valida el token y actualiza los datos del usuario desde el backend
+    if (token && !store.isSignedIn && !isInitializing) {
+        isInitializing = true;
+        // Inicializar usuario en background (no bloquea la navegación)
+        store.initializeUser()
+            .finally(() => {
+                isInitializing = false;
+            });
+        // Mientras tanto, usar datos del cache para permitir navegación inmediata
         store.isSignedIn = true;
     }
     

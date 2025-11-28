@@ -25,4 +25,29 @@ export class IamApi extends BaseApi {
     getUsers() {
         return this.#userEndpointPath.getAll();
     }
+    /**
+     * Obtiene el usuario actual autenticado usando getById
+     * Obtiene el ID del usuario desde localStorage y hace la petición
+     */
+    getCurrentUser() {
+        // Obtener el ID del usuario desde localStorage
+        const userDataStr = localStorage.getItem('userData');
+        if (!userDataStr) {
+            return Promise.reject(new Error('No hay datos de usuario en localStorage'));
+        }
+        
+        try {
+            const userData = JSON.parse(userDataStr);
+            const userId = userData.id;
+            
+            if (!userId) {
+                return Promise.reject(new Error('No hay ID de usuario en localStorage'));
+            }
+            
+            // Usar getById con el ID del usuario guardado
+            return this.#userEndpointPath.getById(userId);
+        } catch (error) {
+            return Promise.reject(new Error('Error al parsear datos de usuario: ' + error.message));
+        }
+    }
 }
