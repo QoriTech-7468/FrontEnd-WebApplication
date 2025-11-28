@@ -1,20 +1,19 @@
 import { Organization } from '../../subscriptions/presentation/views/organization.entity.js';
+import { User } from './user.entity.js';
 
 export class Invitation {
     /**
      * Creates an instance of Invitation.
      * @param id
-     * @param code
-     * @param email
+     * @param user
      * @param organization
+     * @param status
+     * @param createdAt
      */
-    constructor({ id = null, code = '', email = '', organization = null, userId = null, role = '', status = '', createdAt = null }) {
+    constructor({ id = null, user = null, organization = null, status = '', createdAt = null }) {
         this.id = id;
-        this.code = code;
-        this.email = email;
+        this.user = user instanceof User ? user : null;
         this.organization = organization instanceof Organization ? organization : null;
-        this.userId = userId;
-        this.role = role;
         this.status = status;
         this.createdAt = createdAt;
     }

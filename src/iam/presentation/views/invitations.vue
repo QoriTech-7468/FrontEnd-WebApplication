@@ -116,8 +116,14 @@
       <div v-else class="invitations-list">
         <div v-for="invitation in invitations" :key="invitation.id" class="invitation-item">
           <div class="invitation-details">
-            <span class="invitation-code">Invitation Code: {{ invitation.code }}</span>
-            <span class="invitation-email">{{ invitation.email }}</span>
+            <span class="invitation-id" v-if="invitation.id">Invitation ID: {{ invitation.id }}</span>
+            <span class="invitation-user" v-if="invitation.user">
+              {{ invitation.user.name }} {{ invitation.user.surname }} 
+              <span v-if="invitation.user.role">({{ invitation.user.role }})</span>
+            </span>
+            <span class="invitation-organization" v-if="invitation.organization">
+              Organization: {{ invitation.organization.name }}
+            </span>
           </div>
           <div class="invitation-actions">
             <button class="btn-cancel" @click="cancelInvitation(invitation.id)">Cancel</button>
@@ -140,14 +146,7 @@ const iamStore = useIamStore()
 const { currentUserName, currentUserSurname } = storeToRefs(iamStore)
 
 // Datos de ejemplo (reemplaza con fetch de API)
-const invitations = ref([
-  {
-    id: 1,
-    code: 'INV000001',
-    email: 'user@example.com'
-  }
-  // Agrega más objetos para más invitaciones
-])
+const invitations = ref([])
 
 // Funciones de manejo de acciones
 const cancelInvitation = (id) => {
@@ -420,15 +419,22 @@ h1 {
   flex: 1;
 }
 
-.invitation-code {
+.invitation-id {
   display: block;
   font-weight: bold;
   color: #004080;
 }
 
-.invitation-email {
+.invitation-user, .invitation-organization {
+  display: block;
   color: #6c757d;
   font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.invitation-organization {
+  font-weight: 600;
+  color: #004080;
 }
 
 .invitation-actions {
