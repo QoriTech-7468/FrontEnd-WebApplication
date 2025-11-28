@@ -9,7 +9,7 @@ const iamRoutes = [
     },
     { 
         path: 'login', 
-        name: 'login', 
+        name: 'iam-sign-in-up', 
         component: LoginRegister,
         meta: { title: 'Login' }
     },
