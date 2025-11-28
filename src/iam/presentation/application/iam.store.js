@@ -11,7 +11,11 @@ const useIamStore = defineStore('iam', () => {
     const users = ref([]);
     const errors = ref([]);
     const usersLoaded = ref(false);
-    const isSignedIn = ref(false);
+    
+    // Inicializar isSignedIn desde localStorage si hay token
+    const token = localStorage.getItem('token');
+    const isSignedIn = ref(!!token);
+    
     const currentUserName = ref('');
     const currentUserSurname = ref('');
     const currentUserOrganizationId = ref('');

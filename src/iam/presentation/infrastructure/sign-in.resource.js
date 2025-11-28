@@ -7,3 +7,4 @@ export class SignInResource {
         this.token = token;
     }
 }
+

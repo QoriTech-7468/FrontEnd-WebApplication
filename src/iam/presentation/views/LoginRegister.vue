@@ -283,6 +283,9 @@ const handleRegister = async () => {
       phone: registerForm.value.phone
     };
 
+    console.log('📝 Datos enviados al crear cuenta:', signUpCommand);
+    console.log('📋 Formulario completo:', registerForm.value);
+
     // Llamar a signUp del store
     iamStore.signUp(signUpCommand);
     

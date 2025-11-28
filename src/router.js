@@ -14,7 +14,7 @@ const routes = [
         children: [
             ...managementRoutes, 
             { path: 'clients', name: 'clients', children: ClientRoutes},
-            { path: 'routes', name: 'management-routes', children: routePlanningRoutes }
+        { path: 'routes', name: 'management-routes', children: routePlanningRoutes }
         ]
     },
     { 
@@ -22,7 +22,7 @@ const routes = [
     },
     {
         path: '/',
-        redirect: '/management/routes/list'
+        redirect: '/auth/login'
     },
     //{ path: '/',                redirect: '/management',   children: ['clients'] },
    // { path: '/:pathMatch(.*)*', name: 'not-found',  component: pageNotFound,    meta: { title: 'Page Not Found' } },
@@ -34,7 +34,9 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    console.log(`Navigating from ${from.name} to ${to.name}`);
+    const fromName = from.name || 'initial';
+    const toName = to.name || to.path;
+    console.log(`Navigating from ${fromName} to ${toName}`);
     let baseTitle = 'Rutana';
     document.title = to.meta['title'] ? `${to.meta['title']} - ${baseTitle}` : baseTitle;
     authenticationGuard(to, from, next);

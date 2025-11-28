@@ -1,5 +1,5 @@
-import { BaseApi } from "../../shared/infrastructure/base-api.js";
-import { BaseEndpoint } from "../../shared/infrastructure/base-endpoints.js";
+import { BaseApi } from "../../../shared/infrastructure/base-api.js";
+import { BaseEndpoint } from "../../../shared/infrastructure/base-endpoints.js";
 
 const signInEndpointPath = import.meta.env.VITE_RUTANA_SIGN_IN_ENDPOINT_PATH;
 const signUpEndpointPath = import.meta.env.VITE_RUTANA_SIGN_UP_ENDPOINT_PATH;

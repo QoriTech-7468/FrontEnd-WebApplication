@@ -10,8 +10,11 @@ export class BaseApi {
      */
     #http;
     constructor(resource) {
-        this.#http = axios.create({ baseURL: RutanaApi,
-            headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
+        this.#http = axios.create({ 
+            baseURL: RutanaApi,
+            headers: {
+                'Content-Type': 'application/json'
+            }
         });
         this.#http.interceptors.request.use(iamInterceptor);
     }
