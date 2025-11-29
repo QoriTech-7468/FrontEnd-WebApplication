@@ -40,7 +40,7 @@
   "users": {
     "title": "Users",
     "subtitle": "Add new users to your account",
-    "addUser": "Add user",
+    "sendInvitation": "Send Invitation",
     "table": {
       "fullName": "Full name",
       "email": "Email",

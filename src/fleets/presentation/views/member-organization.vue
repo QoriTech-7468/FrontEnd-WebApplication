@@ -1,12 +1,40 @@
 
 <template>
   <div>
+    <!-- Header -->
+    <div class="flex align-items-center justify-content-between mb-4">
+      <div>
+        <div class="text-900 text-3xl font-semibold">Organization Management</div>
+        <div class="text-600">Manage members and invitations for your organization</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-container mb-4">
+      <button
+        class="tab-btn"
+        :class="{ active: activeTab === 'members' }"
+        @click="activeTab = 'members'"
+      >
+        Members
+      </button>
+      <button
+        class="tab-btn"
+        :class="{ active: activeTab === 'invitations' }"
+        @click="activeTab = 'invitations'"
+      >
+        Invitations
+      </button>
+    </div>
+
+    <!-- Tab Content: Members -->
+    <div v-if="activeTab === 'members'" class="tab-content">
       <div class="flex align-items-center justify-content-between mb-2">
         <div class="mb-3">
-          <div class="text-900 text-3xl font-semibold">Users</div>
+          <div class="text-900 text-2xl font-semibold">Users</div>
           <div class="text-600">Add new users to your account</div>
         </div>
-         <pv-button label="Add user" icon="pi pi-plus-circle" class="font-medium" @click="showModal = true" />
+        
       </div>
 
       <!-- Table -->
@@ -50,8 +78,52 @@
           </tbody>
         </table>
       </div>
+    </div>
+
+    <!-- Tab Content: Invitations -->
+    <div v-if="activeTab === 'invitations'" class="tab-content">
+      <div class="flex align-items-center justify-content-between mb-2">
+        <div class="mb-3">
+          <div class="text-900 text-2xl font-semibold">Invitations</div>
+          <div class="text-600">Manage pending invitations for your organization</div>
+        </div>
+        <pv-button label="Send Invitation" icon="pi pi-plus-circle" class="font-medium" @click="showInvitationModal = true" />
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="isLoadingInvitations && !invitationsLoaded" class="empty-state">
+        <div class="empty-icon">⏳</div>
+        <p>Loading invitations...</p>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="invitationErrorMessage" class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <p>{{ invitationErrorMessage }}</p>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else-if="pendingInvitations.length === 0 && invitationsLoaded" class="empty-state">
+        <div class="empty-icon">📧</div>
+        <p>No pending invitations</p>
+        <p class="subtitle">Click "Send Invitation" to invite new members to your organization.</p>
+      </div>
+
+      <!-- Invitations List -->
+      <div v-else class="invitations-list">
+        <OrganizationInvitationCard
+          v-for="invitation in pendingInvitations"
+          :key="invitation.id"
+          :invitation="invitation"
+          :is-loading="loadingInvitationId !== null"
+          :loading-id="loadingInvitationId"
+          @cancel="cancelInvitation"
+        />
+      </div>
+    </div>
   </div>
 
+  <!-- Modal: Add User -->
   <transition name="modal-fade">
       <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
         <div class="modal animate-modal-up">
@@ -98,15 +170,93 @@
         </div>
       </div>
     </transition>
+
+  <!-- Modal: Create Invitation -->
+  <transition name="modal-fade">
+    <div v-if="showInvitationModal" class="modal-overlay" @click.self="showInvitationModal = false">
+      <div class="modal animate-modal-up">
+        <div class="modal-header">
+          <h3>Send Invitation</h3>
+          <button class="close-btn" @click="showInvitationModal = false">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Email *</label>
+            <input
+                v-model="newInvitation.email"
+                placeholder="user@example.com"
+                type="email"
+                class="modal-input"
+                required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Role *</label>
+            <select v-model="newInvitation.role" class="modal-select" required>
+              <option value="">Select a role</option>
+              <option value="Administrator">Administrator</option>
+              <option value="Dispatcher">Dispatcher</option>
+              <option value="Driver">Driver</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-cancel" @click="closeInvitationModal">Cancel</button>
+          <button 
+            class="btn-save" 
+            @click="createInvitation"
+            :disabled="isCreatingInvitation || !newInvitation.email || !newInvitation.role"
+          >
+            <span v-if="!isCreatingInvitation">Send Invitation</span>
+            <span v-else>Sending...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
+import { storeToRefs } from 'pinia';
+import useInvitationsStore from '../../../iam/application/invitations.store.js';
+import useIamStore from '../../../iam/application/iam.store.js';
+import OrganizationInvitationCard from '../components/organization-invitation-card.vue';
 
 const API_URL = "http://localhost:3001/user";
 
 const usersFromApi = ref([]);
 const showModal = ref(false);
+
+// Tabs
+const activeTab = ref('members');
+
+// Invitations
+const invitationsStore = useInvitationsStore();
+const iamStore = useIamStore();
+const { invitations, invitationsLoaded } = storeToRefs(invitationsStore);
+const { currentUserOrganizationId } = storeToRefs(iamStore);
+
+const showInvitationModal = ref(false);
+const isCreatingInvitation = ref(false);
+const isLoadingInvitations = ref(false);
+const loadingInvitationId = ref(null);
+const invitationErrorMessage = ref(null);
+
+const newInvitation = ref({
+  email: "",
+  role: ""
+});
+
+// Filter pending invitations
+const pendingInvitations = computed(() => {
+  return invitations.value.filter(inv => 
+    inv.status && inv.status.toLowerCase() === 'pending'
+  );
+});
 
 const newUser = ref({
   fullname: "",
@@ -134,7 +284,39 @@ const fetchUsers = async () => {
   }
 };
 
-onMounted(fetchUsers);
+onMounted(async () => {
+  fetchUsers();
+  // Load organization invitations if on invitations tab
+  if (activeTab.value === 'invitations') {
+    await loadOrganizationInvitations();
+  }
+});
+
+// Watch for tab changes to load invitations
+watch(activeTab, async (newTab) => {
+  if (newTab === 'invitations') {
+    await loadOrganizationInvitations();
+  }
+});
+
+// Load organization invitations
+const loadOrganizationInvitations = async () => {
+  if (!currentUserOrganizationId.value) {
+    invitationErrorMessage.value = 'No organization ID found. Please create an organization first.';
+    return;
+  }
+
+  try {
+    isLoadingInvitations.value = true;
+    invitationErrorMessage.value = null;
+    await invitationsStore.fetchOrganizationInvitations();
+  } catch (error) {
+    console.error('Error loading organization invitations:', error);
+    invitationErrorMessage.value = 'Failed to load invitations. Please try again.';
+  } finally {
+    isLoadingInvitations.value = false;
+  }
+};
 
 const addUser = async () => {
   if (newUser.value.fullname && newUser.value.email) {
@@ -169,6 +351,73 @@ const deleteUser = async (userId) => {
     } catch (error) {
       console.error("Error al eliminar el usuario:", error);
     }
+  }
+};
+
+// Invitations functions
+const closeInvitationModal = () => {
+  showInvitationModal.value = false;
+  newInvitation.value = {
+    email: "",
+    role: ""
+  };
+};
+
+const createInvitation = async () => {
+  if (!newInvitation.value.email || !newInvitation.value.role) {
+    alert('Email and role are required');
+    return;
+  }
+
+  if (!currentUserOrganizationId.value) {
+    alert('Error: No organization ID found. Please create an organization first.');
+    return;
+  }
+
+  // Email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(newInvitation.value.email)) {
+    alert('Please enter a valid email address');
+    return;
+  }
+
+  isCreatingInvitation.value = true;
+
+  try {
+    const invitationData = {
+      email: newInvitation.value.email,
+      role: newInvitation.value.role,
+      organizationId: currentUserOrganizationId.value
+    };
+
+    await invitationsStore.createInvitation(invitationData);
+    closeInvitationModal();
+    // Reload invitations
+    await loadOrganizationInvitations();
+  } catch (error) {
+    console.error('Error creating invitation:', error);
+    const errorMessage = error.response?.data?.message || error.message || 'Error creating invitation';
+    alert(`Error: ${errorMessage}`);
+  } finally {
+    isCreatingInvitation.value = false;
+  }
+};
+
+const cancelInvitation = async (id) => {
+  if (!confirm('Are you sure you want to cancel this invitation?')) {
+    return;
+  }
+
+  try {
+    loadingInvitationId.value = id;
+    invitationErrorMessage.value = null;
+    await invitationsStore.rejectInvitation(id);
+    console.log(`Invitation ${id} cancelled successfully`);
+  } catch (error) {
+    console.error(`Error cancelling invitation ${id}:`, error);
+    invitationErrorMessage.value = 'Failed to cancel invitation. Please try again.';
+  } finally {
+    loadingInvitationId.value = null;
   }
 };
 </script>
@@ -224,6 +473,64 @@ const deleteUser = async (userId) => {
 }
 
 /* ===== CONTENT ===== */
+
+/* ===== TABS ===== */
+.tabs-container {
+  display: flex;
+  gap: 12px;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0;
+}
+
+.tab-btn {
+  padding: 12px 24px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  color: #1f2937;
+}
+
+.tab-btn.active {
+  color: #004080;
+  border-bottom-color: #004080;
+  font-weight: 600;
+}
+
+.tab-content {
+  min-height: 400px;
+}
+
+/* Empty state for invitations */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #6c757d;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state .subtitle {
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  color: #9ca3af;
+}
+
+/* Invitations list */
+.invitations-list {
+  max-width: 100%;
+}
 
 /* ===== BUTTON STYLES ===== */
 :deep(.p-button) {
