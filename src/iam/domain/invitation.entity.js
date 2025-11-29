@@ -1,4 +1,4 @@
-import { Organization } from '../../subscriptions/presentation/views/organization.entity.js';
+import { Organization } from '../../subscriptions/domain/organization.entity.js';
 import { User } from './user.entity.js';
 
 export class Invitation {

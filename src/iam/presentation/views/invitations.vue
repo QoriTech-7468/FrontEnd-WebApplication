@@ -121,7 +121,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import useInvitationsStore from '../application/invitations.store.js'
+import useInvitationsStore from '../../application/invitations.store.js'
 import { storeToRefs } from 'pinia'
 import InvitationsHeader from '../components/invitations-header.vue'
 import InvitationCard from '../components/invitation-card.vue'

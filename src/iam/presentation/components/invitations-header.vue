@@ -26,7 +26,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import useIamStore from '../application/iam.store.js'
+import useIamStore from '../../application/iam.store.js'
 import { storeToRefs } from 'pinia'
 
 defineEmits(['open-purchase-modal'])

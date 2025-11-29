@@ -4,7 +4,7 @@ import routePlanningRoutes from "./planning/presentation/routing-route.js";
 import ClientRoutes from "./crm/presentation/management-client-route.js";
 import iamRoutes from "./iam/presentation/iam-route.js";
 import Layout from "./shared/presentation/components/layout.vue";
-import { authenticationGuard } from "./iam/presentation/infrastructure/authentication.guard.js";
+import { authenticationGuard } from "./iam/infrastructure/authentication.guard.js";
 
 const routes = [
     { 

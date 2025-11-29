@@ -1,6 +1,6 @@
 import { InvitationResource } from "./invitation.resource.js";
 import { Invitation } from "../domain/invitation.entity.js";
-import { Organization } from "../../subscriptions/presentation/views/organization.entity.js";
+import { Organization } from "../../subscriptions/domain/organization.entity.js";
 import { User } from "../domain/user.entity.js";
 
 export class InvitationAssembler {

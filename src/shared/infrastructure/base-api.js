@@ -1,5 +1,5 @@
 import axios from "axios";
-import { iamInterceptor } from "../../iam/presentation/infrastructure/iam.interceptor.js";
+import { iamInterceptor } from "../../iam/infrastructure/iam.interceptor.js";
 
 const RutanaApi = import.meta.env.VITE_RUTANA_API_URL;
 

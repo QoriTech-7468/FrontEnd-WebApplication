@@ -61,7 +61,7 @@
 import { ref, computed, defineProps, defineEmits } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
-import useIamStore from "../../../iam/presentation/application/iam.store.js"
+import useIamStore from "../../../iam/application/iam.store.js"
 import { storeToRefs } from "pinia"
 
 const props = defineProps({

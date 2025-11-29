@@ -36,7 +36,7 @@ import {definePreset} from "@primeuix/themes";
 import router from "./router.js";
 import pinia from "./pinia.js";
 import InputNumber from "primevue/inputnumber";
-import useIamStore from "./iam/presentation/application/iam.store.js";
+import useIamStore from "./iam/application/iam.store.js";
 
 const MyPreset = definePreset(Aura, {
     semantic: {
