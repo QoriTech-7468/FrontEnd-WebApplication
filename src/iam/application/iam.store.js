@@ -208,6 +208,29 @@ const useIamStore = defineStore('iam', () => {
         router.push({ name: 'iam-sign-in-up' });
     }
 
+    /**
+     * Update the organization ID in the store and localStorage
+     * Used after creating an organization
+     * @param {number|string} organizationId - The organization ID to set
+     */
+    function updateOrganizationId(organizationId) {
+        currentUserOrganizationId.value = organizationId;
+        
+        // Update localStorage
+        const userDataStr = localStorage.getItem('userData');
+        if (userDataStr) {
+            try {
+                const userData = JSON.parse(userDataStr);
+                userData.organizationId = organizationId;
+                localStorage.setItem('userData', JSON.stringify(userData));
+            } catch (e) {
+                console.error('Error updating organizationId in localStorage:', e);
+            }
+        }
+        
+        console.log(`✅ Organization ID updated to: ${organizationId}`);
+    }
+
     return {
         users,
         errors,
@@ -222,7 +245,8 @@ const useIamStore = defineStore('iam', () => {
         signIn,
         signUp,
         signOut,
-        initializeUser
+        initializeUser,
+        updateOrganizationId
     };
 });
 

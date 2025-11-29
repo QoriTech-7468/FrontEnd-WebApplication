@@ -1,8 +1,7 @@
 import { BaseApi } from "../../shared/infrastructure/base-api.js";
 import { BaseEndpoint } from "../../shared/infrastructure/base-endpoints.js";
 
-const organizationEndpointPath = import.meta.env.VITE_RUTANA_ORGANIZATION_ENDPOINT_PATH || '/api/v1/organization';
-
+const organizationEndpointPath = import.meta.env.VITE_RUTANA_ORGANIZATION_ENDPOINT_PATH
 export class OrganizationApi extends BaseApi {
     #organizationEndpointPath;
     

@@ -42,22 +42,8 @@
         </div>
 
         <form @submit.prevent="handleSubscribe" class="subscription-form">
-          <!-- Full Name -->
-          <div class="form-group animate-input" style="animation-delay: 0.1s">
-            <label for="fullName">Nombre Completo</label>
-            <input
-                type="text"
-                id="fullName"
-                v-model="formData.fullName"
-                placeholder="Ingresa tu nombre"
-                class="form-control"
-                required
-            >
-            <span class="field-hint">Este campo es obligatorio</span>
-          </div>
-
           <!-- Email -->
-          <div class="form-group animate-input" style="animation-delay: 0.2s">
+          <div class="form-group animate-input" style="animation-delay: 0.1s">
             <label for="email">Email</label>
             <input
                 type="email"
@@ -71,7 +57,7 @@
           </div>
 
           <!-- Phone & Company -->
-          <div class="form-row animate-input" style="animation-delay: 0.3s">
+          <div class="form-row animate-input" style="animation-delay: 0.2s">
             <div class="form-group">
               <label for="phone">Celular</label>
               <input
@@ -97,7 +83,7 @@
           </div>
 
           <!-- RUC -->
-          <div class="form-group animate-input" style="animation-delay: 0.4s">
+          <div class="form-group animate-input" style="animation-delay: 0.3s">
             <label for="ruc">RUC</label>
             <input
                 type="text"
@@ -112,40 +98,8 @@
             <span class="field-hint">Este campo es obligatorio</span>
           </div>
 
-          <!-- Card Number & CVV -->
-          <div class="form-row animate-input" style="animation-delay: 0.5s">
-            <div class="form-group">
-              <label for="cardNumber">Tarjeta</label>
-              <input
-                  type="text"
-                  id="cardNumber"
-                  v-model="formData.cardNumber"
-                  placeholder="XXXX XXXX XXXX XXXX"
-                  class="form-control"
-                  maxlength="19"
-                  @input="formatCardNumber"
-                  required
-              >
-              <span class="field-hint">Este campo es obligatorio</span>
-            </div>
-            <div class="form-group">
-              <label for="cvv">CVV</label>
-              <input
-                  type="text"
-                  id="cvv"
-                  v-model="formData.cvv"
-                  placeholder="XXX"
-                  class="form-control"
-                  maxlength="3"
-                  @input="validateCVV"
-                  required
-              >
-              <span class="field-hint">Este campo es obligatorio</span>
-            </div>
-          </div>
-
           <!-- Plan Selection -->
-          <div class="form-group animate-input" style="animation-delay: 0.6s">
+          <div class="form-group animate-input" style="animation-delay: 0.4s">
             <label class="plan-label">Selecciona tu plan</label>
             <div class="plan-options">
               <label class="plan-option" :class="{ selected: formData.plan === 'free' }">
@@ -164,7 +118,7 @@
           </div>
 
           <!-- Password -->
-          <div class="form-group animate-input" style="animation-delay: 0.7s">
+          <div class="form-group animate-input" style="animation-delay: 0.5s">
             <label for="password">Contraseña</label>
             <div class="password-wrapper">
               <input
@@ -183,7 +137,7 @@
           </div>
 
           <!-- Terms -->
-          <div class="checkbox-wrapper animate-input" style="animation-delay: 0.8s">
+          <div class="checkbox-wrapper animate-input" style="animation-delay: 0.6s">
             <div
                 class="custom-checkbox"
                 :class="{ checked: formData.acceptTerms }"
@@ -203,7 +157,7 @@
           <button
               type="submit"
               class="btn-subscribe animate-input"
-              style="animation-delay: 0.9s"
+              style="animation-delay: 0.7s"
               :disabled="isLoading || !formData.acceptTerms"
           >
             <span v-if="!isLoading">Suscribirse</span>
@@ -220,18 +174,25 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import useOrganizationStore from '../../application/organization.store.js'
+import useIamStore from '../../../iam/application/iam.store.js'
+
+const router = useRouter()
+const organizationStore = useOrganizationStore()
+const iamStore = useIamStore()
+
+const { currentUserId, currentUserRole } = storeToRefs(iamStore)
 
 const showPassword = ref(false)
 const isLoading = ref(false)
 
 const formData = ref({
-  fullName: '',
   email: '',
   phone: '',
   company: '',
   ruc: '',
-  cardNumber: '',
-  cvv: '',
   plan: 'free',
   password: '',
   acceptTerms: false
@@ -241,43 +202,50 @@ const validateRUC = (event) => {
   formData.value.ruc = event.target.value.replace(/\D/g, '').substring(0, 11)
 }
 
-const formatCardNumber = (event) => {
-  let value = event.target.value.replace(/\s/g, '').replace(/\D/g, '')
-  let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value
-  formData.value.cardNumber = formattedValue.substring(0, 19)
-}
-
-const validateCVV = (event) => {
-  formData.value.cvv = event.target.value.replace(/\D/g, '').substring(0, 3)
-}
-
 const handleSubscribe = async () => {
   if (formData.value.ruc.length !== 11) {
     alert('RUC must have 11 digits')
     return
   }
 
-  if (formData.value.cardNumber.replace(/\s/g, '').length !== 16) {
-    alert('Card number must have 16 digits')
-    return
-  }
-
-  if (formData.value.cvv.length !== 3) {
-    alert('CVV must have 3 digits')
+  if (!currentUserId.value) {
+    alert('Error: No se encontró el ID del usuario. Por favor, inicia sesión nuevamente.')
     return
   }
 
   isLoading.value = true
 
   try {
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    console.log('Subscription data:', formData.value)
-    alert('Subscription successful!')
-    // Aquí iría la redirección
-    // this.$router.push('/dashboard')
+    // Crear la organización usando el store
+    const organizationData = {
+      name: formData.value.company,
+      ruc: formData.value.ruc,
+      userId: currentUserId.value
+    }
+
+    const createdOrganization = await organizationStore.createOrganization(organizationData)
+
+    if (createdOrganization && createdOrganization.id) {
+      // Actualizar el IAM store con el nuevo organizationId
+      iamStore.updateOrganizationId(createdOrganization.id)
+
+      // Redirigir según el rol del usuario
+      const userRole = currentUserRole.value?.toLowerCase()
+      
+      if (userRole === 'dispatcher') {
+        // Dispatcher va a transportist-routes
+        router.push({ name: 'transportist-routes' })
+      } else {
+        // Owner y Admin van a management
+        router.push({ name: 'management' })
+      }
+    } else {
+      throw new Error('No se recibió una organización válida del servidor')
+    }
   } catch (error) {
-    console.error('Error in subscription:', error)
-    alert('Error processing subscription')
+    console.error('Error creating organization:', error)
+    const errorMessage = error.response?.data?.message || error.message || 'Error al crear la organización'
+    alert(`Error: ${errorMessage}`)
   } finally {
     isLoading.value = false
   }

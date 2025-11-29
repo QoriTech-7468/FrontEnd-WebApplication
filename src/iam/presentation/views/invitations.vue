@@ -63,14 +63,13 @@
             v-model="companyRuc"
         />
 
-        <input
-            type="text"
-            placeholder="Manager Name (optional)"
-            v-model="managerName"
-        />
-
-        <button class="btn-primary" @click="createOrganization">
-          Create
+        <button 
+            class="btn-primary" 
+            @click="createOrganization"
+            :disabled="isCreatingOrganization"
+        >
+          <span v-if="!isCreatingOrganization">Create</span>
+          <span v-else>Creating...</span>
         </button>
 
         <button class="btn-secondary" @click="closeOrgModal">
@@ -122,13 +121,18 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import useInvitationsStore from '../../application/invitations.store.js'
+import useOrganizationStore from '../../../subscriptions/application/organization.store.js'
+import useIamStore from '../../application/iam.store.js'
 import { storeToRefs } from 'pinia'
 import InvitationsHeader from '../components/invitations-header.vue'
 import InvitationCard from '../components/invitation-card.vue'
 
 const router = useRouter()
 const invitationsStore = useInvitationsStore()
+const organizationStore = useOrganizationStore()
+const iamStore = useIamStore()
 const { invitations, invitationsLoaded } = storeToRefs(invitationsStore)
+const { currentUserId, currentUserRole } = storeToRefs(iamStore)
 
 const isLoading = ref(false)
 const loadingInvitationId = ref(null)
@@ -185,7 +189,6 @@ const selectedPlan = ref(null)
 
 const companyName = ref('')
 const companyRuc = ref('')
-const managerName = ref('')
 
 // Abrir/cerrar modales
 const openPurchaseModal = () => {
@@ -206,23 +209,64 @@ const closeOrgModal = () => {
   isOrgModalOpen.value = false
   companyName.value = ''
   companyRuc.value = ''
-  managerName.value = ''
 }
 
-const createOrganization = () => {
+const isCreatingOrganization = ref(false)
+
+const createOrganization = async () => {
   if (!companyName.value || !companyRuc.value) {
     alert('Company Name and RUC are required')
     return
   }
 
-  console.log('Organization created:', {
-    plan: selectedPlan.value,
-    companyName: companyName.value,
-    ruc: companyRuc.value,
-    managerName: managerName.value
-  })
+  if (companyRuc.value.length !== 11) {
+    alert('RUC must have 11 digits')
+    return
+  }
 
-  closeOrgModal()
+  if (!currentUserId.value) {
+    alert('Error: No se encontró el ID del usuario. Por favor, inicia sesión nuevamente.')
+    return
+  }
+
+  isCreatingOrganization.value = true
+
+  try {
+    // Crear la organización usando el store
+    const organizationData = {
+      name: companyName.value,
+      ruc: companyRuc.value,
+      userId: currentUserId.value
+    }
+
+    const createdOrganization = await organizationStore.createOrganization(organizationData)
+
+    if (createdOrganization && createdOrganization.id) {
+      // Actualizar el IAM store con el nuevo organizationId
+      iamStore.updateOrganizationId(createdOrganization.id)
+
+      closeOrgModal()
+
+      // Redirigir según el rol del usuario
+      const userRole = currentUserRole.value?.toLowerCase()
+      
+      if (userRole === 'dispatcher') {
+        // Dispatcher va a transportist-routes
+        router.push({ name: 'transportist-routes' })
+      } else {
+        // Owner y Admin van a management
+        router.push({ name: 'management' })
+      }
+    } else {
+      throw new Error('No se recibió una organización válida del servidor')
+    }
+  } catch (error) {
+    console.error('Error creating organization:', error)
+    const errorMessage = error.response?.data?.message || error.message || 'Error al crear la organización'
+    alert(`Error: ${errorMessage}`)
+  } finally {
+    isCreatingOrganization.value = false
+  }
 }
 
 
