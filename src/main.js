@@ -8,7 +8,12 @@ import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import {
     Toolbar,
-    Button, Toast, ConfirmDialog, ConfirmationService, ToastService,
+    Button,
+    Toast,
+    ConfirmDialog,
+    ConfirmationService,
+    ToastService,
+    Dialog,
     Panel,
     Tag,
     IconField,
@@ -17,13 +22,21 @@ import {
     DatePicker,
     Tabs,
     TabPanel,
-    AutoComplete, Dropdown
+    AutoComplete,
+    Dropdown,
+    RadioButton,
+    Textarea,
+    ProgressSpinner,
+    Select,
+    Badge,
+    ProgressBar
 } from "primevue";
 import InputText from "primevue/inputtext";
 import {definePreset} from "@primeuix/themes";
 import router from "./router.js";
 import pinia from "./pinia.js";
 import InputNumber from "primevue/inputnumber";
+import useIamStore from "./iam/application/iam.store.js";
 
 const MyPreset = definePreset(Aura, {
     semantic: {
@@ -55,7 +68,7 @@ const MyPreset = definePreset(Aura, {
         }
     }
 });
-createApp(App)
+const app = createApp(App)
     .use(PrimeVue, {theme:{preset:MyPreset, options: {darkModeSelector: 'never'}}}
     )
     .use(router)
@@ -76,7 +89,26 @@ createApp(App)
     .component('pv-auto-complete', AutoComplete)
     .component('pv-confirm-dialog', ConfirmDialog)
     .component('pv-toast', Toast)
+    .component('pv-radio-button', RadioButton)
+    .component('pv-textarea', Textarea)
+    .component('pv-progress-spinner', ProgressSpinner)
+    .component('pv-select', Select)
+    .component('pv-badge', Badge)
+    .component('pv-progress-bar', ProgressBar)
+    .component('pv-dialog', Dialog)
     .use(ToastService)
     .use(ConfirmationService)
-    .use(pinia)
-    .mount('#app')
+    .use(pinia);
+
+app.mount('#app');
+
+// Inicializar usuario si hay token al cargar la app
+// Se hace después de montar para asegurar que Pinia esté disponible
+const iamStore = useIamStore();
+const token = localStorage.getItem('token');
+if (token) {
+    // Inicializar usuario en background (valida token y actualiza datos)
+    iamStore.initializeUser().catch(error => {
+        console.error('Error al inicializar usuario al cargar la app:', error);
+    });
+}
