@@ -32,7 +32,7 @@ export const authenticationGuard = (to, from, next) => {
     const isPublicRoute = publicRoutes.includes(to.name);
     const isRouteWithoutOrg = routesWithoutOrg.includes(to.name);
     
-    // Get organizationId from store or localStorage
+    // Get organizationId and role from store or localStorage
     const organizationId = store.currentUserOrganizationId || 
                           (() => {
                               try {
@@ -42,6 +42,28 @@ export const authenticationGuard = (to, from, next) => {
                                   return null;
                               }
                           })();
+    
+    const userRole = store.currentUserRole?.toLowerCase() || 
+                    (() => {
+                        try {
+                            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                            return userData.role?.toLowerCase() || null;
+                        } catch {
+                            return null;
+                        }
+                    })();
+    
+    // Helper function to get default route based on role
+    const getDefaultRoute = () => {
+        if (!organizationId) {
+            return 'invitations';
+        }
+        if (userRole === 'dispatcher') {
+            return 'transportist-routes';
+        }
+        // Admin and Owner go to management
+        return 'management';
+    };
     
     // If authenticated but has no organizationId, must go to invitations
     if (isAuthenticated && !organizationId && !isRouteWithoutOrg && !isPublicRoute) {
@@ -55,30 +77,22 @@ export const authenticationGuard = (to, from, next) => {
         return;
     }
     
-    // If has organizationId and tries to go to invitations, redirect to management
+    // If has organizationId and tries to go to invitations, redirect according to role
     if (isAuthenticated && organizationId && to.name === 'invitations') {
-        next({ name: 'management' });
+        next({ name: getDefaultRoute() });
         return;
     }
     
-    // If trying to go to /auth/login but is authenticated, redirect according to organizationId
+    // If trying to go to /auth/login but is authenticated, redirect according to role
     if (to.path === '/auth/login' && isAuthenticated) {
-        if (!organizationId) {
-            next({ name: 'invitations' });
-        } else {
-            next({ name: 'management' });
-        }
+        next({ name: getDefaultRoute() });
         return;
     }
     
-    // If on root route, redirect according to authentication and organizationId
+    // If on root route, redirect according to authentication and role
     if (to.path === '/' || to.name === undefined) {
         if (isAuthenticated) {
-            if (!organizationId) {
-                next({ name: 'invitations' });
-            } else {
-                next({ name: 'management' });
-            }
+            next({ name: getDefaultRoute() });
             return;
         } else {
             next({ name: 'iam-sign-in-up' });
@@ -86,13 +100,9 @@ export const authenticationGuard = (to, from, next) => {
         }
     }
     
-    // If authenticated and tries to go to a public route (login), redirect according to organizationId
+    // If authenticated and tries to go to a public route (login), redirect according to role
     if (isAuthenticated && isPublicRoute) {
-        if (!organizationId) {
-            next({ name: 'invitations' });
-        } else {
-            next({ name: 'management' });
-        }
+        next({ name: getDefaultRoute() });
         return;
     }
     

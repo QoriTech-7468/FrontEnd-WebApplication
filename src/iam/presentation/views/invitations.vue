@@ -170,8 +170,20 @@ const acceptInvitation = async (id) => {
     errorMessage.value = null
     await iamStore.acceptInvitation(id)
     console.log(`Invitation ${id} accepted successfully`)
-    // Redirect to management after accepting invitation
-    router.push({ name: 'management' })
+    
+    // Update user data from backend to get the latest role and organizationId
+    await iamStore.initializeUser()
+    
+    // Get updated user role
+    const userRole = iamStore.currentUserRole?.toLowerCase()
+    
+    // Redirect according to user role
+    if (userRole === 'dispatcher') {
+      router.push({ name: 'transportist-routes' })
+    } else {
+      // Admin and Owner go to management
+      router.push({ name: 'management' })
+    }
   } catch (error) {
     console.error(`Error accepting invitation ${id}:`, error)
     errorMessage.value = 'Failed to accept invitation. Please try again.'
