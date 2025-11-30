@@ -26,7 +26,7 @@ export class InvitationAssembler {
             return null;
         }
 
-        // Crear Organization si hay organizationName, aunque otros atributos estén vacíos
+        // Create Organization if there's organizationName, even if other attributes are empty
         let organization = null;
         if (resource.organizationName) {
             organization = new Organization({
@@ -36,7 +36,7 @@ export class InvitationAssembler {
             });
         }
 
-        // Crear User si hay userId o role, aunque otros atributos estén vacíos
+        // Create User if there's userId or role, even if other attributes are empty
         let user = null;
         if (resource.userId || resource.role) {
             user = new User({

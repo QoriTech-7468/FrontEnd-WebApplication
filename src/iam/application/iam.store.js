@@ -8,7 +8,7 @@ import { InvitationAssembler } from "../infrastructure/invitation.assembler.js";
 
 const iamApi = new IamApi();
 
-// Funciones helper para persistir datos del usuario
+// Helper functions to persist user data
 const saveUserToLocalStorage = (userData) => {
     localStorage.setItem('userData', JSON.stringify({
         id: userData.id,
@@ -82,7 +82,7 @@ const useIamStore = defineStore('iam', () => {
                     currentUserId.value = currentUser.id;
                     currentUserRole.value = currentUser.role;
                     
-                    // Guardar token y datos del usuario en localStorage
+                    // Save token and user data to localStorage
                     localStorage.setItem('token', signInResource.token);
                     saveUserToLocalStorage({
                         id: currentUser.id,
@@ -95,7 +95,7 @@ const useIamStore = defineStore('iam', () => {
                     isSignedIn.value = true;
                     console.log(`User ${currentUserName.value} signed in successfully.`);
                     errors.value = [];
-                    // Si no tiene organizationId, redirigir a invitations, sino a management
+                    // If no organizationId, redirect to invitations, otherwise to management
                     if (!currentUser.organizationId) {
                         router.push({ name: 'invitations' });
                     } else {
@@ -140,29 +140,29 @@ const useIamStore = defineStore('iam', () => {
     }
 
     /**
-     * Inicializa el usuario desde el backend, validando el token
-     * y actualizando los datos del usuario con información fresca.
-     * Si falla, limpia todo el estado de autenticación.
+     * Initializes the user from the backend, validating the token
+     * and updating user data with fresh information.
+     * If it fails, clears all authentication state.
      * 
-     * Esta función se debe llamar al iniciar la app cuando hay un token en localStorage.
-     * Los datos del cache (localStorage) se muestran primero para mejor UX,
-     * y luego se actualizan con datos frescos del backend.
+     * This function should be called when starting the app when there is a token in localStorage.
+     * Cached data (localStorage) is shown first for better UX,
+     * and then updated with fresh data from the backend.
      */
     async function initializeUser() {
         const token = localStorage.getItem('token');
         
-        // Si no hay token, no hay nada que inicializar
+        // If there's no token, there's nothing to initialize
         if (!token) {
             return;
         }
 
         try {
-            // Intentar obtener datos frescos del usuario desde el backend
-            // Esto valida el token automáticamente
+            // Try to get fresh user data from the backend
+            // This automatically validates the token
             const response = await iamApi.getCurrentUser();
             
             if (response.status === 200 && response.data) {
-                // Actualizar store con datos frescos del backend
+                // Update store with fresh data from backend
                 const userData = response.data;
                 
                 currentUserId.value = userData.id || '';
@@ -171,7 +171,7 @@ const useIamStore = defineStore('iam', () => {
                 currentUserOrganizationId.value = userData.organizationId || '';
                 currentUserRole.value = userData.role || '';
                 
-                // Actualizar cache en localStorage con datos frescos
+                // Update cache in localStorage with fresh data
                 saveUserToLocalStorage({
                     id: userData.id,
                     name: userData.name,
@@ -181,22 +181,22 @@ const useIamStore = defineStore('iam', () => {
                 });
                 
                 isSignedIn.value = true;
-                console.log('✅ Usuario inicializado y validado desde el backend');
+                console.log('✅ User initialized and validated from backend');
             } else {
-                // Si la respuesta no es válida, limpiar todo
-                console.warn('⚠️ Respuesta inválida del backend, limpiando autenticación');
+                // If the response is invalid, clear everything
+                console.warn('⚠️ Invalid response from backend, clearing authentication');
                 clearAuth();
             }
         } catch (error) {
-            // Si hay error (token inválido, expirado, etc.), limpiar todo
-            console.error('❌ Error al inicializar usuario:', error);
-            console.log('🔒 Token inválido o expirado, limpiando autenticación');
+            // If there's an error (invalid token, expired, etc.), clear everything
+            console.error('❌ Error initializing user:', error);
+            console.log('🔒 Invalid or expired token, clearing authentication');
             clearAuth();
         }
     }
 
     /**
-     * Limpia todo el estado de autenticación
+     * Clears all authentication state
      */
     function clearAuth() {
         localStorage.removeItem('token');
@@ -210,7 +210,7 @@ const useIamStore = defineStore('iam', () => {
     }
 
     function signOut(router) {
-        // Limpiar token y datos del usuario de localStorage
+        // Clear token and user data from localStorage
         clearAuth();
         
         console.log('User signed out successfully.');
