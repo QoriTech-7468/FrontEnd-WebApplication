@@ -61,6 +61,7 @@ export class IamApi extends BaseApi {
      * @returns {Promise} - A promise resolving to the created invitation
      */
     createInvitation(invitationRequest) {
+        console.log('🌐 IAM API - Sending invitation request to backend:', invitationRequest);
         return this.#invitationsEndpointPath.create(invitationRequest);
     }
 
@@ -90,12 +91,12 @@ export class IamApi extends BaseApi {
     }
 
     /**
-     * Reject an invitation (DELETE)
-     * @param {number|string} id - The invitation ID to reject
-     * @returns {Promise} - A promise resolving to the deletion result
+     * Cancel an invitation (DELETE)
+     * @param {number|string} id - The invitation ID to cancel
+     * @returns {Promise} - A promise resolving to the cancellation result
      */
     rejectInvitation(id) {
-        return this.#invitationsEndpointPath.delete(id);
+        return this.http.delete(`${this.#invitationsEndpointPath.endpointPath}/${id}/cancel`);
     }
 
     /**

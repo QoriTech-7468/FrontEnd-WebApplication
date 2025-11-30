@@ -60,7 +60,7 @@
             <td class="user-email">{{ user.email }}</td>
             <td>
               <select v-model="user.role" class="select-input">
-                <option value="Administrator">Administrator</option>
+                <option value="Admin">Admin</option>
                 <option value="Driver">Driver</option>
               </select>
             </td>
@@ -156,7 +156,7 @@
               <div class="form-group">
                 <label>Role</label>
                 <select v-model="newUser.role" class="modal-select">
-                  <option value="Administrator">Administrator</option>
+                  <option value="Admin">Admin</option>
                   <option value="Driver">Driver</option>
                 </select>
               </div>
@@ -196,9 +196,8 @@
             <label>Role *</label>
             <select v-model="newInvitation.role" class="modal-select" required>
               <option value="">Select a role</option>
-              <option value="Administrator">Administrator</option>
+              <option value="Admin">Admin</option>
               <option value="Dispatcher">Dispatcher</option>
-              <option value="Driver">Driver</option>
             </select>
           </div>
         </div>
@@ -382,11 +381,11 @@ const createInvitation = async () => {
 
   try {
     const invitationData = {
-      email: newInvitation.value.email,
-      role: newInvitation.value.role,
-      organizationId: currentUserOrganizationId.value
+      userEmail: newInvitation.value.email,
+      role: newInvitation.value.role
     };
 
+    console.log('📤 Creating invitation with data:', invitationData);
     await iamStore.createInvitation(invitationData);
     closeInvitationModal();
     // Reload invitations

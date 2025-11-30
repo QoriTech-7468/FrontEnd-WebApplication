@@ -36,13 +36,14 @@ export class InvitationAssembler {
             });
         }
 
-        // Create User if there's userId or role, even if other attributes are empty
+        // Create User if there's userId, populate with all available user information
         let user = null;
-        if (resource.userId || resource.role) {
+        if (resource.userId) {
             user = new User({
                 id: resource.userId || null,
-                name: '',
-                surname: '',
+                name: resource.userName || '',
+                surname: resource.userSurname || '',
+                email: resource.userEmail || '',
                 organizationId: null,
                 role: resource.role || ''
             });

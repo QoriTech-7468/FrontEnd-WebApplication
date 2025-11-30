@@ -364,6 +364,7 @@ const useIamStore = defineStore('iam', () => {
      */
     async function createInvitation(invitationData) {
         try {
+            console.log('📋 IAM Store - Creating invitation with data:', invitationData);
             const response = await iamApi.createInvitation(invitationData);
             const invitation = InvitationAssembler.toEntityFromResponse(response);
             
