@@ -258,13 +258,13 @@ const handleLogin = async () => {
       password: loginForm.value.password
     };
 
-    // Llamar a signIn del store (maneja la navegación internamente)
+    // Call signIn from store (handles navigation internally)
     iamStore.signIn(signInCommand, router);
     
-    // Esperar un momento para que se complete la operación
+    // Wait a moment for the operation to complete
     await new Promise(resolve => setTimeout(resolve, 1500));
   } catch (error) {
-    console.error('Error en login:', error);
+    console.error('Error in login:', error);
   } finally {
     isLoading.value = false;
   }
@@ -283,22 +283,22 @@ const handleRegister = async () => {
       phone: registerForm.value.phone
     };
 
-    console.log('📝 Datos enviados al crear cuenta:', signUpCommand);
-    console.log('📋 Formulario completo:', registerForm.value);
+    console.log('📝 Data sent when creating account:', signUpCommand);
+    console.log('📋 Complete form:', registerForm.value);
 
-    // Llamar a signUp del store
+    // Call signUp from store
     iamStore.signUp(signUpCommand);
     
-    // Esperar un momento para que se complete la operación
+    // Wait a moment for the operation to complete
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Si no hay errores, cambiar a la vista de login
+    // If there are no errors, switch to login view
     if (!hasErrors.value) {
       isLogin.value = true;
       resetForms();
     }
   } catch (error) {
-    console.error('Error en registro:', error);
+    console.error('Error in registration:', error);
   } finally {
     isLoading.value = false;
   }
@@ -306,7 +306,7 @@ const handleRegister = async () => {
 </script>
 
 <style scoped>
-/* ===== ANIMACIONES ===== */
+/* ===== ANIMATIONS ===== */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -368,7 +368,7 @@ const handleRegister = async () => {
   }
 }
 
-/* Clases de animación */
+/* Animation classes */
 .animate-fade-in {
   animation: fadeIn 0.8s ease-out;
 }
@@ -397,7 +397,7 @@ const handleRegister = async () => {
   animation: fadeInUp 0.5s ease-out 0.1s both;
 }
 
-/* Transiciones de formularios */
+/* Form transitions */
 .form-fade-enter-active,
 .form-fade-leave-active {
   transition: all 0.3s ease;
@@ -413,7 +413,7 @@ const handleRegister = async () => {
   transform: translateX(-20px);
 }
 
-/* Transiciones para campos condicionales */
+/* Transitions for conditional fields */
 .slide-fade-enter-active {
   transition: all 0.3s ease;
 }
@@ -432,7 +432,7 @@ const handleRegister = async () => {
   opacity: 0;
 }
 
-/* Checkmark animado */
+/* Animated checkmark */
 .checkmark-animated {
   display: inline-block;
   animation: checkmark 0.3s ease-out;
@@ -461,10 +461,10 @@ const handleRegister = async () => {
 .auth-page {
   background: #f8fafc;
   min-height: 100vh;
-  min-height: 100dvh; /* Soporte para viewport dinámico en móviles */
+  min-height: 100dvh; /* Support for dynamic viewport on mobile */
   display: grid;
   grid-template-columns: 1fr 1fr;
-  overflow-x: hidden; /* Prevenir scroll horizontal */
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 .left-panel {
@@ -500,7 +500,7 @@ const handleRegister = async () => {
   transform: scale(1.05);
 }
 
-/* Cuando tengas tu logo, usa esto: */
+/* When you have your logo, use this: */
 .brand-logo-img {
   width: 100%;
   height: 100%;
@@ -579,8 +579,8 @@ const handleRegister = async () => {
   align-items: center;
   padding: 40px;
   background: white;
-  overflow-y: auto; /* Permitir scroll si el contenido es muy largo */
-  -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+  overflow-y: auto; /* Allow scroll if content is too long */
+  -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
 }
 
 .auth-container {
@@ -919,7 +919,7 @@ const handleRegister = async () => {
 
 /* ===== MEDIA QUERIES - RESPONSIVE DESIGN ===== */
 
-/* Tablet y pantallas medianas (768px - 1024px) */
+/* Tablet and medium screens (768px - 1024px) */
 @media (max-width: 1024px) {
   .auth-page {
     grid-template-columns: 1fr;
@@ -956,7 +956,7 @@ const handleRegister = async () => {
   }
 }
 
-/* Tablets pequeñas y móviles grandes (481px - 768px) */
+/* Small tablets and large mobiles (481px - 768px) */
 @media (max-width: 768px) {
   .right-panel {
     padding: 24px 20px;
@@ -997,7 +997,7 @@ const handleRegister = async () => {
 
   .form-control {
     padding: 12px 14px;
-    font-size: 16px; /* Previene zoom en iOS */
+    font-size: 16px; /* Prevents zoom on iOS */
   }
 
   .form-group label {
@@ -1015,7 +1015,7 @@ const handleRegister = async () => {
   }
 }
 
-/* Móviles pequeños y medianos (320px - 480px) */
+/* Small and medium mobiles (320px - 480px) */
 @media (max-width: 480px) {
   .auth-page {
     background: white;
@@ -1062,14 +1062,14 @@ const handleRegister = async () => {
 
   .form-control {
     padding: 12px 14px;
-    font-size: 16px; /* Previene zoom automático en iOS */
+    font-size: 16px; /* Prevents automatic zoom on iOS */
     border-radius: 8px;
     border-width: 1.5px;
   }
 
   .form-control:focus {
     box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.08);
-    transform: none; /* Eliminar transform en móvil para mejor UX */
+    transform: none; /* Remove transform on mobile for better UX */
   }
 
   .form-group label {
@@ -1082,30 +1082,30 @@ const handleRegister = async () => {
     font-size: 15px;
     border-radius: 8px;
     margin-top: 4px;
-    /* Área táctil más grande en móviles */
+    /* Larger touch area on mobile */
     min-height: 48px;
   }
 
   .btn-primary:hover:not(:disabled) {
-    transform: none; /* Eliminar hover effects en móvil */
+    transform: none; /* Remove hover effects on mobile */
   }
 
   .form-section {
     margin-bottom: 16px;
   }
 
-  /* Mejorar espaciado en formularios largos */
+  /* Improve spacing in long forms */
   .auth-form {
     padding-bottom: 20px;
   }
 
-  /* Ajustar animaciones para móviles */
+  /* Adjust animations for mobile */
   .animate-input {
     animation-duration: 0.3s;
   }
 }
 
-/* Móviles muy pequeños (hasta 360px) */
+/* Very small mobiles (up to 360px) */
 @media (max-width: 360px) {
   .right-panel {
     padding: 16px 12px;
@@ -1136,7 +1136,7 @@ const handleRegister = async () => {
   }
 }
 
-/* Orientación landscape en móviles */
+/* Landscape orientation on mobile */
 @media (max-width: 768px) and (orientation: landscape) {
   .right-panel {
     padding: 16px 20px;
@@ -1160,7 +1160,7 @@ const handleRegister = async () => {
   }
 }
 
-/* Pantallas muy grandes (más de 1440px) */
+/* Very large screens (more than 1440px) */
 @media (min-width: 1440px) {
   .auth-container {
     max-width: 480px;
@@ -1183,9 +1183,9 @@ const handleRegister = async () => {
   }
 }
 
-/* Mejoras de accesibilidad táctil */
+/* Touch accessibility improvements */
 @media (hover: none) and (pointer: coarse) {
-  /* Dispositivos táctiles */
+  /* Touch devices */
   .auth-tab {
     min-height: 44px;
     display: flex;
@@ -1201,7 +1201,7 @@ const handleRegister = async () => {
     min-height: 44px;
   }
 
-  /* Eliminar efectos hover en dispositivos táctiles */
+  /* Remove hover effects on touch devices */
   .form-control:hover {
     border-color: #e5e7eb;
   }
@@ -1211,7 +1211,7 @@ const handleRegister = async () => {
   }
 }
 
-/* Prevenir zoom en inputs en iOS */
+/* Prevent zoom on inputs in iOS */
 @supports (-webkit-touch-callout: none) {
   @media (max-width: 768px) {
     .form-control {

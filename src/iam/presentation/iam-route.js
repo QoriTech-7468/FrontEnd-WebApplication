@@ -1,5 +1,5 @@
 // Lazy-loaded components
-const LoginRegister = () => import('./views/LoginRegister.vue');
+const LoginRegister = () => import('./views/login-register.vue');
 const Invitations = () => import('./views/invitations.vue');
 
 const iamRoutes = [
@@ -19,7 +19,7 @@ const iamRoutes = [
         component: Invitations,
         meta: { title: 'Invitations' }
     },
-    // fallback
+    // Fallback route
     { 
         path: ':pathMatch(.*)*', 
         redirect: '/auth/login' 

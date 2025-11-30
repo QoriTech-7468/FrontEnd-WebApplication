@@ -1,12 +1,12 @@
 <template>
   <header class="topbar">
     <div class="topbar-right">
-      <!-- Botón Purchase -->
+      <!-- Purchase button -->
       <button class="btn-purchase" @click="$emit('open-purchase-modal')">
         Purchase
       </button>
 
-      <!-- Botón Usuario con desplegable -->
+      <!-- User button with dropdown -->
       <div class="user-dropdown">
         <button class="btn-user" @click="toggleUserMenu">
           {{ userName }}
