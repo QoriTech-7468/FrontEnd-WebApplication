@@ -132,11 +132,6 @@ const formatUserName = (user) => {
   font-weight: 500;
 }
 
-.invitation-user-id {
-  color: #6b7280;
-  font-size: 0.85rem;
-}
-
 .status-badge {
   display: inline-block;
   padding: 2px 8px;
