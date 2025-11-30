@@ -120,7 +120,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import useInvitationsStore from '../../application/invitations.store.js'
 import useOrganizationStore from '../../../subscriptions/application/organization.store.js'
 import useIamStore from '../../application/iam.store.js'
 import { storeToRefs } from 'pinia'
@@ -128,11 +127,9 @@ import InvitationsHeader from '../components/invitations-header.vue'
 import InvitationCard from '../components/invitation-card.vue'
 
 const router = useRouter()
-const invitationsStore = useInvitationsStore()
 const organizationStore = useOrganizationStore()
 const iamStore = useIamStore()
-const { invitations, invitationsLoaded } = storeToRefs(invitationsStore)
-const { currentUserId, currentUserRole } = storeToRefs(iamStore)
+const { invitations, invitationsLoaded, currentUserId, currentUserRole } = storeToRefs(iamStore)
 
 const isLoading = ref(false)
 const loadingInvitationId = ref(null)
@@ -143,7 +140,7 @@ onMounted(async () => {
   try {
     isLoading.value = true
     errorMessage.value = null
-    await invitationsStore.fetchUserInvitations()
+    await iamStore.fetchUserInvitations()
   } catch (error) {
     console.error('Error loading invitations:', error)
     errorMessage.value = 'Failed to load invitations. Please try again.'
@@ -157,7 +154,7 @@ const cancelInvitation = async (id) => {
   try {
     loadingInvitationId.value = id
     errorMessage.value = null
-    await invitationsStore.rejectInvitation(id)
+    await iamStore.rejectInvitation(id)
     console.log(`Invitation ${id} rejected successfully`)
   } catch (error) {
     console.error(`Error rejecting invitation ${id}:`, error)
@@ -171,7 +168,7 @@ const acceptInvitation = async (id) => {
   try {
     loadingInvitationId.value = id
     errorMessage.value = null
-    await invitationsStore.acceptInvitation(id)
+    await iamStore.acceptInvitation(id)
     console.log(`Invitation ${id} accepted successfully`)
     // Redirigir a management después de aceptar la invitación
     router.push({ name: 'management' })

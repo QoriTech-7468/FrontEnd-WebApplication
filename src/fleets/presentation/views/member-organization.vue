@@ -222,7 +222,6 @@
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
 import { storeToRefs } from 'pinia';
-import useInvitationsStore from '../../../iam/application/invitations.store.js';
 import useIamStore from '../../../iam/application/iam.store.js';
 import OrganizationInvitationCard from '../components/organization-invitation-card.vue';
 
@@ -235,10 +234,8 @@ const showModal = ref(false);
 const activeTab = ref('members');
 
 // Invitations
-const invitationsStore = useInvitationsStore();
 const iamStore = useIamStore();
-const { invitations, invitationsLoaded } = storeToRefs(invitationsStore);
-const { currentUserOrganizationId } = storeToRefs(iamStore);
+const { invitations, invitationsLoaded, currentUserOrganizationId } = storeToRefs(iamStore);
 
 const showInvitationModal = ref(false);
 const isCreatingInvitation = ref(false);
@@ -309,7 +306,7 @@ const loadOrganizationInvitations = async () => {
   try {
     isLoadingInvitations.value = true;
     invitationErrorMessage.value = null;
-    await invitationsStore.fetchOrganizationInvitations();
+    await iamStore.fetchOrganizationInvitations();
   } catch (error) {
     console.error('Error loading organization invitations:', error);
     invitationErrorMessage.value = 'Failed to load invitations. Please try again.';
@@ -390,7 +387,7 @@ const createInvitation = async () => {
       organizationId: currentUserOrganizationId.value
     };
 
-    await invitationsStore.createInvitation(invitationData);
+    await iamStore.createInvitation(invitationData);
     closeInvitationModal();
     // Reload invitations
     await loadOrganizationInvitations();
@@ -411,7 +408,7 @@ const cancelInvitation = async (id) => {
   try {
     loadingInvitationId.value = id;
     invitationErrorMessage.value = null;
-    await invitationsStore.rejectInvitation(id);
+    await iamStore.rejectInvitation(id);
     console.log(`Invitation ${id} cancelled successfully`);
   } catch (error) {
     console.error(`Error cancelling invitation ${id}:`, error);
