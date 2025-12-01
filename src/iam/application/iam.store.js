@@ -5,6 +5,7 @@ import { SignInAssembler } from "../infrastructure/sign-in.assembler.js";
 import { SignUpAssembler } from "../infrastructure/sign-up.assembler.js";
 import { User } from "../domain/user.entity.js";
 import { InvitationAssembler } from "../infrastructure/invitation.assembler.js";
+import { UserAssembler } from "../infrastructure/user.assembler.js";
 
 const iamApi = new IamApi();
 
@@ -40,6 +41,10 @@ const useIamStore = defineStore('iam', () => {
     const users = ref([]);
     const errors = ref([]);
     const usersLoaded = ref(false);
+    
+    // Organization users state
+    const organizationUsers = ref([]);
+    const organizationUsersLoaded = ref(false);
     
     // Invitations state
     const invitations = ref([]);
@@ -391,6 +396,86 @@ const useIamStore = defineStore('iam', () => {
         errors.value = [];
     }
 
+    // ========== ORGANIZATION USERS ACTIONS ==========
+
+    /**
+     * Fetch organization users from the API
+     * @returns {Promise} - A promise resolving to the list of organization users
+     */
+    async function fetchOrganizationUsers() {
+        try {
+            organizationUsersLoaded.value = false;
+            const response = await iamApi.getOrganizationUsers();
+            organizationUsers.value = UserAssembler.toEntitiesFromResponse(response);
+            organizationUsersLoaded.value = true;
+            errors.value = [];
+            console.log(`✅ Organization users loaded: ${organizationUsers.value.length}`);
+            return organizationUsers.value;
+        } catch (error) {
+            console.error('❌ Error fetching organization users:', error);
+            errors.value.push(error);
+            organizationUsersLoaded.value = false;
+            throw error;
+        }
+    }
+
+    /**
+     * Update user role
+     * @param {number|string} id - The user ID
+     * @param {string} role - The new role (Admin or Dispatcher)
+     * @returns {Promise} - A promise resolving to the update result
+     */
+    async function updateUserRole(id, role) {
+        try {
+            const response = await iamApi.updateUserRole(id, role);
+            
+            // Update the user in the list if it exists
+            const index = organizationUsers.value.findIndex(user => user.id === id);
+            if (index !== -1) {
+                organizationUsers.value[index].role = role;
+            }
+            
+            errors.value = [];
+            console.log(`✅ User ${id} role updated to ${role}`);
+            return response;
+        } catch (error) {
+            console.error(`❌ Error updating user role ${id}:`, error);
+            errors.value.push(error);
+            throw error;
+        }
+    }
+
+    /**
+     * Remove user from organization
+     * @param {number|string} id - The user ID to remove
+     * @returns {Promise} - A promise resolving to the deletion result
+     */
+    async function removeUserFromOrganization(id) {
+        try {
+            const response = await iamApi.removeUserFromOrganization(id);
+            
+            // Remove the user from the list after removing
+            organizationUsers.value = organizationUsers.value.filter(user => user.id !== id);
+            
+            errors.value = [];
+            console.log(`✅ User ${id} removed from organization successfully`);
+            return response;
+        } catch (error) {
+            console.error(`❌ Error removing user ${id} from organization:`, error);
+            errors.value.push(error);
+            throw error;
+        }
+    }
+
+    /**
+     * Clear all organization users from the store
+     */
+    function clearOrganizationUsers() {
+        organizationUsers.value = [];
+        organizationUsersLoaded.value = false;
+        errors.value = [];
+    }
+
     return {
         users,
         errors,
@@ -417,7 +502,14 @@ const useIamStore = defineStore('iam', () => {
         acceptInvitation,
         rejectInvitation,
         createInvitation,
-        clearInvitations
+        clearInvitations,
+        // Organization users
+        organizationUsers,
+        organizationUsersLoaded,
+        fetchOrganizationUsers,
+        updateUserRole,
+        removeUserFromOrganization,
+        clearOrganizationUsers
     };
 });
 

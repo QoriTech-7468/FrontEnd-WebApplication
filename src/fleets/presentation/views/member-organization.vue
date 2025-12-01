@@ -32,20 +32,38 @@
       <div class="flex align-items-center justify-content-between mb-2">
         <div class="mb-3">
           <div class="text-900 text-2xl font-semibold">Users</div>
-          <div class="text-600">Add new users to your account</div>
+          <div class="text-600">Manage organization members</div>
         </div>
         
       </div>
 
+      <!-- Loading State -->
+      <div v-if="isLoadingUsers && !organizationUsersLoaded" class="empty-state">
+        <div class="empty-icon">⏳</div>
+        <p>Loading users...</p>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="usersErrorMessage" class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <p>{{ usersErrorMessage }}</p>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else-if="users.length === 0 && organizationUsersLoaded" class="empty-state">
+        <div class="empty-icon">👥</div>
+        <p>No users in organization</p>
+        <p class="subtitle">Users will appear here once they accept invitations.</p>
+      </div>
+
       <!-- Table -->
-      <div class="table-container">
+      <div v-else class="table-container">
         <table class="users-table">
           <thead>
           <tr>
             <th>Full name</th>
             <th>Email</th>
             <th>Role</th>
-            <th>Is Assigned</th>
             <th>Actions</th>
           </tr>
           </thead>
@@ -56,22 +74,30 @@
               class="table-row"
               :style="{ animationDelay: `${index * 0.1}s` }"
           >
-            <td class="user-name">{{ user.fullname }}</td>
+            <td class="user-name">{{ formatUserName(user) }}</td>
             <td class="user-email">{{ user.email }}</td>
             <td>
-              <select v-model="user.role" class="select-input">
+              <select 
+                v-if="!isOwner(user)"
+                v-model="user.role" 
+                class="select-input"
+                @change="updateUserRole(user.id, user.role)"
+                :disabled="isUpdatingRole === user.id"
+              >
                 <option value="Admin">Admin</option>
-                <option value="Driver">Driver</option>
+                <option value="Dispatcher">Dispatcher</option>
               </select>
-            </td>
-            <td>
-                <span class="badge" :class="user.isAssigned ? 'badge-true' : 'badge-false'">
-                  {{ user.isAssigned ? 'True' : 'False' }}
-                </span>
+              <span v-else class="role-text">Owner</span>
             </td>
             <td class="actions-cell">
-              <button class="delete-btn" @click="deleteUser(user.id)" title="Delete user">
-                ✕
+              <button 
+                v-if="!isOwner(user)"
+                class="delete-btn" 
+                @click="removeUser(user.id)" 
+                title="Remove user from organization"
+                :disabled="isRemovingUser === user.id"
+              >
+                {{ isRemovingUser === user.id ? '...' : '✕' }}
               </button>
             </td>
           </tr>
@@ -122,54 +148,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Modal: Add User -->
-  <transition name="modal-fade">
-      <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
-        <div class="modal animate-modal-up">
-          <div class="modal-header">
-            <h3>Add a new user</h3>
-            <button class="close-btn" @click="showModal = false">✕</button>
-          </div>
-
-          <div class="modal-body">
-            <div class="form-group">
-              <label>Full name</label>
-              <input
-                  v-model="newUser.fullname"
-                  placeholder="John Doe"
-                  class="modal-input"
-              />
-            </div>
-
-            <div class="form-group">
-              <label>Email</label>
-              <input
-                  v-model="newUser.email"
-                  placeholder="john@example.com"
-                  type="email"
-                  class="modal-input"
-              />
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Role</label>
-                <select v-model="newUser.role" class="modal-select">
-                  <option value="Admin">Admin</option>
-                  <option value="Driver">Driver</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal-actions">
-            <button class="btn-cancel" @click="showModal = false">Cancel</button>
-            <button class="btn-save" @click="addUser">Save User</button>
-          </div>
-        </div>
-      </div>
-    </transition>
 
   <!-- Modal: Create Invitation -->
   <transition name="modal-fade">
@@ -224,17 +202,18 @@ import { storeToRefs } from 'pinia';
 import useIamStore from '../../../iam/application/iam.store.js';
 import OrganizationInvitationCard from '../components/organization-invitation-card.vue';
 
-const API_URL = "http://localhost:3001/user";
-
-const usersFromApi = ref([]);
-const showModal = ref(false);
-
 // Tabs
 const activeTab = ref('members');
 
-// Invitations
+// Organization users
+const isLoadingUsers = ref(false);
+const usersErrorMessage = ref(null);
+const isUpdatingRole = ref(null);
+const isRemovingUser = ref(null);
+
+// IAM Store
 const iamStore = useIamStore();
-const { invitations, invitationsLoaded, currentUserOrganizationId } = storeToRefs(iamStore);
+const { invitations, invitationsLoaded, currentUserOrganizationId, organizationUsers, organizationUsersLoaded, currentUserRole } = storeToRefs(iamStore);
 
 const showInvitationModal = ref(false);
 const isCreatingInvitation = ref(false);
@@ -254,43 +233,64 @@ const pendingInvitations = computed(() => {
   );
 });
 
-const newUser = ref({
-  fullname: "",
-  email: "",
-  role: "Driver",
-  vehicleId: null
-});
+// Format user name from name and surname
+const formatUserName = (user) => {
+  const parts = []
+  if (user.name) parts.push(user.name)
+  if (user.surname) parts.push(user.surname)
+  return parts.length > 0 ? parts.join(' ') : 'N/A'
+}
 
+// Computed users with formatted data
 const users = computed(() => {
-  return usersFromApi.value.map(user => ({
+  return organizationUsers.value.map(user => ({
     ...user,
-    isAssigned: user.vehicleId !== null
+    fullname: formatUserName(user)
   }));
 });
 
+// Check if user is owner
+const isOwner = (user) => {
+  return user.role?.toLowerCase() === 'owner';
+};
+
 // --- FUNCIONES CRUD ---
 
-const fetchUsers = async () => {
+// Load organization users
+const loadOrganizationUsers = async () => {
+  if (!currentUserOrganizationId.value) {
+    usersErrorMessage.value = 'No organization ID found. Please create an organization first.';
+    return;
+  }
+
   try {
-    const response = await fetch(API_URL);
-    usersFromApi.value = await response.json();
-    console.log('Datos de usuarios cargados desde el API:', usersFromApi.value);
+    isLoadingUsers.value = true;
+    usersErrorMessage.value = null;
+    await iamStore.fetchOrganizationUsers();
   } catch (error) {
-    console.error("Error al cargar los usuarios:", error);
+    console.error('Error loading organization users:', error);
+    usersErrorMessage.value = 'Failed to load users. Please try again.';
+  } finally {
+    isLoadingUsers.value = false;
   }
 };
 
 onMounted(async () => {
-  fetchUsers();
+  // Load organization users if on members tab
+  if (activeTab.value === 'members') {
+    await loadOrganizationUsers();
+  }
   // Load organization invitations if on invitations tab
   if (activeTab.value === 'invitations') {
     await loadOrganizationInvitations();
   }
 });
 
-// Watch for tab changes to load invitations
+// Watch for tab changes to load data
 watch(activeTab, async (newTab) => {
-  if (newTab === 'invitations') {
+  if (newTab === 'members') {
+    await loadOrganizationUsers();
+  } else if (newTab === 'invitations') {
     await loadOrganizationInvitations();
   }
 });
@@ -314,39 +314,44 @@ const loadOrganizationInvitations = async () => {
   }
 };
 
-const addUser = async () => {
-  if (newUser.value.fullname && newUser.value.email) {
-    const userToSave = {
-      ...newUser.value,
-      password: ""
-    };
+// Update user role
+const updateUserRole = async (userId, newRole) => {
+  if (!newRole || (newRole !== 'Admin' && newRole !== 'Dispatcher')) {
+    alert('Invalid role. Role must be Admin or Dispatcher.');
+    return;
+  }
 
-    try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userToSave)
-      });
-      const createdUser = await response.json();
-      usersFromApi.value.push(createdUser);
-
-      newUser.value = { fullname: "", email: "", role: "Driver", vehicleId: null };
-      showModal.value = false;
-    } catch (error) {
-      console.error("Error al añadir el usuario:", error);
-    }
+  try {
+    isUpdatingRole.value = userId;
+    usersErrorMessage.value = null;
+    await iamStore.updateUserRole(userId, newRole);
+    console.log(`User ${userId} role updated to ${newRole}`);
+  } catch (error) {
+    console.error(`Error updating user role ${userId}:`, error);
+    usersErrorMessage.value = 'Failed to update user role. Please try again.';
+    // Reload users to revert the change
+    await loadOrganizationUsers();
+  } finally {
+    isUpdatingRole.value = null;
   }
 };
 
-// BORRAR (DELETE)
-const deleteUser = async (userId) => {
-  if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-    try {
-      await fetch(`${API_URL}/${userId}`, { method: 'DELETE' });
-      usersFromApi.value = usersFromApi.value.filter(user => user.id !== userId);
-    } catch (error) {
-      console.error("Error al eliminar el usuario:", error);
-    }
+// Remove user from organization
+const removeUser = async (userId) => {
+  if (!confirm('Are you sure you want to remove this user from the organization?')) {
+    return;
+  }
+
+  try {
+    isRemovingUser.value = userId;
+    usersErrorMessage.value = null;
+    await iamStore.removeUserFromOrganization(userId);
+    console.log(`User ${userId} removed from organization successfully`);
+  } catch (error) {
+    console.error(`Error removing user ${userId} from organization:`, error);
+    usersErrorMessage.value = 'Failed to remove user. Please try again.';
+  } finally {
+    isRemovingUser.value = null;
   }
 };
 
@@ -621,6 +626,12 @@ const cancelInvitation = async (id) => {
   outline: none;
   border-color: #4f46e5;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.role-text {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
 }
 
 .badge {

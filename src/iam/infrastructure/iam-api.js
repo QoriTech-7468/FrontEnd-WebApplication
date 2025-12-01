@@ -107,4 +107,32 @@ export class IamApi extends BaseApi {
     acceptInvitation(id) {
         return this.http.post(`${this.#invitationsEndpointPath.endpointPath}/${id}/accept`);
     }
+
+    // Organization users endpoints
+    /**
+     * Get users by organization
+     * @returns {Promise} - A promise resolving to the list of organization users
+     */
+    getOrganizationUsers() {
+        return this.http.get(`${this.#userEndpointPath.endpointPath}/organization`);
+    }
+
+    /**
+     * Change user role
+     * @param {number|string} id - The user ID
+     * @param {string} role - The new role (Admin or Dispatcher)
+     * @returns {Promise} - A promise resolving to the update result
+     */
+    updateUserRole(id, role) {
+        return this.http.put(`${this.#userEndpointPath.endpointPath}/${id}/role`, { role });
+    }
+
+    /**
+     * Remove user from organization
+     * @param {number|string} id - The user ID to remove
+     * @returns {Promise} - A promise resolving to the deletion result
+     */
+    removeUserFromOrganization(id) {
+        return this.http.delete(`${this.#userEndpointPath.endpointPath}/${id}/organization`);
+    }
 }
