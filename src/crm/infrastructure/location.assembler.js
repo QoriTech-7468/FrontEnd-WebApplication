@@ -44,4 +44,28 @@ export class LocationAssembler {
         const resources = response.data instanceof Array ? response.data : [];
         return resources.map(resource => this.toEntityFromResource(resource));
     }
+
+    /**
+     * Transform a Location entity or plain object into a resource for API requests
+     * @param {Location|Object} location - Location entity instance or plain object
+     * @returns {Object} - API resource object
+     */
+    static toResourceFromEntity(location) {
+        // Asegurar que latitude y longitude sean strings (el backend acepta string o number)
+        const resource = {
+            clientId: location.clientId,
+            address: location.address,
+            latitude: String(location.latitude),
+            longitude: String(location.longitude),
+            proximity: location.proximity,
+            isActive: location.isActive !== null && location.isActive !== undefined ? location.isActive : true
+        };
+
+        // Include id only if it's not null (for updates)
+        if (location.id !== null && location.id !== undefined) {
+            resource.id = location.id;
+        }
+
+        return resource;
+    }
 }

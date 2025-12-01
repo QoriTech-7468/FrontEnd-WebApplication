@@ -246,16 +246,25 @@ const useCrmStore = defineStore('crm', () => {
 
     /**
      * Add a new location
-     * @param {Object} location - The location data to create
+     * @param {Object} location - The location data to create (Location entity or plain object)
      */
     function addLocation(location) {
-        crmApi.createLocations(location).then(response => {
-            const resource = response.data;
-            const newLocation = LocationAssembler.toEntityFromResource(resource);
-            locations.value.push(newLocation);
+        // Transform to resource format ensuring correct types
+        const requestResource = LocationAssembler.toResourceFromEntity(location);
+        
+        return crmApi.createLocations(requestResource).then(response => {
+            const responseResource = response.data;
+            const newLocation = LocationAssembler.toEntityFromResource(responseResource);
+            // Ensure isActive is true by default and add status field for consistency
+            locations.value.push({
+                ...newLocation,
+                isActive: newLocation.isActive !== null ? newLocation.isActive : true,
+                status: (newLocation.isActive !== null ? newLocation.isActive : true) ? 'Active' : 'Disabled'
+            });
             errors.value = [];
         }).catch(error => {
             errors.value.push(error);
+            throw error; // Re-throw para que el componente pueda manejar el error
         });
     }
 

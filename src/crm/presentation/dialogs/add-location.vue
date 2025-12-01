@@ -23,6 +23,15 @@
         </div>
       </transition>
 
+      <div>
+        <label class="block text-700 mb-2">Address</label>
+        <pv-input-text
+            v-model="address"
+            class="w-full"
+            placeholder="Enter address or select from map"
+        />
+      </div>
+
       <div class="grid mt-2">
         <div class="col-6">
           <label class="block text-700 mb-2">Latitude</label>
@@ -32,6 +41,9 @@
               mode="decimal"
               :useGrouping="false"
               :minFractionDigits="6"
+              :maxFractionDigits="8"
+              :min="-90"
+              :max="90"
               placeholder="-12.046374"
           />
         </div>
@@ -43,6 +55,9 @@
               mode="decimal"
               :useGrouping="false"
               :minFractionDigits="6"
+              :maxFractionDigits="8"
+              :min="-180"
+              :max="180"
               placeholder="-77.042793"
           />
         </div>
@@ -121,15 +136,67 @@ watch(
     { immediate: true }
 );
 
-function submit() {
-  if (!clientId.value || !address.value.trim()) return;
+// Watch para debug - ver cuando cambian las coordenadas
+watch([latitude, longitude], ([newLat, newLng]) => {
+  console.log("Coordinates changed - Latitude:", newLat, "Longitude:", newLng);
+}, { deep: true });
 
+function submit() {
+  // Validaciones
+  if (!clientId.value) {
+    console.error("Client ID is required");
+    return;
+  }
+  
+  // Validar address - puede venir del input manual o del MapPicker
+  const addressValue = address.value?.trim() || "";
+  if (!addressValue) {
+    console.error("Address is required");
+    return;
+  }
+  
+  // Convertir y validar coordenadas - manejar tanto strings como numbers
+  const latValue = latitude.value;
+  const lngValue = longitude.value;
+  
+  // Debug: ver qué valores tenemos
+  console.log("Submit - Latitude value:", latValue, "Type:", typeof latValue);
+  console.log("Submit - Longitude value:", lngValue, "Type:", typeof lngValue);
+  
+  // Convertir a number si es string o si es null/undefined
+  const latNum = latValue === null || latValue === undefined || latValue === "" 
+    ? null 
+    : (typeof latValue === 'string' ? parseFloat(latValue) : Number(latValue));
+  const lngNum = lngValue === null || lngValue === undefined || lngValue === "" 
+    ? null 
+    : (typeof lngValue === 'string' ? parseFloat(lngValue) : Number(lngValue));
+  
+  // Validar que sean números válidos y no sean 0 (0,0 es en el océano, no es una ubicación válida)
+  // Permitir valores negativos (latitudes y longitudes pueden ser negativas)
+  if (latNum === null || isNaN(latNum) || latNum === 0 || latNum < -90 || latNum > 90) {
+    console.error("Latitude is required. Please select a location on the map or enter valid coordinates.");
+    console.log("Latitude validation failed - value:", latValue, "parsed:", latNum);
+    return;
+  }
+  
+  if (lngNum === null || isNaN(lngNum) || lngNum === 0 || lngNum < -180 || lngNum > 180) {
+    console.error("Longitude is required. Please select a location on the map or enter valid coordinates.");
+    console.log("Longitude validation failed - value:", lngValue, "parsed:", lngNum);
+    return;
+  }
+  
+  if (!proximity.value) {
+    console.error("Proximity is required");
+    return;
+  }
+
+  // Convertir a string (el backend acepta string o number, pero usamos string para consistencia)
   emit("submit", {
-    clientsId: clientId.value,
-    address: address.value.trim(),
-    type: type.value,
-    latitude: latitude.value ?? null,
-    longitude: longitude.value ?? null,
+    clientId: clientId.value,
+    address: addressValue,
+    proximity: proximity.value,
+    latitude: String(latNum),
+    longitude: String(lngNum),
     isActive: true
   });
 }

@@ -25,8 +25,8 @@ import {useRoute} from "vue-router";
 import useCrmStore from "../../application/crm.store.js";
 import {Client} from "../../domain/model/client.entity.js";
 
-const props = defineProps({ visible: Boolean });
-const emit  = defineEmits(["update:visible"]);
+const props = defineProps({ visible: Boolean, loading: Boolean });
+const emit  = defineEmits(["update:visible", "submit"]);
 const isEdit = computed(() => !!route.params.id);
 
 const route = useRoute();
@@ -35,8 +35,20 @@ const store = useCrmStore();
 const { errors, addClients } = store;
 
 const saveClients = () => {
-  const client = new Client({ id: isEdit.value ? route.params.id : null, name: form.value.name,isActive: true});
+  if (!form.value.name.trim()) return;
+  
+  const client = new Client({ 
+    id: isEdit.value ? route.params.id : null, 
+    name: form.value.name.trim(),
+    isActive: true
+  });
+  
   addClients(client);
+  
+  // Emitir evento submit y cerrar el diálogo
+  emit("submit");
+  modelVisible.value = false;
+  form.value.name = "";
 }
 
 const modelVisible = computed({

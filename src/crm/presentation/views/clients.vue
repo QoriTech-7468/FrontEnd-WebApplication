@@ -103,7 +103,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useToast } from "primevue/usetoast";
 
 import ClientsSidebar from "../components/clients-sidebar.vue";
@@ -137,9 +137,23 @@ const clientsList = computed(() => store.clients ?? []);
 
 const selected = computed(() => clientsList.value.find(c => c.id === selectedId.value) || null);
 
+// Estado para almacenar las locations del cliente seleccionado
+const clientLocations = ref([]);
+const loadingLocations = ref(false);
+
 const selectedWithLocations = computed(() => {
   if (!selected.value) return null;
-  if (Array.isArray(selected.value.locations)) return selected.value;
+  
+  // Si tenemos locations cargadas para este cliente, usarlas
+  if (clientLocations.value.length > 0 && 
+      clientLocations.value[0]?.clientId === selected.value.id) {
+    return { ...selected.value, locations: clientLocations.value };
+  }
+  
+  // Fallback: buscar en el store global
+  if (Array.isArray(selected.value.locations)) {
+    return selected.value;
+  }
 
   const cid = Number(selected.value.id);
   const locs = (store.locations ?? []).filter(
@@ -158,8 +172,37 @@ onMounted(() => {
   if (!store.locationsLoaded) store.fetchLocations();
 });
 
+// Watch para cargar locations cuando se selecciona un cliente
+watch(selectedId, async (newClientId) => {
+  if (newClientId) {
+    loadingLocations.value = true;
+    try {
+      const locations = await store.fetchLocationsByClientId(newClientId);
+      clientLocations.value = locations;
+    } catch (error) {
+      console.error("Error loading client locations:", error);
+      clientLocations.value = [];
+      toast.add({
+        severity: "warn",
+        summary: "Could not load locations",
+        detail: "Using cached locations if available",
+        life: 2000
+      });
+    } finally {
+      loadingLocations.value = false;
+    }
+  } else {
+    clientLocations.value = [];
+  }
+});
+
 function onOpenNewClient() {
   showCreate.value = true;
+}
+
+function handleCreate() {
+  showCreate.value = false;
+  refreshClients();
 }
 
 function statusSeverity(s) {
@@ -173,11 +216,47 @@ const creatingLocation = ref(false);
 async function handleCreateLocation(payload) {
   creatingLocation.value = true;
   try {
-    await new Promise((res, rej) => store.addLocation(payload).then(res).catch(rej));
+    // Validar payload antes de enviar
+    if (!payload.clientId) {
+      throw new Error("Client ID is required");
+    }
+    if (!payload.address || !payload.address.trim()) {
+      throw new Error("Address is required");
+    }
+    if (!payload.latitude || payload.latitude === 0) {
+      throw new Error("Latitude is required");
+    }
+    if (!payload.longitude || payload.longitude === 0) {
+      throw new Error("Longitude is required");
+    }
+    if (!payload.proximity) {
+      throw new Error("Proximity is required");
+    }
+
+    await store.addLocation(payload);
     showAddLocation.value = false;
-    toast.add({ severity: "success", summary: "Location created", detail: payload.address, life: 2500 });
+    toast.add({ 
+      severity: "success", 
+      summary: "Location created", 
+      detail: payload.address, 
+      life: 2500 
+    });
+    // Refrescar locations del cliente seleccionado
+    if (selectedId.value) {
+      const locations = await store.fetchLocationsByClientId(selectedId.value);
+      clientLocations.value = locations;
+    }
+    // También refrescar el store global
+    store.fetchLocations();
   } catch (e) {
-    toast.add({ severity: "error", summary: "Could not create", detail: e?.message || "Error", life: 3000 });
+    const errorMessage = e?.response?.data?.message || e?.message || "Could not create location";
+    toast.add({ 
+      severity: "error", 
+      summary: "Error creating location", 
+      detail: errorMessage, 
+      life: 3000 
+    });
+    console.error("Error creating location:", e);
   } finally {
     creatingLocation.value = false;
   }
@@ -208,7 +287,17 @@ function openEditLocationDialog(location) {
 async function saveLocationEdit(updated) {
   await store.updateLocation(updated);
   showEditLocation.value = false;
-  store.fetchLocations(); // Refresh
+  // Refrescar locations del cliente seleccionado
+  if (selectedId.value) {
+    try {
+      const locations = await store.fetchLocationsByClientId(selectedId.value);
+      clientLocations.value = locations;
+    } catch (error) {
+      console.error("Error refreshing client locations:", error);
+    }
+  }
+  // También refrescar el store global
+  store.fetchLocations();
 }
 </script>
 
