@@ -16,19 +16,34 @@ export class CrmApi extends BaseApi {
 
     /**
      * Get all clients
+     * @param {Object} options - Query parameters
+     * @param {boolean} options.isActive - Filter by active status
      * @returns {Promise} - A promise resolving to the list of clients
      */
-    getClients() {
-        return this.#clientsEndpointPath.getAll();
+    getClients(options = {}) {
+        const params = {};
+        if (options.isActive !== undefined) {
+            params.isActive = options.isActive;
+        }
+        return this.#clientsEndpointPath.getAll(params);
     }
 
     /**
      * Get client by id
      * @param {number|string} id - The client ID
+     * @param {Object} options - Query parameters
+     * @param {string} options.include - Comma-separated list of related resources (e.g., 'locations')
      * @returns {Promise} - A promise resolving to the client
      */
-    getClientsById(id) {
-        return this.#clientsEndpointPath.getById(id);
+    getClientsById(id, options = {}) {
+        const params = {};
+        if (options.include) {
+            params.include = options.include;
+        }
+        const queryString = Object.keys(params).length > 0 
+            ? '?' + new URLSearchParams(params).toString()
+            : '';
+        return this.http.get(`${this.#clientsEndpointPath.endpointPath}/${id}${queryString}`);
     }
 
     /**
@@ -50,29 +65,68 @@ export class CrmApi extends BaseApi {
     }
 
     /**
-     * Delete a client
+     * Get locations by client ID
+     * @param {number|string} clientId - The client ID
+     * @returns {Promise} - A promise resolving to the list of locations for the client
+     */
+    getLocationsByClientId(clientId) {
+        return this.http.get(`${this.#clientsEndpointPath.endpointPath}/${clientId}/locations`);
+    }
+
+    /**
+     * Update client status (activate/deactivate)
+     * @param {number|string} id - The client ID
+     * @param {boolean} isActive - Active status (true to activate, false to deactivate)
+     * @returns {Promise} - A promise resolving to the updated client
+     */
+    updateClientStatus(id, isActive) {
+        return this.http.patch(`${this.#clientsEndpointPath.endpointPath}/${id}/status`, { isActive });
+    }
+
+    /**
+     * Delete a client (soft delete - uses status update)
      * @param {number|string} id - The client ID to delete
-     * @returns {Promise} - A promise resolving to the deletion result
+     * @returns {Promise} - A promise resolving to the updated client
+     * @deprecated Use updateClientStatus(id, false) instead
      */
     deleteClients(id) {
-        return this.#clientsEndpointPath.delete(id);
+        return this.updateClientStatus(id, false);
     }
 
     /**
      * Get all locations
+     * @param {Object} options - Query parameters
+     * @param {boolean} options.isActive - Filter by active status
+     * @param {number} options.clientId - Filter by client ID
      * @returns {Promise} - A promise resolving to the list of locations
      */
-    getLocations() {
-        return this.#locationEndpointPath.getAll();
+    getLocations(options = {}) {
+        const params = {};
+        if (options.isActive !== undefined) {
+            params.isActive = options.isActive;
+        }
+        if (options.clientId !== undefined) {
+            params.clientId = options.clientId;
+        }
+        return this.#locationEndpointPath.getAll(params);
     }
 
     /**
      * Get location by id
      * @param {number|string} id - The location ID
+     * @param {Object} options - Query parameters
+     * @param {string} options.include - Comma-separated list of related resources (e.g., 'client')
      * @returns {Promise} - A promise resolving to the location
      */
-    getLocationsById(id) {
-        return this.#locationEndpointPath.getById(id);
+    getLocationsById(id, options = {}) {
+        const params = {};
+        if (options.include) {
+            params.include = options.include;
+        }
+        const queryString = Object.keys(params).length > 0 
+            ? '?' + new URLSearchParams(params).toString()
+            : '';
+        return this.http.get(`${this.#locationEndpointPath.endpointPath}/${id}${queryString}`);
     }
 
     /**
@@ -94,12 +148,23 @@ export class CrmApi extends BaseApi {
     }
 
     /**
-     * Delete a location
+     * Update location status (activate/deactivate)
+     * @param {number|string} id - The location ID
+     * @param {boolean} isActive - Active status (true to activate, false to deactivate)
+     * @returns {Promise} - A promise resolving to the updated location
+     */
+    updateLocationStatus(id, isActive) {
+        return this.http.patch(`${this.#locationEndpointPath.endpointPath}/${id}/status`, { isActive });
+    }
+
+    /**
+     * Delete a location (soft delete - uses status update)
      * @param {number|string} id - The location ID to delete
-     * @returns {Promise} - A promise resolving to the deletion result
+     * @returns {Promise} - A promise resolving to the updated location
+     * @deprecated Use updateLocationStatus(id, false) instead
      */
     deleteLocations(id) {
-        return this.#locationEndpointPath.delete(id);
+        return this.updateLocationStatus(id, false);
     }
 }
 

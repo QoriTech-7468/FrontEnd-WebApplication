@@ -27,9 +27,11 @@ const useCrmStore = defineStore('crm', () => {
 
     /**
      * Fetch all clients from the API
+     * @param {Object} options - Query parameters
+     * @param {boolean} options.isActive - Filter by active status
      */
-    function fetchClients() {
-        crmApi.getClients()
+    function fetchClients(options = {}) {
+        crmApi.getClients(options)
             .then(response => {
                 const rawClients = ClientAssembler.toEntitiesfromResponse(response);
                 clients.value = rawClients.map(c => ({
@@ -47,15 +49,18 @@ const useCrmStore = defineStore('crm', () => {
 
     /**
      * Fetch all locations from the API
+     * @param {Object} options - Query parameters
+     * @param {boolean} options.isActive - Filter by active status
+     * @param {number} options.clientId - Filter by client ID
      */
-    function fetchLocations() {
-        crmApi.getLocations()
+    function fetchLocations(options = {}) {
+        crmApi.getLocations(options)
             .then(response => {
                 const rawLocations = LocationAssembler.toEntitiesfromResponse(response);
                 locations.value = rawLocations.map(l => ({
                     ...l,
                     status: l.isActive ? 'Active' : 'Disabled',
-                    clientId: l.customerId
+                    clientId: l.customerId || l.clientId
                 }));
                 locationsLoaded.value = true;
                 errors.value = [];
@@ -67,7 +72,7 @@ const useCrmStore = defineStore('crm', () => {
     }
 
     /**
-     * Get client by id
+     * Get client by id from store (local)
      * @param {number|string} id - The client ID
      * @returns {Object|null} - The client entity or null if not found
      */
@@ -77,14 +82,72 @@ const useCrmStore = defineStore('crm', () => {
     }
 
     /**
+     * Fetch client by id from API
+     * @param {number|string} id - The client ID
+     * @param {Object} options - Query parameters
+     * @param {string} options.include - Comma-separated list of related resources (e.g., 'locations')
+     * @returns {Promise} - A promise resolving to the client
+     */
+    function fetchClientById(id, options = {}) {
+        return crmApi.getClientsById(id, options)
+            .then(response => {
+                const resource = response.data;
+                const client = ClientAssembler.toEntityFromResource(resource);
+                const index = clients.value.findIndex(c => c.id === client.id);
+                if (index !== -1) {
+                    clients.value[index] = { ...client, status: client.isActive ? 'Active' : 'Disabled' };
+                } else {
+                    clients.value.push({ ...client, status: client.isActive ? 'Active' : 'Disabled' });
+                }
+                errors.value = [];
+                return client;
+            })
+            .catch(error => {
+                errors.value.push(error);
+                throw error;
+            });
+    }
+
+    /**
+     * Fetch locations by client ID from API
+     * @param {number|string} clientId - The client ID
+     * @returns {Promise} - A promise resolving to the list of locations
+     */
+    function fetchLocationsByClientId(clientId) {
+        return crmApi.getLocationsByClientId(clientId)
+            .then(response => {
+                const rawLocations = LocationAssembler.toEntitiesfromResponse(response);
+                const locationsList = rawLocations.map(l => ({
+                    ...l,
+                    status: l.isActive ? 'Active' : 'Disabled',
+                    clientId: l.clientId
+                }));
+                errors.value = [];
+                return locationsList;
+            })
+            .catch(error => {
+                errors.value.push(error);
+                throw error;
+            });
+    }
+
+    /**
      * Add a new client
-     * @param {Object} client - The client data to create
+     * @param {Object} client - The client data to create (Client entity or plain object)
      */
     function addClients(client) {
-        crmApi.createClients(client).then(response => {
-            const resource = response.data;
-            const newClient = ClientAssembler.toEntityFromResource(resource);
-            clients.value.push(newClient);
+        // Transform entity to resource format with organizationId
+        const requestResource = ClientAssembler.toResourceFromEntity(client);
+        
+        crmApi.createClients(requestResource).then(response => {
+            const responseResource = response.data;
+            const newClient = ClientAssembler.toEntityFromResource(responseResource);
+            // Ensure isActive is true by default and add status field for consistency
+            clients.value.push({
+                ...newClient,
+                isActive: newClient.isActive !== null ? newClient.isActive : true,
+                status: (newClient.isActive !== null ? newClient.isActive : true) ? 'Active' : 'Disabled'
+            });
             errors.value = [];
         }).catch(error => {
             errors.value.push(error);
@@ -93,46 +156,92 @@ const useCrmStore = defineStore('crm', () => {
 
     /**
      * Update an existing client
-     * @param {Object} client - The client data to update
+     * @param {Object} client - The client data to update (Client entity or plain object)
      */
     function updateClients(client) {
-        return crmApi.updateClients(client).then(response => {
+        // Transform entity to resource format for UPDATE (PUT) - uses 'name' not 'companyName'
+        const requestResource = ClientAssembler.toResourceFromEntity(client, true);
+        
+        return crmApi.updateClients(requestResource).then(response => {
+            const responseResource = response.data;
+            const updatedClient = ClientAssembler.toEntityFromResource(responseResource);
+            const index = clients.value.findIndex(c => c.id === updatedClient.id);
+            if (index !== -1) {
+                // Update with status field for consistency
+                clients.value[index] = {
+                    ...updatedClient,
+                    status: updatedClient.isActive ? 'Active' : 'Disabled'
+                };
+            }
+            errors.value = [];
+        }).catch(error => {
+            errors.value.push(error);
+        });
+    }
+
+    /**
+     * Update client status (activate/deactivate)
+     * @param {number|string} clientId - The client ID
+     * @param {boolean} isActive - Active status (true to activate, false to deactivate)
+     */
+    function updateClientStatus(clientId, isActive) {
+        return crmApi.updateClientStatus(clientId, isActive).then(response => {
             const resource = response.data;
             const updatedClient = ClientAssembler.toEntityFromResource(resource);
             const index = clients.value.findIndex(c => c.id === updatedClient.id);
             if (index !== -1) {
-                clients.value[index] = updatedClient;
+                clients.value[index] = { ...updatedClient, status: updatedClient.isActive ? 'Active' : 'Disabled' };
             }
             errors.value = [];
         }).catch(error => {
             errors.value.push(error);
+            throw error;
         });
     }
 
     /**
-     * Delete a client
+     * Delete a client (soft delete - uses status update)
      * @param {number|string} clientId - The client ID to delete
      */
     function deleteClients(clientId) {
-        crmApi.deleteClients(clientId).then(() => {
-            const index = clients.value.findIndex(c => c.id === clientId);
-            if (index !== -1) {
-                clients.value.splice(index, 1);
-            }
-            errors.value = [];
-        }).catch(error => {
-            errors.value.push(error);
-        });
+        return updateClientStatus(clientId, false);
     }
 
     /**
-     * Get location by id
+     * Get location by id from store (local)
      * @param {number|string} id - The location ID
      * @returns {Object|null} - The location entity or null if not found
      */
     function getLocationById(id) {
         const idNum = parseInt(id);
         return locations.value.find(location => location.id === idNum);
+    }
+
+    /**
+     * Fetch location by id from API
+     * @param {number|string} id - The location ID
+     * @param {Object} options - Query parameters
+     * @param {string} options.include - Comma-separated list of related resources (e.g., 'client')
+     * @returns {Promise} - A promise resolving to the location
+     */
+    function fetchLocationById(id, options = {}) {
+        return crmApi.getLocationsById(id, options)
+            .then(response => {
+                const resource = response.data;
+                const location = LocationAssembler.toEntityFromResource(resource);
+                const index = locations.value.findIndex(l => l.id === location.id);
+                if (index !== -1) {
+                    locations.value[index] = { ...location, status: location.isActive ? 'Active' : 'Disabled' };
+                } else {
+                    locations.value.push({ ...location, status: location.isActive ? 'Active' : 'Disabled' });
+                }
+                errors.value = [];
+                return location;
+            })
+            .catch(error => {
+                errors.value.push(error);
+                throw error;
+            });
     }
 
     /**
@@ -169,19 +278,31 @@ const useCrmStore = defineStore('crm', () => {
     }
 
     /**
-     * Delete a location
-     * @param {number|string} locationId - The location ID to delete
+     * Update location status (activate/deactivate)
+     * @param {number|string} locationId - The location ID
+     * @param {boolean} isActive - Active status (true to activate, false to deactivate)
      */
-    function deleteLocation(locationId) {
-        crmApi.deleteLocations(locationId).then(() => {
-            const index = locations.value.findIndex(l => l.id === locationId);
+    function updateLocationStatus(locationId, isActive) {
+        return crmApi.updateLocationStatus(locationId, isActive).then(response => {
+            const resource = response.data;
+            const updatedLocation = LocationAssembler.toEntityFromResource(resource);
+            const index = locations.value.findIndex(l => l.id === updatedLocation.id);
             if (index !== -1) {
-                locations.value.splice(index, 1);
+                locations.value[index] = { ...updatedLocation, status: updatedLocation.isActive ? 'Active' : 'Disabled' };
             }
             errors.value = [];
         }).catch(error => {
             errors.value.push(error);
+            throw error;
         });
+    }
+
+    /**
+     * Delete a location (soft delete - uses status update)
+     * @param {number|string} locationId - The location ID to delete
+     */
+    function deleteLocation(locationId) {
+        return updateLocationStatus(locationId, false);
     }
 
     return {
@@ -198,12 +319,17 @@ const useCrmStore = defineStore('crm', () => {
         fetchClients,
         fetchLocations,
         getClientsById,
+        fetchClientById,
+        fetchLocationsByClientId,
         addClients,
         updateClients,
+        updateClientStatus,
         deleteClients,
         getLocationById,
+        fetchLocationById,
         addLocation,
         updateLocation,
+        updateLocationStatus,
         deleteLocation
     };
 });

@@ -47,4 +47,47 @@ export class ClientAssembler {
         const resources = response.data instanceof Array ? response.data : (response.data?.clients || []);
         return resources.map(resource => this.toEntityFromResource(resource));
     }
+
+    /**
+     * Transform a Client entity into a resource for API requests
+     * @param {Client} client - Client entity instance
+     * @param {boolean} isUpdate - Whether this is an update (PUT) or create (POST) request
+     * @returns {Object} - API resource object
+     */
+    static toResourceFromEntity(client, isUpdate = false) {
+        // For updates (PUT): use 'name' and include 'id', no 'organizationId'
+        // For creates (POST): use 'companyName' and include 'organizationId', no 'id'
+        if (isUpdate || client.id !== null) {
+            // Update format: { id, name, isActive }
+            return {
+                id: client.id,
+                name: client.name,
+                isActive: client.isActive !== null ? client.isActive : true
+            };
+        } else {
+            // Create format: { companyName, isActive, organizationId }
+            let organizationId = null;
+            try {
+                const userDataStr = localStorage.getItem('userData');
+                if (userDataStr) {
+                    const userData = JSON.parse(userDataStr);
+                    organizationId = userData.organizationId;
+                }
+            } catch (error) {
+                console.error('Error getting organizationId from localStorage:', error);
+            }
+
+            const resource = {
+                companyName: client.name,  // Backend expects 'companyName' for POST
+                isActive: client.isActive !== null ? client.isActive : true
+            };
+
+            // Only include organizationId if it exists
+            if (organizationId) {
+                resource.organizationId = organizationId;
+            }
+
+            return resource;
+        }
+    }
 }
