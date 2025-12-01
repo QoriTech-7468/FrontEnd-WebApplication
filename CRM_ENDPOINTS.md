@@ -46,7 +46,10 @@ The following environment variables should be configured:
 **Path Parameters**:
 - `id` (number|string) - The client ID
 
-**Response**: `200 OK`
+**Query Parameters** (optional):
+- `include` (string) - Comma-separated list of related resources to include. Options: `locations`
+
+**Response** (without `include` parameter): `200 OK`
 ```json
 {
   "id": 0,
@@ -55,18 +58,39 @@ The following environment variables should be configured:
 }
 ```
 
+**Response** (with `?include=locations`): `200 OK`
+```json
+{
+  "id": 0,
+  "name": "string",
+  "isActive": true,
+  "locations": [
+    {
+      "id": 0,
+      "latitude": "string",
+      "longitude": "string",
+      "address": "string",
+      "proximity": "string",
+      "isActive": true,
+      "clientId": 0
+    }
+  ]
+}
+```
+
 **Used in**: `crm-api.js` → `getClientsById(id)`
+
+**Note**: Use `?include=locations` when you need all locations associated with the client. For better performance, prefer using endpoint #3 (`GET /clients/{id}/locations`) when you only need locations.
 
 ---
 
 ### 3. Get Locations by Client ID 
 **GET** `{VITE_RUTANA_CLIENTS_ENDPOINT_PATH}/{id}/locations`
 
-**Description**: Retrieves all locations associated with a specific client.
+**Description**: Retrieves all locations associated with a specific client. This endpoint automatically includes the client information in each location.
 
 **Path Parameters**:
 - `id` (number|string) - The client ID
-
 
 **Response**: `200 OK`
 ```json
@@ -78,9 +102,18 @@ The following environment variables should be configured:
     "address": "string",
     "proximity": "string",
     "isActive": true,
+    "clientId": 0,
+    "client": {
+      "id": 0,
+      "name": "string",
+      "isActive": true
+    }
   }
 ]
 ```
+
+**Note**: This endpoint always includes the client information since locations are retrieved in the context of a specific client.
+
 ---
 
 ### 4. Create Client
@@ -235,7 +268,10 @@ The following environment variables should be configured:
 **Path Parameters**:
 - `id` (number|string) - The location ID
 
-**Response**: `200 OK`
+**Query Parameters** (optional):
+- `include` (string) - Comma-separated list of related resources to include. Options: `client`
+
+**Response** (without `include` parameter): `200 OK`
 ```json
 {
   "id": 0,
@@ -244,10 +280,31 @@ The following environment variables should be configured:
   "address": "string",
   "proximity": "string",
   "isActive": true,
+  "clientId": 0
+}
+```
+
+**Response** (with `?include=client`): `200 OK`
+```json
+{
+  "id": 0,
+  "latitude": "string",
+  "longitude": "string",
+  "address": "string",
+  "proximity": "string",
+  "isActive": true,
+  "clientId": 0,
+  "client": {
+    "id": 0,
+    "name": "string",
+    "isActive": true
+  }
 }
 ```
 
 **Used in**: `crm-api.js` → `getLocationsById(id)`
+
+**Note**: Use `?include=client` when you need the full Client information associated with the location.
 
 ---
 
