@@ -22,7 +22,7 @@ import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import {useRoute} from "vue-router";
 
-import customerStore from "/src/crm/application/customer-location-management.store.js";
+import useCrmStore from "../../application/crm.store.js";
 import {Client} from "../../domain/model/client.entity.js";
 
 const props = defineProps({ visible: Boolean });
@@ -31,7 +31,7 @@ const isEdit = computed(() => !!route.params.id);
 
 const route = useRoute();
 
-const store = customerStore();
+const store = useCrmStore();
 const { errors, addClients } = store;
 
 const saveClients = () => {

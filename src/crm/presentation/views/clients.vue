@@ -113,11 +113,11 @@ import AddLocationDialog from "../dialogs/add-location.vue";
 import UpdateClientsDialog from "../dialogs/edit-client.vue";
 import LocationsMap from "../components/locations-map.vue";
 
-import customerStore from "/src/crm/application/customer-location-management.store.js";
+import useCrmStore from "../../application/crm.store.js";
 import {Button as PvButton} from "primevue";
 import EditLocation from "../dialogs/edit-location.vue";
 
-const store = customerStore();
+const store = useCrmStore();
 const toast = useToast();
 
 const q = ref("");

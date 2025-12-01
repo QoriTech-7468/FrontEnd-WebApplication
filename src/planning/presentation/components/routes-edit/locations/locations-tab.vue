@@ -6,21 +6,21 @@ import LocationDetails from './location-details.vue'
 import InteractiveMap from './interactive-map.vue'
 
 // Importar el store de FLOTA
-import customerStore from '../../../../../crm/application/customer-location-management.store.js'
+import useCrmStore from '../../../../../crm/application/crm.store.js'
 
 const props = defineProps({
   route: { type: Object, required: true }
 })
 
-const fleetStore = customerStore()
+const crmStore = useCrmStore()
 
-const { locations: allLocations, locationsLoaded } = storeToRefs(fleetStore)
+const { locations: allLocations, locationsLoaded } = storeToRefs(crmStore)
 const selectedLocation = ref(null)
 
-// Cargar todas las locaciones disponibles (para el mapa)
+// Load all available locations (for the map)
 onMounted(() => {
   if (!locationsLoaded.value) {
-    fleetStore.fetchLocations()
+    crmStore.fetchLocations()
   }
 })
 
