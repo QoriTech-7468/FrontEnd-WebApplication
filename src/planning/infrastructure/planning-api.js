@@ -172,6 +172,27 @@ export class PlanningApi extends BaseApi {
             throw err;
         }
     }
+
+    /**
+     * Get available locations for deliveries
+     * @returns {Promise<Array>} - A promise resolving to the list of available locations
+     */
+    async getAvailableLocations() {
+        try {
+            const resp = await this.http.get(`${this.#deliveriesEndpointPath.endpointPath}/available-locations`);
+            // Response is an array of simple location objects: { id, address, latitude, longitude }
+            // Transform coordinates from strings to numbers for consistency
+            return (resp.data || []).map(loc => ({
+                id: loc.id,
+                address: loc.address,
+                latitude: Number(loc.latitude),
+                longitude: Number(loc.longitude)
+            }));
+        } catch (err) {
+            console.error('Error fetching available locations:', err);
+            throw err;
+        }
+    }
 }
 
 export default PlanningApi;

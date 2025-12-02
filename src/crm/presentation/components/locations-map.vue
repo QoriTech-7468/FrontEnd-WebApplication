@@ -328,17 +328,12 @@ onBeforeUnmount(() => {
 // Watch for changes in locations
 watch(
   () => props.locations,
-  (newLocations) => {
-    console.log('Locations changed in LocationsMap:', {
-      count: newLocations?.length || 0,
-      locations: newLocations,
-      validLocations: validLocations.value.length
-    });
+  () => {
     if (map && !loading.value && !error.value) {
       updateMarkers();
     }
   },
-  { deep: true, immediate: true }
+  { deep: true }
 );
 </script>
 

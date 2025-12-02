@@ -434,6 +434,23 @@ export const usePlanningStore = defineStore('planning', () => {
         }
     }
 
+    /**
+     * Fetch available locations for deliveries
+     * @returns {Promise<Array>} - A promise resolving to the list of available locations
+     */
+    async function fetchAvailableLocations() {
+        try {
+            const data = await api.getAvailableLocations();
+            // Store in locations ref for use in components
+            locations.value = data;
+            return data;
+        } catch (err) {
+            console.error('Error fetching available locations', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
+
     return {
         routes,
         routeDrafts,
@@ -462,7 +479,8 @@ export const usePlanningStore = defineStore('planning', () => {
         completeDelivery,
         rejectDelivery,
         startDelivery,
-        autoCreateDeliveries
+        autoCreateDeliveries,
+        fetchAvailableLocations
     };
 });
 
