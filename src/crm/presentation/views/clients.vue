@@ -43,7 +43,7 @@
                   <pv-tag :value="selected.status" :severity="statusSeverity(selected.status)" />
                   <div class="flex gap-2">
                     <pv-button label="Edit" icon="pi pi-pencil" @click="openEditDialog" />
-                    <pv-button :label="$t('clients.registerLocation')" severity="warning"   @click="openMapPickerForSelectedClient" />
+                    <pv-button :label="$t('clients.registerLocation')" severity="warning" @click="showAddLocation = true" />
                   </div>
                 </div>
 
@@ -127,7 +127,6 @@ const showCreate = ref(false);
 const showUpdate = ref(false);
 const showAddLocation = ref(false);
 const creating = ref(false);
-const shouldOpenMap = ref(false);
 
 const showEditLocation = ref(false);
 const locationToEdit = ref(null);
@@ -223,12 +222,6 @@ async function handleCreateLocation(payload) {
     if (!payload.address || !payload.address.trim()) {
       throw new Error("Address is required");
     }
-    if (!payload.latitude || payload.latitude === 0) {
-      throw new Error("Latitude is required");
-    }
-    if (!payload.longitude || payload.longitude === 0) {
-      throw new Error("Longitude is required");
-    }
     if (!payload.proximity) {
       throw new Error("Proximity is required");
     }
@@ -263,16 +256,6 @@ async function handleCreateLocation(payload) {
 }
 function openEditDialog() {
   showUpdate.value = true
-}
-function openMapPickerForSelectedClient() {
-  if (!selected.value) return;
-  shouldOpenMap.value = true; // Indica que se abrió desde el mapa
-  showAddLocation.value = true;
-
-  // Esperar un poco para que el diálogo se monte
-  setTimeout(() => {
-    window.dispatchEvent(new CustomEvent('open-map-picker'));
-  }, 200);
 }
 
 function refreshClients() {
