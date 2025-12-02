@@ -13,8 +13,12 @@ const router = useRouter()
 const { t } = useI18n()
 
 const handleClick = () => {
-  // Navigate to edit route draft
-  router.push({ name: 'route-edit', params: { routeId: props.routeDraft.id } })
+  // Navigate to edit route draft with query parameter to indicate it's a draft
+  router.push({ 
+    name: 'route-edit', 
+    params: { routeId: props.routeDraft.id },
+    query: { type: 'draft' }
+  })
 }
 
 const formatDate = (dateString) => {

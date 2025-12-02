@@ -7,11 +7,14 @@ export class TeamMemberAssembler {
      * @returns {TeamMember} - TeamMember entity instance
      */
     static toEntityFromResource(resource) {
+        // Handle both formats: full user data or just userId reference
+        // If userId is present but email/name/surname are not, we'll need to fetch user data separately
         return new TeamMember({
             id: resource.id,
             email: resource.email || '',
             name: resource.name || '',
-            surname: resource.surname || ''
+            surname: resource.surname || '',
+            userId: resource.userId || null  // Store userId for later fetching if needed
         });
     }
 

@@ -19,6 +19,10 @@ export class DeliveryAssembler {
             });
         }
 
+        // Handle locationId - if present, we'll need to fetch location data separately
+        // For now, we'll store locationId and let the calling code handle fetching location details
+        const locationId = resource.locationId || null;
+
         return new Delivery({
             id: resource.id,
             address: resource.address || '',
@@ -29,7 +33,8 @@ export class DeliveryAssembler {
             rejectReason: resource.rejectReason || resource.reject_reason || null,
             rejectDetails: resource.rejectDetails || resource.reject_details || null,
             clientId: resource.clientId || resource.client?.id,
-            client: client
+            client: client,
+            locationId: locationId  // Store locationId for later fetching
         });
     }
 

@@ -53,6 +53,16 @@ export class PlanningApi extends BaseApi {
     }
 
     /**
+     * Get route draft by id
+     * @param {number|string} id - Route draft ID
+     * @returns {Promise} - A promise resolving to the route draft
+     */
+    async getRouteDraftById(id) {
+        const resp = await this.#routeDraftsEndpointPath.getById(id);
+        return RouteDraftAssembler.toEntityFromResource(resp.data);
+    }
+
+    /**
      * Create a new route draft
      * @param {RouteDraft|Object} routeDraft - RouteDraft entity or plain object
      * @returns {Promise} - A promise resolving to the created route draft

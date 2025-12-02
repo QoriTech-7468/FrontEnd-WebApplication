@@ -13,6 +13,11 @@ const toast = useToast()
 const router = useRouter()
 const route = useRoute()
 
+// Debug: verificar que el método existe
+if (typeof store.getRouteDraftById !== 'function') {
+  console.error('getRouteDraftById no está disponible en el store', store)
+}
+
 // Estado local
 const currentRoute = ref(null)
 const activeTabIndex = ref(0)
@@ -22,12 +27,44 @@ const saving = ref(false)
 const isDraft = computed(() => !!currentRoute.value && String(currentRoute.value.state).toLowerCase() === 'draft')
 const isPublished = computed(() => !!currentRoute.value && String(currentRoute.value.state).toLowerCase() === 'published')
 
-// Carga de ruta por ID
+// Carga de ruta por ID - detecta si es route draft o route publicado
 async function loadRoute() {
   loading.value = true
   try {
     const rid = route.params.routeId
-    currentRoute.value = await store.getRouteById(rid)
+    const isDraft = route.query.type === 'draft'
+    
+    // Si viene con query parameter type=draft, cargar solo como route draft
+    if (isDraft) {
+      currentRoute.value = await store.getRouteDraftById(rid)
+      // Si es route draft, marcar como draft
+      if (currentRoute.value) {
+        currentRoute.value.state = 'draft'
+      }
+    } else {
+      // Intentar cargar como route draft primero
+      // Si falla, intentar como route publicado
+      try {
+        currentRoute.value = await store.getRouteDraftById(rid)
+        // Si es route draft, marcar como draft
+        if (currentRoute.value) {
+          currentRoute.value.state = 'draft'
+        }
+      } catch (draftErr) {
+        // Si el error es 404, no intentar cargar como route publicado
+        // porque claramente no existe como route draft
+        if (draftErr.response && draftErr.response.status === 404) {
+          throw draftErr
+        }
+        // Si no es route draft, intentar como route publicado
+        try {
+          currentRoute.value = await store.getRouteById(rid)
+        } catch (routeErr) {
+          console.error('Error loading route:', routeErr)
+          throw routeErr
+        }
+      }
+    }
     
     if (currentRoute.value && !Array.isArray(currentRoute.value.locations)) {
       currentRoute.value.locations = []

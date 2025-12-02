@@ -16,9 +16,9 @@ export class RouteDraftAssembler {
         let vehicle = null;
         if (resource.vehicle) {
             vehicle = new Vehicle({
-                id: resource.vehicle.id,
+                id: resource.vehicle.vehicleId || resource.vehicle.id,
                 plate: resource.vehicle.plate || '',
-                capacityKg: resource.vehicle.capacityKg || resource.vehicle.capacity,
+                capacityKg: resource.vehicle.capacityKg || resource.vehicle.capacity || 0,
                 state: resource.vehicle.state || resource.vehicle.isActive || 'Enabled'
             });
         }

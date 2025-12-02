@@ -71,6 +71,28 @@ export const usePlanningStore = defineStore('planning', () => {
     }
 
     /**
+     * Get route draft by id
+     * @param {number|string} id - Route draft ID
+     * @returns {Promise<RouteDraft>} - A promise resolving to the route draft
+     */
+    async function getRouteDraftById(id) {
+        try {
+            const routeDraft = await api.getRouteDraftById(id);
+            const idx = routeDrafts.value.findIndex(rd => rd.id == id);
+            if (idx !== -1) {
+                routeDrafts.value[idx] = routeDraft;
+            } else {
+                routeDrafts.value.push(routeDraft);
+            }
+            return routeDraft;
+        } catch (err) {
+            console.error('Error fetching route draft by id', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
+
+    /**
      * Create a new route draft
      * @param {Object} routeDraftData - Route draft data with colorCode and executionDate
      * @returns {Promise<RouteDraft>} - A promise resolving to the created route draft
@@ -426,6 +448,7 @@ export const usePlanningStore = defineStore('planning', () => {
         fetchRouteDrafts,
         fetchRoutes,
         createRouteDraft,
+        getRouteDraftById,
         getRouteById,
         fetchAllVehicles,
         fetchLocationsByRoute,

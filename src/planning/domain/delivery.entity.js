@@ -25,7 +25,9 @@ export class Delivery {
         rejectReason = '',
         rejectDetails = '',
         clientId = null,
-        client = null
+        client = null,
+        locationId = null,
+        executionDate = null
     }) {
         this.id = id;
         this.address = address;
@@ -37,6 +39,8 @@ export class Delivery {
         this.rejectDetails = rejectDetails;
         this.clientId = clientId;  // ID for quick references
         this.client = client instanceof Client ? client : null;  // Full Client instance
+        this.locationId = locationId;  // Location ID reference (for route drafts)
+        this.executionDate = executionDate;
     }
 
     /**

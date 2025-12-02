@@ -46,12 +46,16 @@
 
 <script setup>
 import { computed, ref, watch } from "vue";
+import { useToast } from "primevue/usetoast";
 import Dialog from "primevue/dialog";
 import MapWithPin from "../components/map-with-pin.vue";
+
+const toast = useToast();
 
 const props = defineProps({
   visible: Boolean,
   client: { type: Object, default: null },
+  clientId: { type: [Number, String], default: null },
   clients: { type: Array, default: () => [] },
   loading: Boolean
 });
@@ -63,7 +67,6 @@ const modelVisible = computed({
   set: v => emit("update:visible", v)
 });
 
-const clientId  = ref(null);
 const address   = ref("");
 const latitude  = ref(null);
 const longitude = ref(null);
@@ -76,13 +79,35 @@ const proximityOptions = [
   { label: "Far", value: "far" }
 ];
 
+// Computed para obtener el clientId (prioriza prop directo, luego del objeto client)
+const clientId = computed(() => {
+  // Priorizar el prop directo clientId
+  if (props.clientId !== null && props.clientId !== undefined && props.clientId !== '') {
+    return props.clientId;
+  }
+  // Si no está disponible, intentar obtenerlo del objeto client
+  if (props.client?.id !== null && props.client?.id !== undefined && props.client?.id !== '') {
+    return props.client.id;
+  }
+  return null;
+});
+
 // Watch for dialog visibility to reset form
 watch(
   () => props.visible,
   (isVisible) => {
     if (isVisible) {
+      // Si no hay clientId, mostrar error inmediatamente
+      if (!clientId.value) {
+        toast.add({
+          severity: "error",
+          summary: "Client ID missing",
+          detail: "No client selected. Please select a client first.",
+          life: 3000
+        });
+      }
+      
       // Reset form values
-      clientId.value = props.client?.id ?? null;
       address.value = "";
       latitude.value = null;
       longitude.value = null;
@@ -120,9 +145,21 @@ function submit() {
     return;
   }
 
+  // Validar que clientId esté presente
+  const currentClientId = clientId.value;
+  if (!currentClientId) {
+    toast.add({
+      severity: "error",
+      summary: "Client ID required",
+      detail: "Please select a client first before adding a location.",
+      life: 3000
+    });
+    return;
+  }
+
   // Convertir coordenadas a string
   emit("submit", {
-    clientId: clientId.value,
+    clientId: currentClientId,
     address: addressValue,
     proximity: proximity.value,
     latitude: String(latValue),

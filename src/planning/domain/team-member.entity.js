@@ -6,17 +6,20 @@ export class TeamMember {
      * @param {string} params.email - Email address
      * @param {string} params.name - First name
      * @param {string} params.surname - Last name
+     * @param {number|null} params.userId - User ID reference (for route drafts)
      */
     constructor({ 
         id = null,
         email = '', 
         name = '', 
-        surname = ''
+        surname = '',
+        userId = null
     }) {
         this.id = id;
         this.email = email;
         this.name = name;
         this.surname = surname;
+        this.userId = userId;  // User ID reference (for route drafts)
     }
 
     /**
