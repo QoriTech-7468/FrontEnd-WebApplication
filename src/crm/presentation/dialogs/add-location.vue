@@ -1,17 +1,7 @@
 <template>
   <Dialog v-model:visible="modelVisible" header="New Location" modal style="width: 600px">
     <div class="flex flex-column gap-3">
-      <div>
-        <label class="block text-700 mb-2">Client</label>
-        <pv-dropdown
-            class="w-full"
-            v-model="clientId"
-            :options="clientOpts"
-            optionLabel="name"
-            optionValue="id"
-            disabled
-        />
-      </div>
+      
 
       <div>
         <label class="block text-700 mb-2">Seleccionar Ubicación</label>
@@ -103,11 +93,6 @@ watch(
 );
 
 function submit() {
-  // Validaciones
-  if (!clientId.value) {
-    console.error("Client ID is required");
-    return;
-  }
   
   // Validar address
   const addressValue = address.value?.trim() || "";

@@ -20,8 +20,18 @@
             :key="loc.id ?? `${loc.title}-${loc.type}`"
             class="border-1 surface-border border-round p-3 mb-2"
         >
-          <div class="text-900 font-medium">{{ loc.address }}</div>
-          <div class="text-600">{{ loc.proximity }}</div>
+          <div class="flex align-items-center justify-content-between mb-2">
+            <div class="flex-1">
+              <div class="text-900 font-medium">{{ loc.address }}</div>
+              <div class="text-600">{{ loc.proximity }}</div>
+            </div>
+            <pv-button
+                icon="pi pi-pencil"
+                class="p-button-text p-button-sm"
+                @click="$emit('edit-location', loc)"
+                v-tooltip.top="'Edit location'"
+            />
+          </div>
           <div class="mt-2">
             <pv-tag :value="loc.status" :severity="statusSeverity(loc.status)" />
           </div>
@@ -33,11 +43,14 @@
 
 <script setup>
 import { computed } from 'vue';
+import { Button as PvButton } from 'primevue';
 
 const props = defineProps({
   // El padre pasa el cliente seleccionado (puede ser null)
   selected: { type: Object, default: null }
 });
+
+const emit = defineEmits(['edit-location']);
 
 /** Locations seguras (si no existen, devolvemos []) */
 const safeLocations = computed(() => {
