@@ -270,19 +270,27 @@ const useCrmStore = defineStore('crm', () => {
 
     /**
      * Update an existing location
-     * @param {Object} location - The location data to update
+     * @param {Object} location - The location data to update (Location entity or plain object)
+     * @returns {Promise} - A promise that resolves when the location is updated
      */
     function updateLocation(location) {
-        crmApi.updateLocations(location).then(response => {
+        // Transform to resource format ensuring correct types
+        const requestResource = LocationAssembler.toResourceFromEntity(location);
+        
+        return crmApi.updateLocations(requestResource).then(response => {
             const resource = response.data;
             const updatedLocation = LocationAssembler.toEntityFromResource(resource);
             const index = locations.value.findIndex(l => l.id === updatedLocation.id);
             if (index !== -1) {
-                locations.value[index] = updatedLocation;
+                locations.value[index] = {
+                    ...updatedLocation,
+                    status: updatedLocation.isActive ? 'Active' : 'Disabled'
+                };
             }
             errors.value = [];
         }).catch(error => {
             errors.value.push(error);
+            throw error; // Re-throw para que el componente pueda manejar el error
         });
     }
 

@@ -67,7 +67,10 @@
           <!-- Derecha -->
           <div class="col-12 lg:col-4">
             <pv-panel class="shadow-1" :header="`Locations: ${locationsCountText}`">
-              <LocationsPanel :selected="selectedWithLocations" />
+              <LocationsPanel 
+                  :selected="selectedWithLocations" 
+                  @edit-location="openEditLocationDialog"
+              />
             </pv-panel>
           </div>
         </div>
@@ -94,6 +97,7 @@
     <EditLocation
         v-model:visible="showEditLocation"
         :location="locationToEdit"
+        :loading="updatingLocation"
         @save="saveLocationEdit"
     />
 
@@ -130,6 +134,7 @@ const creating = ref(false);
 
 const showEditLocation = ref(false);
 const locationToEdit = ref(null);
+const updatingLocation = ref(false);
 
 const clientsList = computed(() => store.clients ?? []);
 
@@ -268,19 +273,40 @@ function openEditLocationDialog(location) {
 }
 
 async function saveLocationEdit(updated) {
-  await store.updateLocation(updated);
-  showEditLocation.value = false;
-  // Refrescar locations del cliente seleccionado
-  if (selectedId.value) {
-    try {
-      const locations = await store.fetchLocationsByClientId(selectedId.value);
-      clientLocations.value = locations;
-    } catch (error) {
-      console.error("Error refreshing client locations:", error);
+  updatingLocation.value = true;
+  try {
+    await store.updateLocation(updated);
+    showEditLocation.value = false;
+    locationToEdit.value = null;
+    toast.add({
+      severity: "success",
+      summary: "Location updated",
+      detail: updated.address,
+      life: 2500
+    });
+    // Refrescar locations del cliente seleccionado
+    if (selectedId.value) {
+      try {
+        const locations = await store.fetchLocationsByClientId(selectedId.value);
+        clientLocations.value = locations;
+      } catch (error) {
+        console.error("Error refreshing client locations:", error);
+      }
     }
+    // También refrescar el store global
+    store.fetchLocations();
+  } catch (e) {
+    const errorMessage = e?.response?.data?.message || e?.message || "Could not update location";
+    toast.add({
+      severity: "error",
+      summary: "Error updating location",
+      detail: errorMessage,
+      life: 3000
+    });
+    console.error("Error updating location:", e);
+  } finally {
+    updatingLocation.value = false;
   }
-  // También refrescar el store global
-  store.fetchLocations();
 }
 </script>
 
