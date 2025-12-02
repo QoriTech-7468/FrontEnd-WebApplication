@@ -52,22 +52,29 @@ const useCrmStore = defineStore('crm', () => {
      * @param {Object} options - Query parameters
      * @param {boolean} options.isActive - Filter by active status
      * @param {number} options.clientId - Filter by client ID
+     * @returns {Promise} - A promise resolving to the list of locations
      */
     function fetchLocations(options = {}) {
-        crmApi.getLocations(options)
+        return crmApi.getLocations(options)
             .then(response => {
                 const rawLocations = LocationAssembler.toEntitiesfromResponse(response);
-                locations.value = rawLocations.map(l => ({
+                const locationsList = rawLocations.map(l => ({
                     ...l,
                     status: l.isActive ? 'Active' : 'Disabled',
                     clientId: l.customerId || l.clientId
                 }));
-                locationsLoaded.value = true;
+                // Si no hay clientId en las opciones, actualizar el store global
+                if (!options.clientId) {
+                    locations.value = locationsList;
+                    locationsLoaded.value = true;
+                }
                 errors.value = [];
+                return locationsList;
             })
             .catch(error => {
                 errors.value.push(error);
                 locationsLoaded.value = false;
+                throw error; // Re-throw para que el componente pueda manejar el error
             });
     }
 
@@ -270,19 +277,27 @@ const useCrmStore = defineStore('crm', () => {
 
     /**
      * Update an existing location
-     * @param {Object} location - The location data to update
+     * @param {Object} location - The location data to update (Location entity or plain object)
+     * @returns {Promise} - A promise that resolves when the location is updated
      */
     function updateLocation(location) {
-        crmApi.updateLocations(location).then(response => {
+        // Transform to resource format ensuring correct types
+        const requestResource = LocationAssembler.toResourceFromEntity(location);
+        
+        return crmApi.updateLocations(requestResource).then(response => {
             const resource = response.data;
             const updatedLocation = LocationAssembler.toEntityFromResource(resource);
             const index = locations.value.findIndex(l => l.id === updatedLocation.id);
             if (index !== -1) {
-                locations.value[index] = updatedLocation;
+                locations.value[index] = {
+                    ...updatedLocation,
+                    status: updatedLocation.isActive ? 'Active' : 'Disabled'
+                };
             }
             errors.value = [];
         }).catch(error => {
             errors.value.push(error);
+            throw error; // Re-throw para que el componente pueda manejar el error
         });
     }
 

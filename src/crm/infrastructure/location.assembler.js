@@ -51,15 +51,21 @@ export class LocationAssembler {
      * @returns {Object} - API resource object
      */
     static toResourceFromEntity(location) {
-        // Asegurar que latitude y longitude sean strings (el backend acepta string o number)
+        // Latitude y longitude son opcionales por el momento
         const resource = {
             clientId: location.clientId,
             address: location.address,
-            latitude: String(location.latitude),
-            longitude: String(location.longitude),
             proximity: location.proximity,
             isActive: location.isActive !== null && location.isActive !== undefined ? location.isActive : true
         };
+
+        // Incluir latitude y longitude solo si están presentes
+        if (location.latitude !== null && location.latitude !== undefined && location.latitude !== "") {
+            resource.latitude = String(location.latitude);
+        }
+        if (location.longitude !== null && location.longitude !== undefined && location.longitude !== "") {
+            resource.longitude = String(location.longitude);
+        }
 
         // Include id only if it's not null (for updates)
         if (location.id !== null && location.id !== undefined) {

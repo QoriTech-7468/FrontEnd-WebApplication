@@ -1,7 +1,8 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { setOptions, importLibrary } from '@googlemaps/js-api-loader'
+import { importLibrary } from '@googlemaps/js-api-loader'
+import { configureGoogleMaps } from '../../../../shared/infrastructure/google-maps-config.js'
 
 const props = defineProps({
   deliveries: {
@@ -30,11 +31,11 @@ let markers = []
 let polyline = null
 let infoWindows = []
 
-// Configurar Google Maps API Key
-setOptions({
-  apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-  version: 'weekly'
-})
+// Configurar Google Maps usando singleton
+const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || import.meta.env.VITE_GOOGLE_MAPS_KEY;
+if (apiKey) {
+  configureGoogleMaps(apiKey, 'weekly');
+}
 
 // Colores de pines según estado
 const PIN_COLORS = {

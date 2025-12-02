@@ -43,7 +43,7 @@
                   <pv-tag :value="selected.status" :severity="statusSeverity(selected.status)" />
                   <div class="flex gap-2">
                     <pv-button label="Edit" icon="pi pi-pencil" @click="openEditDialog" />
-                    <pv-button :label="$t('clients.registerLocation')" severity="warning"   @click="openMapPickerForSelectedClient" />
+                    <pv-button :label="$t('clients.registerLocation')" severity="warning" @click="showAddLocation = true" />
                   </div>
                 </div>
 
@@ -52,13 +52,7 @@
                     @marker-click="openEditLocationDialog"
                 />
 
-                <pv-button
-                    label="Edit location"
-                    class="mt-3"
-                    severity="info"
-                    :disabled="!locationToEdit"
-                    @click="showEditLocation = true"
-                />
+             
               </template>
 
             </pv-panel>
@@ -67,7 +61,10 @@
           <!-- Derecha -->
           <div class="col-12 lg:col-4">
             <pv-panel class="shadow-1" :header="`Locations: ${locationsCountText}`">
-              <LocationsPanel :selected="selectedWithLocations" />
+              <LocationsPanel 
+                  :selected="selectedWithLocations" 
+                  @edit-location="openEditLocationDialog"
+              />
             </pv-panel>
           </div>
         </div>
@@ -94,6 +91,7 @@
     <EditLocation
         v-model:visible="showEditLocation"
         :location="locationToEdit"
+        :loading="updatingLocation"
         @save="saveLocationEdit"
     />
 
@@ -127,10 +125,10 @@ const showCreate = ref(false);
 const showUpdate = ref(false);
 const showAddLocation = ref(false);
 const creating = ref(false);
-const shouldOpenMap = ref(false);
 
 const showEditLocation = ref(false);
 const locationToEdit = ref(null);
+const updatingLocation = ref(false);
 
 const clientsList = computed(() => store.clients ?? []);
 
@@ -177,7 +175,8 @@ watch(selectedId, async (newClientId) => {
   if (newClientId) {
     loadingLocations.value = true;
     try {
-      const locations = await store.fetchLocationsByClientId(newClientId);
+      // Cargar solo locations activas del cliente seleccionado
+      const locations = await store.fetchLocations({ isActive: true, clientId: newClientId });
       clientLocations.value = locations;
     } catch (error) {
       console.error("Error loading client locations:", error);
@@ -223,12 +222,6 @@ async function handleCreateLocation(payload) {
     if (!payload.address || !payload.address.trim()) {
       throw new Error("Address is required");
     }
-    if (!payload.latitude || payload.latitude === 0) {
-      throw new Error("Latitude is required");
-    }
-    if (!payload.longitude || payload.longitude === 0) {
-      throw new Error("Longitude is required");
-    }
     if (!payload.proximity) {
       throw new Error("Proximity is required");
     }
@@ -241,9 +234,9 @@ async function handleCreateLocation(payload) {
       detail: payload.address, 
       life: 2500 
     });
-    // Refrescar locations del cliente seleccionado
+    // Refrescar locations del cliente seleccionado (solo activas)
     if (selectedId.value) {
-      const locations = await store.fetchLocationsByClientId(selectedId.value);
+      const locations = await store.fetchLocations({ isActive: true, clientId: selectedId.value });
       clientLocations.value = locations;
     }
     // También refrescar el store global
@@ -264,16 +257,6 @@ async function handleCreateLocation(payload) {
 function openEditDialog() {
   showUpdate.value = true
 }
-function openMapPickerForSelectedClient() {
-  if (!selected.value) return;
-  shouldOpenMap.value = true; // Indica que se abrió desde el mapa
-  showAddLocation.value = true;
-
-  // Esperar un poco para que el diálogo se monte
-  setTimeout(() => {
-    window.dispatchEvent(new CustomEvent('open-map-picker'));
-  }, 200);
-}
 
 function refreshClients() {
   store.fetchClients()
@@ -285,19 +268,40 @@ function openEditLocationDialog(location) {
 }
 
 async function saveLocationEdit(updated) {
-  await store.updateLocation(updated);
-  showEditLocation.value = false;
-  // Refrescar locations del cliente seleccionado
-  if (selectedId.value) {
-    try {
-      const locations = await store.fetchLocationsByClientId(selectedId.value);
-      clientLocations.value = locations;
-    } catch (error) {
-      console.error("Error refreshing client locations:", error);
+  updatingLocation.value = true;
+  try {
+    await store.updateLocation(updated);
+    showEditLocation.value = false;
+    locationToEdit.value = null;
+    toast.add({
+      severity: "success",
+      summary: "Location updated",
+      detail: updated.address,
+      life: 2500
+    });
+    // Refrescar locations del cliente seleccionado (solo activas)
+    if (selectedId.value) {
+      try {
+        const locations = await store.fetchLocations({ isActive: true, clientId: selectedId.value });
+        clientLocations.value = locations;
+      } catch (error) {
+        console.error("Error refreshing client locations:", error);
+      }
     }
+    // También refrescar el store global
+    store.fetchLocations();
+  } catch (e) {
+    const errorMessage = e?.response?.data?.message || e?.message || "Could not update location";
+    toast.add({
+      severity: "error",
+      summary: "Error updating location",
+      detail: errorMessage,
+      life: 3000
+    });
+    console.error("Error updating location:", e);
+  } finally {
+    updatingLocation.value = false;
   }
-  // También refrescar el store global
-  store.fetchLocations();
 }
 </script>
 
