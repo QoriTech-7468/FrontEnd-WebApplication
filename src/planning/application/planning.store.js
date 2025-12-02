@@ -42,6 +42,7 @@ export const usePlanningStore = defineStore('planning', () => {
     async function fetchRouteDrafts(executionDate) {
         try {
             const response = await api.getRouteDrafts(executionDate);
+            // Response data is already an array of route draft objects
             routeDrafts.value = response.data || [];
             return routeDrafts.value;
         } catch (err) {
@@ -59,6 +60,7 @@ export const usePlanningStore = defineStore('planning', () => {
     async function fetchRoutes(executionDate) {
         try {
             const response = await api.getRoutes(executionDate);
+            // Response data is already an array of route objects
             routes.value = response.data || [];
             return routes.value;
         } catch (err) {

@@ -7,7 +7,7 @@ import { usePlanningStore } from '../../application/planning.store.js'
 //  Importar el store de vehículos
 import useFleetStore from '../../../fleets/application/fleets.store.js'
 
-import RouteList from '../components/routes-view/route-list.vue'
+import RoutesTabs from '../components/routes-view/routes-tabs.vue'
 import TopActions from '../components/routes-view/top-actions.vue'
 import NewRouteModal from '../components/routes-view/new-route-modal.vue'
 
@@ -68,10 +68,37 @@ watch(plannedDate, async (newDate) => {
       console.error('Error fetching route drafts:', err)
     }
   } else {
-    // Clear route drafts when date is cleared
+    // Clear route drafts and routes when date is cleared
     store.routeDrafts = []
+    store.routes = []
   }
 })
+
+const handleFetchRouteDrafts = async () => {
+  if (isValidDate(plannedDate.value)) {
+    try {
+      const isoDate = convertDateToISO(plannedDate.value)
+      if (isoDate) {
+        await store.fetchRouteDrafts(isoDate)
+      }
+    } catch (err) {
+      console.error('Error fetching route drafts:', err)
+    }
+  }
+}
+
+const handleFetchRoutes = async () => {
+  if (isValidDate(plannedDate.value)) {
+    try {
+      const isoDate = convertDateToISO(plannedDate.value)
+      if (isoDate) {
+        await store.fetchRoutes(isoDate)
+      }
+    } catch (err) {
+      console.error('Error fetching routes:', err)
+    }
+  }
+}
 
 onMounted(async () => {
   await store.fetchAllRoutes()
@@ -140,11 +167,15 @@ const handleAddRoute = async (routeData) => {
         v-model="plannedDate"
     />
 
-    <!-- Lista de Rutas -->
-    <RouteList 
-        :routes="store.routeDrafts" 
+    <!-- Tabs con Route Drafts y Routes -->
+    <RoutesTabs
+        :routeDrafts="store.routeDrafts"
+        :routes="store.routes"
         :plannedDate="plannedDate"
+        :loading="loading"
         @create-route="handleCreateRoute"
+        @fetch-route-drafts="handleFetchRouteDrafts"
+        @fetch-routes="handleFetchRoutes"
     />
 
     <!-- Modal para crear nueva ruta -->
