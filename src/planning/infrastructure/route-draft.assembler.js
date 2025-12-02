@@ -1,24 +1,24 @@
-import { Route } from '../domain/route.entity.js';
+import { RouteDraft } from '../domain/route-draft.entity.js';
 import { Vehicle } from '../../fleets/domain/model/vehicle.entity.js';
 import { TeamMember } from '../domain/team-member.entity.js';
 import { Delivery } from '../domain/delivery.entity.js';
 import { TeamMemberAssembler } from './team-member.assembler.js';
 import { DeliveryAssembler } from './delivery.assembler.js';
 
-export class RouteAssembler {
+export class RouteDraftAssembler {
     /**
-     * Transform a resource into a Route entity
+     * Transform a resource into a RouteDraft entity
      * @param {Object} resource - API resource object
-     * @returns {Route} - Route entity instance
+     * @returns {RouteDraft} - RouteDraft entity instance
      */
     static toEntityFromResource(resource) {
         // If the resource includes vehicle data, create the Vehicle instance
         let vehicle = null;
         if (resource.vehicle) {
             vehicle = new Vehicle({
-                id: resource.vehicle.id,
+                id: resource.vehicle.vehicleId || resource.vehicle.id,
                 plate: resource.vehicle.plate || '',
-                capacityKg: resource.vehicle.capacityKg || resource.vehicle.capacity,
+                capacityKg: resource.vehicle.capacityKg || resource.vehicle.capacity || 0,
                 state: resource.vehicle.state || resource.vehicle.isActive || 'Enabled'
             });
         }
@@ -33,13 +33,10 @@ export class RouteAssembler {
             ? resource.deliveries.map(delivery => DeliveryAssembler.toEntityFromResource(delivery))
             : [];
 
-        return new Route({
+        return new RouteDraft({
             id: resource.id,
             colorCode: resource.colorCode || '',
             executionDate: resource.executionDate || resource.execution_date || null,
-            startedAt: resource.startedAt || resource.started_at || null,
-            endedAt: resource.endedAt || resource.ended_at || null,
-            status: resource.status || 'pending',
             vehicle: vehicle,
             teamMembers: teamMembers,
             deliveries: deliveries
@@ -47,9 +44,9 @@ export class RouteAssembler {
     }
 
     /**
-     * Transform a response into an array of Route entities
+     * Transform a response into an array of RouteDraft entities
      * @param {Object} response - API response object
-     * @returns {Array<Route>} - Array of Route entities
+     * @returns {Array<RouteDraft>} - Array of RouteDraft entities
      */
     static toEntitiesFromResponse(response) {
         if (response.status !== 200) {
@@ -61,57 +58,66 @@ export class RouteAssembler {
     }
 
     /**
-     * Transform a Route entity or plain object into a resource for API requests
-     * @param {Route|Object} route - Route entity instance or plain object
+     * Transform a RouteDraft entity or plain object into a resource for API requests
+     * @param {RouteDraft|Object} routeDraft - RouteDraft entity instance or plain object
+     * @param {boolean} isUpdate - If true, it's an update (PUT), if false, it's creation (POST)
      * @returns {Object} - API resource object
      */
-    static toResourceFromEntity(route) {
+    static toResourceFromEntity(routeDraft, isUpdate = false) {
         const resource = {
-            colorCode: route.colorCode || '',
-            status: route.status || 'pending'
+            colorCode: routeDraft.colorCode || ''
         };
 
         // Include executionDate if present
-        if (route.executionDate !== null && route.executionDate !== undefined && route.executionDate !== '') {
-            resource.executionDate = route.executionDate;
+        if (routeDraft.executionDate !== null && routeDraft.executionDate !== undefined && routeDraft.executionDate !== '') {
+            resource.executionDate = routeDraft.executionDate;
         }
 
-        // Include startedAt if present
-        if (route.startedAt !== null && route.startedAt !== undefined && route.startedAt !== '') {
-            resource.startedAt = route.startedAt;
-        }
+        // Para creaciones, incluir organizationId
+        if (!isUpdate) {
+            let organizationId = null;
+            try {
+                const userDataStr = localStorage.getItem('userData');
+                if (userDataStr) {
+                    const userData = JSON.parse(userDataStr);
+                    organizationId = userData.organizationId;
+                }
+            } catch (error) {
+                console.error('Error getting organizationId from localStorage:', error);
+            }
 
-        // Include endedAt if present
-        if (route.endedAt !== null && route.endedAt !== undefined && route.endedAt !== '') {
-            resource.endedAt = route.endedAt;
+            if (organizationId !== null && organizationId !== undefined) {
+                resource.organizationId = organizationId;
+            }
         }
 
         // Include vehicleId if vehicle is present
-        if (route.vehicle && route.vehicle.id !== null && route.vehicle.id !== undefined) {
-            resource.vehicleId = route.vehicle.id;
+        if (routeDraft.vehicle && routeDraft.vehicle.id !== null && routeDraft.vehicle.id !== undefined) {
+            resource.vehicleId = routeDraft.vehicle.id;
         }
 
         // Include team member IDs if present
-        if (route.teamMembers && Array.isArray(route.teamMembers) && route.teamMembers.length > 0) {
-            resource.teamMemberIds = route.teamMembers
+        if (routeDraft.teamMembers && Array.isArray(routeDraft.teamMembers) && routeDraft.teamMembers.length > 0) {
+            resource.teamMemberIds = routeDraft.teamMembers
                 .map(member => member.id)
                 .filter(id => id !== null && id !== undefined);
         }
 
         // Include delivery IDs if present
-        if (route.deliveries && Array.isArray(route.deliveries) && route.deliveries.length > 0) {
-            resource.deliveryIds = route.deliveries
+        if (routeDraft.deliveries && Array.isArray(routeDraft.deliveries) && routeDraft.deliveries.length > 0) {
+            resource.deliveryIds = routeDraft.deliveries
                 .map(delivery => delivery.id)
                 .filter(id => id !== null && id !== undefined);
         }
 
         // Include id only if it's not null (for updates)
-        if (route.id !== null && route.id !== undefined) {
-            resource.id = route.id;
+        if (routeDraft.id !== null && routeDraft.id !== undefined) {
+            resource.id = routeDraft.id;
         }
 
         return resource;
     }
 }
 
-export default RouteAssembler;
+export default RouteDraftAssembler;
+

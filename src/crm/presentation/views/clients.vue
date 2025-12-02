@@ -43,7 +43,12 @@
                   <pv-tag :value="selected.status" :severity="statusSeverity(selected.status)" />
                   <div class="flex gap-2">
                     <pv-button label="Edit" icon="pi pi-pencil" @click="openEditDialog" />
-                    <pv-button :label="$t('clients.registerLocation')" severity="warning" @click="showAddLocation = true" />
+                    <pv-button 
+                      :label="$t('clients.registerLocation')" 
+                      severity="warning" 
+                      :disabled="!selectedId"
+                      @click="openAddLocationDialog" 
+                    />
                   </div>
                 </div>
 
@@ -79,6 +84,7 @@
     />
     <AddLocationDialog     v-model:visible="showAddLocation"
                            :client="selected"
+                           :clientId="selectedId ?? null"
                            :clients="clientsList"
                            :loading="creatingLocation"
                            @submit="handleCreateLocation" />
@@ -256,6 +262,19 @@ async function handleCreateLocation(payload) {
 }
 function openEditDialog() {
   showUpdate.value = true
+}
+
+function openAddLocationDialog() {
+  if (!selectedId.value) {
+    toast.add({
+      severity: "warn",
+      summary: "No client selected",
+      detail: "Please select a client first before adding a location.",
+      life: 3000
+    });
+    return;
+  }
+  showAddLocation.value = true;
 }
 
 function refreshClients() {

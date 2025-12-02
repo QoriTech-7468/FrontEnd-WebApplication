@@ -99,9 +99,14 @@ function drawMarkers(googleMaps, isInitialLoad = false) { // 3. Nuevo parámetro
   let hasValidPins = false; 
 
   filteredLocations.value.forEach(loc => {
-    if (loc.latitude && loc.longitude) { // Solo si tiene coords
+    // Ensure coordinates are numbers
+    const lat = Number(loc.latitude);
+    const lng = Number(loc.longitude);
+    
+    // Validate coordinates
+    if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
       hasValidPins = true;
-      const latLng = { lat: loc.latitude, lng: loc.longitude };
+      const latLng = { lat, lng };
       const isSelected = props.selectedLocation && props.selectedLocation.id === loc.id;
 
       const marker = new googleMaps.Marker({
@@ -122,9 +127,13 @@ function drawMarkers(googleMaps, isInitialLoad = false) { // 3. Nuevo parámetro
     }
   });
   
-  if (hasValidPins && !isInitialLoad) {
-    map.fitBounds(bounds);
-    if (activeMarkers.length === 1) map.setZoom(15);
+  if (hasValidPins) {
+    if (activeMarkers.length === 1) {
+      map.setCenter(bounds.getCenter());
+      map.setZoom(15);
+    } else {
+      map.fitBounds(bounds, { padding: 50 });
+    }
   }
 }
 

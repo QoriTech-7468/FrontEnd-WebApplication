@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoutePlanningStore} from "../../application/routing.store.js";
+import { usePlanningStore} from "../../application/planning.store.js";
 import { useToast } from 'primevue/usetoast'
 import InteractiveRouteMap from '../components/transportist-routes/interactive-route-map.vue'
 import RouteProgressCard from '../components/transportist-routes/route-progress-card.vue'
@@ -9,7 +9,7 @@ import DeliveryList from '../components/transportist-routes/delivery-list.vue'
 import RejectDeliveryModal from '../components/transportist-routes/reject-delivery-modal.vue'
 
 const { t } = useI18n()
-const store = useRoutePlanningStore()
+const store = usePlanningStore()
 const toast = useToast()
 
 const loading = ref(true)

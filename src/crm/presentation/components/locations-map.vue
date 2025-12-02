@@ -42,6 +42,7 @@ let map = null;
 let markers = [];
 
 const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+const mapId = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID || null;
 
 /**
  * Filter locations to only include those with valid coordinates
@@ -115,32 +116,49 @@ async function createMarkers(google, locations) {
   // Clear existing markers
   clearMarkers();
   
-  // Load marker library for AdvancedMarkerElement
+  // Try to use AdvancedMarkerElement only if we have a valid mapId
   let AdvancedMarkerElement = null;
-  try {
-    const markerLib = await loadMarkerLibrary(apiKey);
-    AdvancedMarkerElement = markerLib.AdvancedMarkerElement;
-  } catch (err) {
-    console.warn("No se pudo cargar AdvancedMarkerElement, usando Marker legacy:", err);
-    AdvancedMarkerElement = null;
+  if (mapId) {
+    try {
+      const markerLib = await loadMarkerLibrary(apiKey);
+      AdvancedMarkerElement = markerLib.AdvancedMarkerElement;
+    } catch (err) {
+      console.warn("No se pudo cargar AdvancedMarkerElement, usando Marker legacy:", err);
+      AdvancedMarkerElement = null;
+    }
   }
   
   // Create a marker for each location
   locations.forEach(loc => {
     const lat = Number(loc.latitude);
     const lng = Number(loc.longitude);
+    
+    // Validate coordinates
+    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      console.warn(`Invalid coordinates for location ${loc.id}: lat=${lat}, lng=${lng}`);
+      return;
+    }
+    
     const position = { lat, lng };
     
     let marker = null;
     
-    if (AdvancedMarkerElement) {
-      marker = new AdvancedMarkerElement({
-        map,
-        position,
-        title: loc.address || `Location ${loc.id}`
-      });
-    } else {
-      // Fallback to legacy Marker
+    // Only use AdvancedMarkerElement if we have both a valid mapId and the library loaded
+    if (AdvancedMarkerElement && mapId) {
+      try {
+        marker = new AdvancedMarkerElement({
+          map,
+          position,
+          title: loc.address || `Location ${loc.id}`
+        });
+      } catch (err) {
+        console.warn("Error creating AdvancedMarkerElement, falling back to legacy Marker:", err);
+        marker = null;
+      }
+    }
+    
+    // Fallback to legacy Marker if AdvancedMarkerElement failed or is not available
+    if (!marker) {
       marker = new google.maps.Marker({
         position,
         map,
@@ -150,17 +168,19 @@ async function createMarkers(google, locations) {
     }
     
     // Add click listener to emit marker-click event
-    if (marker.addListener) {
+    if (marker && marker.addListener) {
       marker.addListener("click", () => {
         emit("marker-click", loc);
       });
-    } else if (google.maps.event && google.maps.event.addListener) {
+    } else if (marker && google.maps.event && google.maps.event.addListener) {
       google.maps.event.addListener(marker, "click", () => {
         emit("marker-click", loc);
       });
     }
     
-    markers.push(marker);
+    if (marker) {
+      markers.push(marker);
+    }
   });
 }
 
@@ -189,18 +209,24 @@ async function initializeMap() {
     const defaultCenter = { lat: -12.046374, lng: -77.042793 };
     const defaultZoom = 14;
 
-    // Initialize map with mapId (required for AdvancedMarkerElement)
-    const mapId = `locations-map-${Date.now()}`;
-    map = new google.maps.Map(mapRef.value, {
+    // Initialize map - only use mapId if it's a valid Map ID from env
+    // If no valid mapId, we'll use legacy Marker instead of AdvancedMarkerElement
+    const mapOptions = {
       center: defaultCenter,
       zoom: defaultZoom,
-      mapId: mapId,
       disableDefaultUI: false,
       zoomControl: true,
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: true
-    });
+    };
+    
+    // Only add mapId if we have a valid one (from env, not generated)
+    if (mapId) {
+      mapOptions.mapId = mapId;
+    }
+    
+    map = new google.maps.Map(mapRef.value, mapOptions);
 
     // Wait for map to be ready
     await new Promise((resolve) => {

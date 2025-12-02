@@ -2,12 +2,14 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import PlanningApi from '../infrastructure/planning-api.js';
 import { useRouter } from 'vue-router';
+import { RouteDraft } from '../domain/route-draft.entity.js';
 
-export const useRoutePlanningStore = defineStore('routeplanning', () => {
+export const usePlanningStore = defineStore('planning', () => {
     const api = new PlanningApi();
     const router = useRouter();
 
     const routes = ref([]);
+    const routeDrafts = ref([]);
     const vehicles = ref([]);
     const locations = ref([]);
     const deliveries = ref([]);
@@ -27,6 +29,85 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
             return data;
         } catch (err) {
             console.error('Error fetching routes', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
+
+    /**
+     * Get route drafts by execution date
+     * @param {string} executionDate - Execution date in ISO date-time format
+     * @returns {Promise} - A promise resolving to the list of route drafts
+     */
+    async function fetchRouteDrafts(executionDate) {
+        try {
+            const response = await api.getRouteDrafts(executionDate);
+            // Response data is already an array of route draft objects
+            routeDrafts.value = response.data || [];
+            return routeDrafts.value;
+        } catch (err) {
+            console.error('Error fetching route drafts', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
+
+    /**
+     * Get routes by execution date
+     * @param {string} executionDate - Execution date in ISO date-time format
+     * @returns {Promise} - A promise resolving to the list of routes
+     */
+    async function fetchRoutes(executionDate) {
+        try {
+            const response = await api.getRoutes(executionDate);
+            // Response data is already an array of route objects
+            routes.value = response.data || [];
+            return routes.value;
+        } catch (err) {
+            console.error('Error fetching routes', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
+
+    /**
+     * Get route draft by id
+     * @param {number|string} id - Route draft ID
+     * @returns {Promise<RouteDraft>} - A promise resolving to the route draft
+     */
+    async function getRouteDraftById(id) {
+        try {
+            const routeDraft = await api.getRouteDraftById(id);
+            const idx = routeDrafts.value.findIndex(rd => rd.id == id);
+            if (idx !== -1) {
+                routeDrafts.value[idx] = routeDraft;
+            } else {
+                routeDrafts.value.push(routeDraft);
+            }
+            return routeDraft;
+        } catch (err) {
+            console.error('Error fetching route draft by id', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
+
+    /**
+     * Create a new route draft
+     * @param {Object} routeDraftData - Route draft data with colorCode and executionDate
+     * @returns {Promise<RouteDraft>} - A promise resolving to the created route draft
+     */
+    async function createRouteDraft(routeDraftData) {
+        try {
+            const routeDraft = new RouteDraft({
+                colorCode: routeDraftData.colorCode || '#003087',
+                executionDate: routeDraftData.executionDate || null
+            });
+            const created = await api.createRouteDraft(routeDraft);
+            routeDrafts.value.push(created);
+            return created;
+        } catch (err) {
+            console.error('Error creating route draft', err);
             errors.value.push(err);
             throw err;
         }
@@ -353,8 +434,26 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
         }
     }
 
+    /**
+     * Fetch available locations for deliveries
+     * @returns {Promise<Array>} - A promise resolving to the list of available locations
+     */
+    async function fetchAvailableLocations() {
+        try {
+            const data = await api.getAvailableLocations();
+            // Store in locations ref for use in components
+            locations.value = data;
+            return data;
+        } catch (err) {
+            console.error('Error fetching available locations', err);
+            errors.value.push(err);
+            throw err;
+        }
+    }
+
     return {
         routes,
+        routeDrafts,
         vehicles,
         locations,
         deliveries,
@@ -363,6 +462,10 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
         currentRoute,
         CURRENT_DRIVER_ID,
         fetchAllRoutes,
+        fetchRouteDrafts,
+        fetchRoutes,
+        createRouteDraft,
+        getRouteDraftById,
         getRouteById,
         fetchAllVehicles,
         fetchLocationsByRoute,
@@ -376,6 +479,8 @@ export const useRoutePlanningStore = defineStore('routeplanning', () => {
         completeDelivery,
         rejectDelivery,
         startDelivery,
-        autoCreateDeliveries
+        autoCreateDeliveries,
+        fetchAvailableLocations
     };
 });
+
