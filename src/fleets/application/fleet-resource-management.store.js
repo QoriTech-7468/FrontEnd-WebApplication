@@ -59,8 +59,7 @@ const useStore = defineStore('vehicles', () => {
             const newVehicle = VehicleAssembler.toEntityFromResource(resource);
             vehicles.value.push(newVehicle);
         }).catch(error => {
-            // También es importante ver si hay un error
-            console.error('❌ Error in addVehicles:', error);
+            console.error(' Error in addVehicles:', error);
             errors.value.push(error);
         });
     }
@@ -102,12 +101,12 @@ const useStore = defineStore('vehicles', () => {
 
     function updateUsers(user) {
         return fleetResourceManagementApi.updateUsers(user).then(response => {
-            console.log('--- PASO 2: Respuesta del API (en el Store) ---');
+            console.log('Respuesta del API (en el Store) ---');
             console.log('Datos recibidos del API:', response.data);
 
             const resource = response.data;
             const updatedUser = UserAssembler.toEntityFromResource(resource);
-            console.log('--- PASO 3: Usuario "Ensamblado" ---');
+            console.log('Usuario "Ensamblado" ---');
             console.log('Objeto final que se guardará en el estado:', updatedUser);
 
             const index = users.value.findIndex(t => t.id === updatedUser.id);
@@ -115,7 +114,7 @@ const useStore = defineStore('vehicles', () => {
                 users.value[index] = updatedUser;
             }
         }).catch(error => {
-            console.error('❌ Error actualizando el usuario:', error);
+            console.error('Error actualizando el usuario:', error);
         });
     }
 

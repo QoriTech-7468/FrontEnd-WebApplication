@@ -6,10 +6,10 @@ export class Vehicle {
      * @param capacity - The load capacity of the vehicle.
      * @param isActive - The current state of the vehicle (e.g., 'Enabled').
      */
-    constructor({ id = null, plate = '', capacity = null, isActive = '' }) { // <-- Cambiado de 'availability' a 'isActive'
+    constructor({ id = null, plate = '', capacity = null, isActive = '' }) {
         this.id = id;
         this.plate = plate;
-        this.capacity = capacity;
+        this.capacityKg = capacityKg;
         this.isActive = isActive;
     }
 }

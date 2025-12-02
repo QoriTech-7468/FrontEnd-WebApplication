@@ -35,16 +35,14 @@ const emit = defineEmits(["update:visible", "save-vehicle"]);
 const form = ref({ plate: "", capacity: null });
 
 const saveVehicle = () => {
-  // Creamos el objeto del vehículo.
   const vehicleData = {
     plate: form.value.plate,
-    capacity: form.value.capacity,
+    capacityKg: form.value.capacity,
     isActive: 'Enabled'
   };
   emit('save-vehicle', vehicleData);
 };
 
-// visibilidad del diálogo
 const modelVisible = computed({
   get: () => props.visible,
   set: (value) => emit("update:visible", value)
@@ -54,7 +52,6 @@ const closeDialog = () => {
   emit('update:visible', false);
 };
 
-// Limpia el formulario
 watch(() => props.visible, (isVisible) => {
   if (!isVisible) {
     form.value = { plate: "", capacity: null };
