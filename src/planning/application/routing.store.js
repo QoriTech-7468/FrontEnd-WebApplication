@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import RoutePlanningApi from '../infrastructure/route-planning-api.js';
+import PlanningApi from '../infrastructure/planning-api.js';
 import { useRouter } from 'vue-router';
 
 export const useRoutePlanningStore = defineStore('routeplanning', () => {
-    const api = new RoutePlanningApi();
+    const api = new PlanningApi();
     const router = useRouter();
 
     const routes = ref([]);
