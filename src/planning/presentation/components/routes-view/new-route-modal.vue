@@ -1,32 +1,37 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { FleetResourceManagementApi } from "../../../../fleets/infrastructure/fleet-resource-management-api.js"
-import { VehicleAssembler } from "../../../../fleets/infrastructure/vehicle.assembler.js"
+import { storeToRefs } from 'pinia'
+import useFleetStore from '../../../../fleets/application/fleets.store.js'
 
 const { t } = useI18n()
 const emits = defineEmits(['close', 'create'])
 const color = ref('#003087')
 const vehicleId = ref('')
-const vehicles = ref([])
 const loading = ref(true)
 
 const colorInputRef = ref(null)
 
-const api = new FleetResourceManagementApi()
+const fleetStore = useFleetStore()
+const { vehicles } = storeToRefs(fleetStore)
 
 // Cargar vehículos activos
 const loadVehicles = async () => {
   try {
-    const response = await api.getVehicles()
-    vehicles.value = VehicleAssembler.toEntitiesFromResponse(response)
-        .filter(v => v.isActive === 'Enabled')
+    if (!vehicles.value || vehicles.value.length === 0) {
+      await fleetStore.fetchVehicles()
+    }
   } catch (error) {
     console.error('Error loading vehicles:', error)
   } finally {
     loading.value = false
   }
 }
+
+// Computed para vehículos activos
+const activeVehicles = computed(() => {
+  return vehicles.value.filter(v => v.state === 'Enabled' || v.isActive === 'Enabled')
+})
 
 // Crear ruta
 const createRoute = () => {

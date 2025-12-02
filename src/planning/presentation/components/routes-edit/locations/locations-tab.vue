@@ -5,22 +5,27 @@ import SelectedLocationsList from './selected-locations-list.vue'
 import LocationDetails from './location-details.vue'
 import InteractiveMap from './interactive-map.vue'
 
-// Importar el store de FLOTA
-import customerStore from '../../../../../crm/application/customer-location-management.store.js'
+// Importar el store de Planning para obtener available locations
+import { usePlanningStore } from '../../../../application/planning.store.js'
 
 const props = defineProps({
   route: { type: Object, required: true }
 })
 
-const fleetStore = customerStore()
-
-const { locations: allLocations, locationsLoaded } = storeToRefs(fleetStore)
+const planningStore = usePlanningStore()
+const { locations: allLocations } = storeToRefs(planningStore)
 const selectedLocation = ref(null)
+const loadingLocations = ref(false)
 
-// Cargar todas las locaciones disponibles (para el mapa)
-onMounted(() => {
-  if (!locationsLoaded.value) {
-    fleetStore.fetchLocations()
+// Load all available locations (for the map) from the new endpoint
+onMounted(async () => {
+  loadingLocations.value = true
+  try {
+    await planningStore.fetchAvailableLocations()
+  } catch (err) {
+    console.error('Error loading available locations:', err)
+  } finally {
+    loadingLocations.value = false
   }
 })
 

@@ -1,51 +1,23 @@
 <template>
   <Dialog v-model:visible="modelVisible" header="New Location" modal style="width: 600px">
     <div class="flex flex-column gap-3">
+      
+
       <div>
-        <label class="block text-700 mb-2">Client</label>
-        <pv-dropdown
-            class="w-full"
-            v-model="clientId"
-            :options="clientOpts"
-            optionLabel="name"
-            optionValue="id"
-            disabled
+        <label class="block text-700 mb-2">Seleccionar Ubicación</label>
+        <MapWithPin
+            v-model:latitude="latitude"
+            v-model:longitude="longitude"
         />
       </div>
 
-      <transition name="fade">
-        <div v-if="showMapPicker" class="mt-2">
-          <MapPicker
-              v-model:address="address"
-              v-model:latitude="latitude"
-              v-model:longitude="longitude"
-          />
-        </div>
-      </transition>
-
-      <div class="grid mt-2">
-        <div class="col-6">
-          <label class="block text-700 mb-2">Latitude</label>
-          <pv-input-number
-              class="w-full"
-              v-model="latitude"
-              mode="decimal"
-              :useGrouping="false"
-              :minFractionDigits="6"
-              placeholder="-12.046374"
-          />
-        </div>
-        <div class="col-6">
-          <label class="block text-700 mb-2">Longitude</label>
-          <pv-input-number
-              class="w-full"
-              v-model="longitude"
-              mode="decimal"
-              :useGrouping="false"
-              :minFractionDigits="6"
-              placeholder="-77.042793"
-          />
-        </div>
+      <div>
+        <label class="block text-700 mb-2">Address</label>
+        <pv-input-text
+            v-model="address"
+            class="w-full"
+            placeholder="Ingresa la dirección manualmente"
+        />
       </div>
 
       <div>
@@ -74,13 +46,16 @@
 
 <script setup>
 import { computed, ref, watch } from "vue";
+import { useToast } from "primevue/usetoast";
 import Dialog from "primevue/dialog";
-import MapPicker from "../components/google-maps-picker.vue"; // Import del mapa
-import { onMounted, onBeforeUnmount } from "vue";
+import MapWithPin from "../components/map-with-pin.vue";
+
+const toast = useToast();
 
 const props = defineProps({
   visible: Boolean,
   client: { type: Object, default: null },
+  clientId: { type: [Number, String], default: null },
   clients: { type: Array, default: () => [] },
   loading: Boolean
 });
@@ -92,12 +67,10 @@ const modelVisible = computed({
   set: v => emit("update:visible", v)
 });
 
-const clientId  = ref(null);
 const address   = ref("");
-const latitude  = ref(0);
-const longitude = ref(0);
-const proximity      = ref("store");
-const showMapPicker = ref(false);
+const latitude  = ref(null);
+const longitude = ref(null);
+const proximity = ref("store");
 
 const clientOpts  = computed(() => props.clients ?? []);
 const proximityOptions = [
@@ -106,46 +79,93 @@ const proximityOptions = [
   { label: "Far", value: "far" }
 ];
 
+// Computed para obtener el clientId (prioriza prop directo, luego del objeto client)
+const clientId = computed(() => {
+  // Priorizar el prop directo clientId
+  if (props.clientId !== null && props.clientId !== undefined && props.clientId !== '') {
+    return props.clientId;
+  }
+  // Si no está disponible, intentar obtenerlo del objeto client
+  if (props.client?.id !== null && props.client?.id !== undefined && props.client?.id !== '') {
+    return props.client.id;
+  }
+  return null;
+});
+
+// Watch for dialog visibility to reset form
 watch(
-    () => props.visible,
-    (v) => {
-      if (v) {
-        clientId.value  = props.client?.id ?? null;
-        address.value   = "";
-        latitude.value  = null;
-        longitude.value = null;
-        proximity.value      = "close";
-        showMapPicker.value = false; // SIEMPRE inicia oculto
+  () => props.visible,
+  (isVisible) => {
+    if (isVisible) {
+      // Si no hay clientId, mostrar error inmediatamente
+      if (!clientId.value) {
+        toast.add({
+          severity: "error",
+          summary: "Client ID missing",
+          detail: "No client selected. Please select a client first.",
+          life: 3000
+        });
       }
-    },
-    { immediate: true }
+      
+      // Reset form values
+      address.value = "";
+      latitude.value = null;
+      longitude.value = null;
+      proximity.value = "close";
+    }
+  },
+  { immediate: true }
 );
 
 function submit() {
-  if (!clientId.value || !address.value.trim()) return;
+  
+  // Validar address
+  const addressValue = address.value?.trim() || "";
+  if (!addressValue) {
+    console.error("Address is required");
+    return;
+  }
+  
+  // Validar coordenadas
+  const latValue = latitude.value;
+  const lngValue = longitude.value;
+  
+  if (latValue === null || latValue === undefined || isNaN(Number(latValue))) {
+    console.error("Latitude is required. Please select a location on the map.");
+    return;
+  }
+  
+  if (lngValue === null || lngValue === undefined || isNaN(Number(lngValue))) {
+    console.error("Longitude is required. Please select a location on the map.");
+    return;
+  }
+  
+  if (!proximity.value) {
+    console.error("Proximity is required");
+    return;
+  }
 
+  // Validar que clientId esté presente
+  const currentClientId = clientId.value;
+  if (!currentClientId) {
+    toast.add({
+      severity: "error",
+      summary: "Client ID required",
+      detail: "Please select a client first before adding a location.",
+      life: 3000
+    });
+    return;
+  }
+
+  // Convertir coordenadas a string
   emit("submit", {
-    clientsId: clientId.value,
-    address: address.value.trim(),
-    type: type.value,
-    latitude: latitude.value ?? null,
-    longitude: longitude.value ?? null,
+    clientId: currentClientId,
+    address: addressValue,
+    proximity: proximity.value,
+    latitude: String(latValue),
+    longitude: String(lngValue),
     isActive: true
   });
 }
 
-onMounted(() => {
-  // Escucha el evento global solo si el diálogo está visible
-  window.addEventListener('open-map-picker', handleOpenMapPicker);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('open-map-picker', handleOpenMapPicker);
-});
-
-function handleOpenMapPicker() {
-  if (props.visible) {
-    showMapPicker.value = true;
-  }
-}
 </script>

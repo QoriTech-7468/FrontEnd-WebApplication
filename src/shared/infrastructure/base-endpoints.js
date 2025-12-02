@@ -11,10 +11,14 @@ export class BaseEndpoint {
 
     /**
      * Fetch all resources from the endpoint.
+     * @param {Object} params - Query parameters to include in the request
      * @returns {*} - A promise resolving to the list of resources.
      */
-    getAll() {
-        return this.http.get(this.endpointPath);
+    getAll(params = {}) {
+        const queryString = Object.keys(params).length > 0 
+            ? '?' + new URLSearchParams(params).toString()
+            : '';
+        return this.http.get(`${this.endpointPath}${queryString}`);
     }
 
     /**

@@ -2,11 +2,14 @@
   <div class="invitation-item">
     <div class="invitation-details">
       <span class="invitation-id" v-if="invitation.id">Invitation ID: {{ invitation.id }}</span>
+      <span class="invitation-email" v-if="invitation.user && invitation.user.email">
+        Email: {{ invitation.user.email }}
+      </span>
+      <span class="invitation-name" v-if="invitation.user && (invitation.user.name || invitation.user.surname)">
+        Name: {{ formatUserName(invitation.user) }}
+      </span>
       <span class="invitation-role" v-if="invitation.user && invitation.user.role">
         Role: {{ invitation.user.role }}
-      </span>
-      <span class="invitation-user-id" v-if="invitation.user && invitation.user.id">
-        User ID: {{ invitation.user.id }}
       </span>
       <span class="invitation-status">
         Status: <span class="status-badge" :class="statusClass">{{ invitation.status }}</span>
@@ -69,6 +72,14 @@ const formatDate = (dateString) => {
     day: 'numeric' 
   })
 }
+
+const formatUserName = (user) => {
+  if (!user) return ''
+  const parts = []
+  if (user.name) parts.push(user.name)
+  if (user.surname) parts.push(user.surname)
+  return parts.length > 0 ? parts.join(' ') : 'N/A'
+}
 </script>
 
 <style scoped>
@@ -100,7 +111,9 @@ const formatDate = (dateString) => {
 }
 
 .invitation-email,
+.invitation-name,
 .invitation-role,
+.invitation-user-id,
 .invitation-status,
 .invitation-date {
   display: block;
@@ -112,6 +125,11 @@ const formatDate = (dateString) => {
 .invitation-email {
   font-weight: 500;
   color: #1f2937;
+}
+
+.invitation-name {
+  color: #374151;
+  font-weight: 500;
 }
 
 .status-badge {

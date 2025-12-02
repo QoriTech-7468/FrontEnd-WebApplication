@@ -78,30 +78,30 @@
       </div>
     </div>
 
-    <!-- Contenido principal -->
+    <!-- Main content -->
     <main class="invitations-main">
       <h1>Invitations</h1>
 
-      <!-- Estado de carga -->
+      <!-- Loading state -->
       <div v-if="isLoading && !invitationsLoaded" class="empty-state">
         <div class="empty-icon">⏳</div>
         <p>Loading invitations...</p>
       </div>
 
-      <!-- Mensaje de error -->
+      <!-- Error message -->
       <div v-else-if="errorMessage" class="empty-state">
         <div class="empty-icon">⚠️</div>
         <p>{{ errorMessage }}</p>
       </div>
 
-      <!-- Estado: Sin invitaciones -->
+      <!-- Empty state: No invitations -->
       <div v-else-if="invitations.length === 0 && invitationsLoaded" class="empty-state">
         <div class="empty-icon">📧</div>
         <p>You don't have any invitations yet</p>
         <p class="subtitle">Ask your company owner or administrator to add you using your email address.</p>
       </div>
 
-      <!-- Estado: Con invitaciones -->
+      <!-- State: With invitations -->
       <div v-else class="invitations-list">
         <InvitationCard
           v-for="invitation in invitations"
@@ -120,7 +120,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import useInvitationsStore from '../../application/invitations.store.js'
 import useOrganizationStore from '../../../subscriptions/application/organization.store.js'
 import useIamStore from '../../application/iam.store.js'
 import { storeToRefs } from 'pinia'
@@ -128,22 +127,20 @@ import InvitationsHeader from '../components/invitations-header.vue'
 import InvitationCard from '../components/invitation-card.vue'
 
 const router = useRouter()
-const invitationsStore = useInvitationsStore()
 const organizationStore = useOrganizationStore()
 const iamStore = useIamStore()
-const { invitations, invitationsLoaded } = storeToRefs(invitationsStore)
-const { currentUserId, currentUserRole } = storeToRefs(iamStore)
+const { invitations, invitationsLoaded, currentUserId, currentUserRole } = storeToRefs(iamStore)
 
 const isLoading = ref(false)
 const loadingInvitationId = ref(null)
 const errorMessage = ref(null)
 
-// Cargar invitaciones cuando el componente se monte
+// Load invitations when component mounts
 onMounted(async () => {
   try {
     isLoading.value = true
     errorMessage.value = null
-    await invitationsStore.fetchUserInvitations()
+    await iamStore.fetchUserInvitations()
   } catch (error) {
     console.error('Error loading invitations:', error)
     errorMessage.value = 'Failed to load invitations. Please try again.'
@@ -152,12 +149,12 @@ onMounted(async () => {
   }
 })
 
-// Funciones de manejo de acciones
+// Action handler functions
 const cancelInvitation = async (id) => {
   try {
     loadingInvitationId.value = id
     errorMessage.value = null
-    await invitationsStore.rejectInvitation(id)
+    await iamStore.rejectInvitation(id)
     console.log(`Invitation ${id} rejected successfully`)
   } catch (error) {
     console.error(`Error rejecting invitation ${id}:`, error)
@@ -171,10 +168,22 @@ const acceptInvitation = async (id) => {
   try {
     loadingInvitationId.value = id
     errorMessage.value = null
-    await invitationsStore.acceptInvitation(id)
+    await iamStore.acceptInvitation(id)
     console.log(`Invitation ${id} accepted successfully`)
-    // Redirigir a management después de aceptar la invitación
-    router.push({ name: 'management' })
+    
+    // Update user data from backend to get the latest role and organizationId
+    await iamStore.initializeUser()
+    
+    // Get updated user role
+    const userRole = iamStore.currentUserRole?.toLowerCase()
+    
+    // Redirect according to user role
+    if (userRole === 'dispatcher') {
+      router.push({ name: 'transportist-routes' })
+    } else {
+      // Admin and Owner go to management
+      router.push({ name: 'management' })
+    }
   } catch (error) {
     console.error(`Error accepting invitation ${id}:`, error)
     errorMessage.value = 'Failed to accept invitation. Please try again.'
@@ -190,7 +199,7 @@ const selectedPlan = ref(null)
 const companyName = ref('')
 const companyRuc = ref('')
 
-// Abrir/cerrar modales
+// Open/close modals
 const openPurchaseModal = () => {
   isPurchaseModalOpen.value = true
 }
@@ -225,14 +234,14 @@ const createOrganization = async () => {
   }
 
   if (!currentUserId.value) {
-    alert('Error: No se encontró el ID del usuario. Por favor, inicia sesión nuevamente.')
+    alert('Error: User ID not found. Please sign in again.')
     return
   }
 
   isCreatingOrganization.value = true
 
   try {
-    // Crear la organización usando el store
+    // Create organization using the store
     const organizationData = {
       name: companyName.value,
       ruc: companyRuc.value,
@@ -242,27 +251,27 @@ const createOrganization = async () => {
     const createdOrganization = await organizationStore.createOrganization(organizationData)
 
     if (createdOrganization && createdOrganization.id) {
-      // Actualizar el IAM store con el nuevo organizationId
+      // Update IAM store with the new organizationId
       iamStore.updateOrganizationId(createdOrganization.id)
 
       closeOrgModal()
 
-      // Redirigir según el rol del usuario
+      // Redirect according to user role
       const userRole = currentUserRole.value?.toLowerCase()
       
       if (userRole === 'dispatcher') {
-        // Dispatcher va a transportist-routes
+        // Dispatcher goes to transportist-routes
         router.push({ name: 'transportist-routes' })
       } else {
-        // Owner y Admin van a management
+        // Owner and Admin go to management
         router.push({ name: 'management' })
       }
     } else {
-      throw new Error('No se recibió una organización válida del servidor')
+      throw new Error('No valid organization received from server')
     }
   } catch (error) {
     console.error('Error creating organization:', error)
-    const errorMessage = error.response?.data?.message || error.message || 'Error al crear la organización'
+    const errorMessage = error.response?.data?.message || error.message || 'Error creating organization'
     alert(`Error: ${errorMessage}`)
   } finally {
     isCreatingOrganization.value = false
@@ -283,7 +292,7 @@ const createOrganization = async () => {
 .invitations-main {
   flex: 1;
   padding: 2rem;
-  background-color: #f8f9fa; /* Gris claro */
+  background-color: #f8f9fa; /* Light gray */
   margin-top: 70px;
 }
 
@@ -293,7 +302,7 @@ h1 {
   padding-bottom: 0.5rem;
 }
 
-/* Estado vacío */
+/* Empty state */
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
@@ -310,7 +319,7 @@ h1 {
   margin-top: 0.5rem;
 }
 
-/* Lista de invitaciones */
+/* Invitations list */
 .invitations-list {
   max-width: 600px;
 }

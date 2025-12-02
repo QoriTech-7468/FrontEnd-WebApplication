@@ -29,14 +29,14 @@ export class IamApi extends BaseApi {
         return this.#userEndpointPath.getAll();
     }
     /**
-     * Obtiene el usuario actual autenticado usando getById
-     * Obtiene el ID del usuario desde localStorage y hace la petición
+     * Gets the current authenticated user using getById
+     * Gets the user ID from localStorage and makes the request
      */
     getCurrentUser() {
-        // Obtener el ID del usuario desde localStorage
+        // Get user ID from localStorage
         const userDataStr = localStorage.getItem('userData');
         if (!userDataStr) {
-            return Promise.reject(new Error('No hay datos de usuario en localStorage'));
+            return Promise.reject(new Error('No user data in localStorage'));
         }
         
         try {
@@ -44,13 +44,13 @@ export class IamApi extends BaseApi {
             const userId = userData.id;
             
             if (!userId) {
-                return Promise.reject(new Error('No hay ID de usuario en localStorage'));
+                return Promise.reject(new Error('No user ID in localStorage'));
             }
             
-            // Usar getById con el ID del usuario guardado
+            // Use getById with the saved user ID
             return this.#userEndpointPath.getById(userId);
         } catch (error) {
-            return Promise.reject(new Error('Error al parsear datos de usuario: ' + error.message));
+            return Promise.reject(new Error('Error parsing user data: ' + error.message));
         }
     }
 
@@ -61,6 +61,7 @@ export class IamApi extends BaseApi {
      * @returns {Promise} - A promise resolving to the created invitation
      */
     createInvitation(invitationRequest) {
+        console.log('🌐 IAM API - Sending invitation request to backend:', invitationRequest);
         return this.#invitationsEndpointPath.create(invitationRequest);
     }
 
@@ -90,12 +91,12 @@ export class IamApi extends BaseApi {
     }
 
     /**
-     * Reject an invitation (DELETE)
-     * @param {number|string} id - The invitation ID to reject
-     * @returns {Promise} - A promise resolving to the deletion result
+     * Cancel an invitation (DELETE)
+     * @param {number|string} id - The invitation ID to cancel
+     * @returns {Promise} - A promise resolving to the cancellation result
      */
     rejectInvitation(id) {
-        return this.#invitationsEndpointPath.delete(id);
+        return this.http.delete(`${this.#invitationsEndpointPath.endpointPath}/${id}/cancel`);
     }
 
     /**
@@ -105,5 +106,33 @@ export class IamApi extends BaseApi {
      */
     acceptInvitation(id) {
         return this.http.post(`${this.#invitationsEndpointPath.endpointPath}/${id}/accept`);
+    }
+
+    // Organization users endpoints
+    /**
+     * Get users by organization
+     * @returns {Promise} - A promise resolving to the list of organization users
+     */
+    getOrganizationUsers() {
+        return this.http.get(`${this.#userEndpointPath.endpointPath}/organization`);
+    }
+
+    /**
+     * Change user role
+     * @param {number|string} id - The user ID
+     * @param {string} role - The new role (Admin or Dispatcher)
+     * @returns {Promise} - A promise resolving to the update result
+     */
+    updateUserRole(id, role) {
+        return this.http.put(`${this.#userEndpointPath.endpointPath}/${id}/role`, { role });
+    }
+
+    /**
+     * Remove user from organization
+     * @param {number|string} id - The user ID to remove
+     * @returns {Promise} - A promise resolving to the deletion result
+     */
+    removeUserFromOrganization(id) {
+        return this.http.delete(`${this.#userEndpointPath.endpointPath}/${id}/organization`);
     }
 }

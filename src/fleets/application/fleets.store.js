@@ -6,7 +6,7 @@ import {UserAssembler} from "../infrastructure/user.assembler.js";
 
 const fleetResourceManagementApi = new FleetResourceManagementApi();
 
-const useStore = defineStore('vehicles', () => {
+const useStore = defineStore('fleets', () => {
 
     // State
     const vehicles = ref([]);
@@ -54,25 +54,32 @@ const useStore = defineStore('vehicles', () => {
     }
 
     function addVehicles(vehicleData) {
-        return fleetResourceManagementApi.createVehicles(vehicleData).then(response => {
+        const requestResource = VehicleAssembler.toResourceFromEntity(vehicleData, false);
+        return fleetResourceManagementApi.createVehicles(requestResource).then(response => {
             const resource = response.data;
             const newVehicle = VehicleAssembler.toEntityFromResource(resource);
             vehicles.value.push(newVehicle);
+            errors.value = [];
+            return newVehicle;
         }).catch(error => {
-            // También es importante ver si hay un error
-            console.error('❌ Error in addVehicles:', error);
+            console.error(' Error in addVehicles:', error);
             errors.value.push(error);
+            throw error;
         });
     }
 
-    function updateVehicles(vehicles) {
-        return fleetResourceManagementApi.updateVehicles(vehicles).then(response => {
+    function updateVehicles(vehicle) {
+        const requestResource = VehicleAssembler.toResourceFromEntity(vehicle, true);
+        return fleetResourceManagementApi.updateVehicles(requestResource).then(response => {
             const resource = response.data;
-            const updateVehicles = VehicleAssembler.toEntityFromResource(resource);
-            const index = vehicles.value.findIndex(c => c["id"] === updateVehicles.id);
-            if (index !== -1) vehicles.value[index] = updateVehicles;
+            const updatedVehicle = VehicleAssembler.toEntityFromResource(resource);
+            const index = vehicles.value.findIndex(v => v["id"] === updatedVehicle.id);
+            if (index !== -1) vehicles.value[index] = updatedVehicle;
+            errors.value = [];
+            return updatedVehicle;
         }).catch(error => {
             errors.value.push(error);
+            throw error;
         });
     }
 
@@ -102,12 +109,12 @@ const useStore = defineStore('vehicles', () => {
 
     function updateUsers(user) {
         return fleetResourceManagementApi.updateUsers(user).then(response => {
-            console.log('--- PASO 2: Respuesta del API (en el Store) ---');
+            console.log('Respuesta del API (en el Store) ---');
             console.log('Datos recibidos del API:', response.data);
 
             const resource = response.data;
             const updatedUser = UserAssembler.toEntityFromResource(resource);
-            console.log('--- PASO 3: Usuario "Ensamblado" ---');
+            console.log('Usuario "Ensamblado" ---');
             console.log('Objeto final que se guardará en el estado:', updatedUser);
 
             const index = users.value.findIndex(t => t.id === updatedUser.id);
@@ -115,7 +122,7 @@ const useStore = defineStore('vehicles', () => {
                 users.value[index] = updatedUser;
             }
         }).catch(error => {
-            console.error('❌ Error actualizando el usuario:', error);
+            console.error('Error actualizando el usuario:', error);
         });
     }
 

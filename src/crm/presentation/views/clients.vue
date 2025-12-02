@@ -43,7 +43,12 @@
                   <pv-tag :value="selected.status" :severity="statusSeverity(selected.status)" />
                   <div class="flex gap-2">
                     <pv-button label="Edit" icon="pi pi-pencil" @click="openEditDialog" />
-                    <pv-button :label="$t('clients.registerLocation')" severity="warning"   @click="openMapPickerForSelectedClient" />
+                    <pv-button 
+                      :label="$t('clients.registerLocation')" 
+                      severity="warning" 
+                      :disabled="!selectedId"
+                      @click="openAddLocationDialog" 
+                    />
                   </div>
                 </div>
 
@@ -52,13 +57,7 @@
                     @marker-click="openEditLocationDialog"
                 />
 
-                <pv-button
-                    label="Edit location"
-                    class="mt-3"
-                    severity="info"
-                    :disabled="!locationToEdit"
-                    @click="showEditLocation = true"
-                />
+             
               </template>
 
             </pv-panel>
@@ -67,7 +66,10 @@
           <!-- Derecha -->
           <div class="col-12 lg:col-4">
             <pv-panel class="shadow-1" :header="`Locations: ${locationsCountText}`">
-              <LocationsPanel :selected="selectedWithLocations" />
+              <LocationsPanel 
+                  :selected="selectedWithLocations" 
+                  @edit-location="openEditLocationDialog"
+              />
             </pv-panel>
           </div>
         </div>
@@ -82,6 +84,7 @@
     />
     <AddLocationDialog     v-model:visible="showAddLocation"
                            :client="selected"
+                           :clientId="selectedId ?? null"
                            :clients="clientsList"
                            :loading="creatingLocation"
                            @submit="handleCreateLocation" />
@@ -94,6 +97,7 @@
     <EditLocation
         v-model:visible="showEditLocation"
         :location="locationToEdit"
+        :loading="updatingLocation"
         @save="saveLocationEdit"
     />
 
@@ -103,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useToast } from "primevue/usetoast";
 
 import ClientsSidebar from "../components/clients-sidebar.vue";
@@ -113,11 +117,11 @@ import AddLocationDialog from "../dialogs/add-location.vue";
 import UpdateClientsDialog from "../dialogs/edit-client.vue";
 import LocationsMap from "../components/locations-map.vue";
 
-import customerStore from "/src/crm/application/customer-location-management.store.js";
+import useCrmStore from "../../application/crm.store.js";
 import {Button as PvButton} from "primevue";
 import EditLocation from "../dialogs/edit-location.vue";
 
-const store = customerStore();
+const store = useCrmStore();
 const toast = useToast();
 
 const q = ref("");
@@ -127,19 +131,33 @@ const showCreate = ref(false);
 const showUpdate = ref(false);
 const showAddLocation = ref(false);
 const creating = ref(false);
-const shouldOpenMap = ref(false);
 
 const showEditLocation = ref(false);
 const locationToEdit = ref(null);
+const updatingLocation = ref(false);
 
 const clientsList = computed(() => store.clients ?? []);
 
 
 const selected = computed(() => clientsList.value.find(c => c.id === selectedId.value) || null);
 
+// Estado para almacenar las locations del cliente seleccionado
+const clientLocations = ref([]);
+const loadingLocations = ref(false);
+
 const selectedWithLocations = computed(() => {
   if (!selected.value) return null;
-  if (Array.isArray(selected.value.locations)) return selected.value;
+  
+  // Si tenemos locations cargadas para este cliente, usarlas
+  if (clientLocations.value.length > 0 && 
+      clientLocations.value[0]?.clientId === selected.value.id) {
+    return { ...selected.value, locations: clientLocations.value };
+  }
+  
+  // Fallback: buscar en el store global
+  if (Array.isArray(selected.value.locations)) {
+    return selected.value;
+  }
 
   const cid = Number(selected.value.id);
   const locs = (store.locations ?? []).filter(
@@ -158,8 +176,38 @@ onMounted(() => {
   if (!store.locationsLoaded) store.fetchLocations();
 });
 
+// Watch para cargar locations cuando se selecciona un cliente
+watch(selectedId, async (newClientId) => {
+  if (newClientId) {
+    loadingLocations.value = true;
+    try {
+      // Cargar solo locations activas del cliente seleccionado
+      const locations = await store.fetchLocations({ isActive: true, clientId: newClientId });
+      clientLocations.value = locations;
+    } catch (error) {
+      console.error("Error loading client locations:", error);
+      clientLocations.value = [];
+      toast.add({
+        severity: "warn",
+        summary: "Could not load locations",
+        detail: "Using cached locations if available",
+        life: 2000
+      });
+    } finally {
+      loadingLocations.value = false;
+    }
+  } else {
+    clientLocations.value = [];
+  }
+});
+
 function onOpenNewClient() {
   showCreate.value = true;
+}
+
+function handleCreate() {
+  showCreate.value = false;
+  refreshClients();
 }
 
 function statusSeverity(s) {
@@ -173,11 +221,41 @@ const creatingLocation = ref(false);
 async function handleCreateLocation(payload) {
   creatingLocation.value = true;
   try {
-    await new Promise((res, rej) => store.addLocation(payload).then(res).catch(rej));
+    // Validar payload antes de enviar
+    if (!payload.clientId) {
+      throw new Error("Client ID is required");
+    }
+    if (!payload.address || !payload.address.trim()) {
+      throw new Error("Address is required");
+    }
+    if (!payload.proximity) {
+      throw new Error("Proximity is required");
+    }
+
+    await store.addLocation(payload);
     showAddLocation.value = false;
-    toast.add({ severity: "success", summary: "Location created", detail: payload.address, life: 2500 });
+    toast.add({ 
+      severity: "success", 
+      summary: "Location created", 
+      detail: payload.address, 
+      life: 2500 
+    });
+    // Refrescar locations del cliente seleccionado (solo activas)
+    if (selectedId.value) {
+      const locations = await store.fetchLocations({ isActive: true, clientId: selectedId.value });
+      clientLocations.value = locations;
+    }
+    // También refrescar el store global
+    store.fetchLocations();
   } catch (e) {
-    toast.add({ severity: "error", summary: "Could not create", detail: e?.message || "Error", life: 3000 });
+    const errorMessage = e?.response?.data?.message || e?.message || "Could not create location";
+    toast.add({ 
+      severity: "error", 
+      summary: "Error creating location", 
+      detail: errorMessage, 
+      life: 3000 
+    });
+    console.error("Error creating location:", e);
   } finally {
     creatingLocation.value = false;
   }
@@ -185,15 +263,18 @@ async function handleCreateLocation(payload) {
 function openEditDialog() {
   showUpdate.value = true
 }
-function openMapPickerForSelectedClient() {
-  if (!selected.value) return;
-  shouldOpenMap.value = true; // Indica que se abrió desde el mapa
-  showAddLocation.value = true;
 
-  // Esperar un poco para que el diálogo se monte
-  setTimeout(() => {
-    window.dispatchEvent(new CustomEvent('open-map-picker'));
-  }, 200);
+function openAddLocationDialog() {
+  if (!selectedId.value) {
+    toast.add({
+      severity: "warn",
+      summary: "No client selected",
+      detail: "Please select a client first before adding a location.",
+      life: 3000
+    });
+    return;
+  }
+  showAddLocation.value = true;
 }
 
 function refreshClients() {
@@ -206,9 +287,40 @@ function openEditLocationDialog(location) {
 }
 
 async function saveLocationEdit(updated) {
-  await store.updateLocation(updated);
-  showEditLocation.value = false;
-  store.fetchLocations(); // Refresh
+  updatingLocation.value = true;
+  try {
+    await store.updateLocation(updated);
+    showEditLocation.value = false;
+    locationToEdit.value = null;
+    toast.add({
+      severity: "success",
+      summary: "Location updated",
+      detail: updated.address,
+      life: 2500
+    });
+    // Refrescar locations del cliente seleccionado (solo activas)
+    if (selectedId.value) {
+      try {
+        const locations = await store.fetchLocations({ isActive: true, clientId: selectedId.value });
+        clientLocations.value = locations;
+      } catch (error) {
+        console.error("Error refreshing client locations:", error);
+      }
+    }
+    // También refrescar el store global
+    store.fetchLocations();
+  } catch (e) {
+    const errorMessage = e?.response?.data?.message || e?.message || "Could not update location";
+    toast.add({
+      severity: "error",
+      summary: "Error updating location",
+      detail: errorMessage,
+      life: 3000
+    });
+    console.error("Error updating location:", e);
+  } finally {
+    updatingLocation.value = false;
+  }
 }
 </script>
 

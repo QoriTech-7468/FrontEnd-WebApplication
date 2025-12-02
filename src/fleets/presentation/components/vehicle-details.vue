@@ -9,18 +9,18 @@
           </div>
           <div>
             <span class="text-700">{{ $t('vehicles.details.capacityLabel') }}</span>
-            <b>{{ vehicle.capacity }} kg</b>
+            <b>{{ vehicle.capacityKg || vehicle.capacity || 0 }} kg</b>
           </div>
         </div>
 
         <div class="flex align-items-center gap-2">
           <span class="text-700">{{ $t('vehicles.details.stateLabel') }}</span>
 
-          <!-- 👇 Usa directamente isActive -->
+          <!-- 👇 Usa directamente state -->
           <pv-tag
-              v-if="vehicle.isActive"
-              :value="$t(`vehicles.status.${vehicle.isActive.toLowerCase()}`)"
-              :severity="severity(vehicle.isActive)"
+              v-if="vehicle.state || vehicle.isActive"
+              :value="$t(`vehicles.status.${(vehicle.state || vehicle.isActive || 'Enabled').toLowerCase()}`)"
+              :severity="severity(vehicle.state || vehicle.isActive || 'Enabled')"
           />
 
           <Button
@@ -66,10 +66,10 @@
 import Button from "primevue/button";
 import Divider from "primevue/divider";
 
-defineProps({
+const props = defineProps({
   vehicle: { type: Object, required: true }
 });
-const vehicle = props.vehicle
+
 function severity(value) {
   return value?.toLowerCase() === "enabled" ? "success" : "danger";
 }

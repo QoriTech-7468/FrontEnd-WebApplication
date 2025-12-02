@@ -35,7 +35,7 @@
 <script setup>
 import { ref, watch, computed  } from 'vue'
 import { useToast } from 'primevue/usetoast'
-import  customerStore  from '/src/crm/application/customer-location-management.store.js'
+import useCrmStore from '../../application/crm.store.js'
 
 const props = defineProps({
   visible: Boolean,
@@ -43,7 +43,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:visible', 'saved'])
 
-const store = customerStore()
+const store = useCrmStore()
 const toast = useToast()
 
 // ✅ Computed bidireccional para evitar el error

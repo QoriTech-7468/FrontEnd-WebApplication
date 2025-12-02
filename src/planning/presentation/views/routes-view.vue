@@ -1,25 +1,105 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia' 
-import { useRoutePlanningStore } from '../../application/routing.store.js'
+import { usePlanningStore } from '../../application/planning.store.js'
 
 //  Importar el store de vehículos
-import useFleetStore from '../../../fleets/application/fleet-resource-management.store.js'
+import useFleetStore from '../../../fleets/application/fleets.store.js'
 
-import RouteList from '../components/routes-view/route-list.vue'
-import NewRouteModal from '../components/routes-view/new-route-modal.vue'
+import RoutesTabs from '../components/routes-view/routes-tabs.vue'
 import TopActions from '../components/routes-view/top-actions.vue'
+import NewRouteModal from '../components/routes-view/new-route-modal.vue'
+import DateRequiredMessage from '../components/routes-view/date-required-message.vue'
 
 const { t } = useI18n()
 
-const store = useRoutePlanningStore()
+const store = usePlanningStore()
 
 const fleetStore = useFleetStore()
 const { vehiclesLoaded } = storeToRefs(fleetStore) 
 
 const plannedDate = ref(null)
+const loading = ref(false)
 const showModal = ref(false)
+
+// Helper to normalize date (handle both Date objects and strings)
+const normalizeDate = (dateValue) => {
+  if (!dateValue) return null
+  // If it's a Date object, convert to string
+  if (dateValue instanceof Date) {
+    const year = dateValue.getFullYear()
+    const month = String(dateValue.getMonth() + 1).padStart(2, '0')
+    const day = String(dateValue.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+  // If it's already a string, return it
+  if (typeof dateValue === 'string') {
+    return dateValue.trim()
+  }
+  return null
+}
+
+// Convert date string (yyyy-mm-dd) to ISO date-time format
+const convertDateToISO = (dateValue) => {
+  const dateString = normalizeDate(dateValue)
+  if (!dateString) return null
+  // If date is in format yyyy-mm-dd, convert to ISO
+  if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return new Date(dateString + 'T00:00:00.000Z').toISOString()
+  }
+  return dateString
+}
+
+// Helper to check if date is valid
+const isValidDate = (dateValue) => {
+  const normalized = normalizeDate(dateValue)
+  return normalized !== null && normalized !== '' && normalized.trim() !== ''
+}
+
+// Watch for date changes and fetch route drafts
+watch(plannedDate, async (newDate) => {
+  if (isValidDate(newDate)) {
+    try {
+      const isoDate = convertDateToISO(newDate)
+      if (isoDate) {
+        await store.fetchRouteDrafts(isoDate)
+      }
+    } catch (err) {
+      console.error('Error fetching route drafts:', err)
+    }
+  } else {
+    // Clear route drafts and routes when date is cleared
+    store.routeDrafts = []
+    store.routes = []
+  }
+})
+
+const handleFetchRouteDrafts = async () => {
+  if (isValidDate(plannedDate.value)) {
+    try {
+      const isoDate = convertDateToISO(plannedDate.value)
+      if (isoDate) {
+        await store.fetchRouteDrafts(isoDate)
+      }
+    } catch (err) {
+      console.error('Error fetching route drafts:', err)
+    }
+  }
+}
+
+const handleFetchRoutes = async () => {
+  if (isValidDate(plannedDate.value)) {
+    try {
+      const isoDate = convertDateToISO(plannedDate.value)
+      if (isoDate) {
+        await store.fetchRoutes(isoDate)
+      }
+    } catch (err) {
+      console.error('Error fetching routes:', err)
+    }
+  }
+}
 
 onMounted(async () => {
   await store.fetchAllRoutes()
@@ -30,22 +110,47 @@ onMounted(async () => {
   }
 })
 
-const handleAddRoute = async (routeData) => {
-  try {
-    await store.createDraftRoute({
-      color: routeData.color,
-      vehicleId: routeData.vehicleId ?? null,
-      date: plannedDate.value ?? null
-    })
-  } catch (err) {
-    console.error('Error creating draft route:', err)
-  } finally {
-    showModal.value = false
-  }
+const handleCreateRoute = () => {
+  // Open the modal
+  showModal.value = true
 }
 
-const handleCreateClick = () => {
-  showModal.value = true
+const handleAddRoute = async (routeData) => {
+  // Double check that we have a valid date
+  if (!isValidDate(plannedDate.value)) {
+    console.warn('Cannot create route draft: no date selected')
+    showModal.value = false
+    return
+  }
+
+  try {
+    loading.value = true
+    const isoDate = convertDateToISO(plannedDate.value)
+    
+    if (!isoDate) {
+      console.error('Invalid date format')
+      showModal.value = false
+      return
+    }
+
+    console.log('Creating route draft with:', {
+      colorCode: routeData.color || '#003087',
+      executionDate: isoDate
+    })
+
+    await store.createRouteDraft({
+      colorCode: routeData.color || '#003087', // Use color from modal or default
+      executionDate: isoDate
+    })
+    
+    // Refresh route drafts after creation
+    await store.fetchRouteDrafts(isoDate)
+  } catch (err) {
+    console.error('Error creating route draft:', err)
+  } finally {
+    loading.value = false
+    showModal.value = false
+  }
 }
 </script>
 
@@ -56,24 +161,29 @@ const handleCreateClick = () => {
         <div class="text-900 text-3xl font-semibold">{{ t('routes.title') }}</div>
         <div class="text-600">{{ t('routes.subtitle') }}</div>
       </div>
-
-      <pv-button
-          label="New Route"
-          icon="pi pi-plus-circle"
-          class="font-medium"
-          @click="handleCreateClick"
-      />
     </div>
 
     <!-- Acciones Superiores -->
     <TopActions
         v-model="plannedDate"
-        @create-route="handleCreateClick"
     />
 
-    <!-- Lista de Rutas -->
-    <RouteList :routes="store.routes" />
-    
+    <!-- Mostrar tabs solo si hay fecha seleccionada -->
+    <RoutesTabs
+        v-if="isValidDate(plannedDate)"
+        :routeDrafts="store.routeDrafts"
+        :routes="store.routes"
+        :plannedDate="plannedDate"
+        :loading="loading"
+        @create-route="handleCreateRoute"
+        @fetch-route-drafts="handleFetchRouteDrafts"
+        @fetch-routes="handleFetchRoutes"
+    />
+
+    <!-- Mostrar mensaje si no hay fecha seleccionada -->
+    <DateRequiredMessage v-else />
+
+    <!-- Modal para crear nueva ruta -->
     <NewRouteModal
         v-if="showModal"
         @close="showModal = false"

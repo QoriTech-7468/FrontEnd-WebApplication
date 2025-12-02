@@ -4,8 +4,8 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia' // Importar storeToRefs
 
-import { useRoutePlanningStore } from '../../application/routing.store.js'
-import useFleetStore from '../../../fleets/application/fleet-resource-management.store.js'
+import { usePlanningStore } from '../../application/planning.store.js'
+import useFleetStore from '../../../fleets/application/fleets.store.js'
 
 import InteractiveMap from "../components/routes-edit/locations/interactive-map.vue"
 import LocationDetails from "../components/routes-edit/locations/location-details.vue"
@@ -15,7 +15,7 @@ const { t } = useI18n()
 const route = useRoute()
 
 // Inicializar ambos stores
-const routePlanningStore = useRoutePlanningStore()
+const routePlanningStore = usePlanningStore()
 const fleetStore = useFleetStore()
 
 const { users, usersLoaded, vehicles, vehiclesLoaded } = storeToRefs(fleetStore)

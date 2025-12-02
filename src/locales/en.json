@@ -104,13 +104,6 @@
       "noMembers": "No members"
     }
   },
-  "teams": {
-    "title": "Available teams",
-    "select": "Select",
-    "unselect": "Unselect",
-    "available": "Available",
-    "notAvailable": "Not Available"
-  },
   "routes": {
     "title": "Routes",
     "subtitle": "Manage, plan and monitor your logistics routes",
@@ -120,8 +113,10 @@
     "unassigned": "Unassigned",
     "new": "New Route",
     "list": {
-      "empty": "routes.list.empty",
+      "empty": "No routes available",
+      "emptyDrafts": "No route drafts available",
       "title": "List of Routes",
+      "published": "Published Routes",
       "total": "Total Routes"
     },
     "item": {
@@ -129,6 +124,9 @@
       "vehicle": "Vehicle",
       "noVehicle": "No Vehicle Assigned",
       "created": "Created",
+      "started": "Started",
+      "ended": "Ended",
+      "error": "Error accessing route",
       "status": {
         "draft": "Draft",
         "published": "Published"
@@ -154,7 +152,13 @@
     },
     "tabs": {
       "locationsTab": "Locations",
-      "teamTab": "Team"
+      "teamTab": "Team",
+      "drafts": "Route Drafts",
+      "published": "Published Routes"
+    },
+    "dateRequired": {
+      "title": "Select a Date",
+      "message": "Please select a planned date above to view and manage route drafts and published routes."
     },
     "monitor": {
       "title": "Route Monitoring",

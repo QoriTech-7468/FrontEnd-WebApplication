@@ -31,11 +31,11 @@
             </div>
             <div>
               <div class="text-sm text-gray-500">Capacity</div>
-              <div class="text-lg font-medium">{{ selected.capacity }} kg</div>
+              <div class="text-lg font-medium">{{ selected.capacityKg || selected.capacity || 0 }} kg</div>
             </div>
             <div>
               <div class="text-sm text-gray-500">State</div>
-              <span :class="['font-bold', selected.isActive === 'Enabled' ? 'text-green-500' : 'text-red-500']">{{ selected.isActive }}</span>
+              <span :class="['font-bold', (selected.state || selected.isActive || 'Enabled') === 'Enabled' ? 'text-green-500' : 'text-red-500']">{{ selected.state || selected.isActive || 'Enabled' }}</span>
             </div>
             <pv-button
                 label="Edit"
@@ -86,7 +86,7 @@
 <script setup>
 import { computed, ref, onMounted } from "vue";
 import { storeToRefs } from "pinia";
-import useStore from "../../application/fleet-resource-management.store.js";
+import useStore from "../../application/fleets.store.js";
 
 import EditVehicleDialog from "../dialogs/update-vehicle.vue";
 import VehicleSidebar from "../components/vehicle-sidebar.vue";
@@ -161,7 +161,7 @@ function openEdit(vehicle) {
 async function handleUpdateVehicle(updatedVehicle) {
   const finalVehicle = {
     ...updatedVehicle,
-    isActive: updatedVehicle.isActive === "Enabled" ? "Enabled" : "Disabled",
+    state: updatedVehicle.state === "Enabled" ? "Enabled" : "Disabled",
   };
   await store.updateVehicles(finalVehicle);
   showEdit.value = false;

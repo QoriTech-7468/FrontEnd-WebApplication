@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia' 
 import TeamCard from './team-card.vue'
 
-import useFleetStore from '../../../../../fleets/application/fleet-resource-management.store.js'
+import useFleetStore from '../../../../../fleets/application/fleets.store.js'
 
 const { t } = useI18n()
 

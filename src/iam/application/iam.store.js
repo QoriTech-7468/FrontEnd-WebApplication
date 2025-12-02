@@ -4,10 +4,12 @@ import { ref, computed } from "vue";
 import { SignInAssembler } from "../infrastructure/sign-in.assembler.js";
 import { SignUpAssembler } from "../infrastructure/sign-up.assembler.js";
 import { User } from "../domain/user.entity.js";
+import { InvitationAssembler } from "../infrastructure/invitation.assembler.js";
+import { UserAssembler } from "../infrastructure/user.assembler.js";
 
 const iamApi = new IamApi();
 
-// Funciones helper para persistir datos del usuario
+// Helper functions to persist user data
 const saveUserToLocalStorage = (userData) => {
     localStorage.setItem('userData', JSON.stringify({
         id: userData.id,
@@ -40,6 +42,14 @@ const useIamStore = defineStore('iam', () => {
     const errors = ref([]);
     const usersLoaded = ref(false);
     
+    // Organization users state
+    const organizationUsers = ref([]);
+    const organizationUsersLoaded = ref(false);
+    
+    // Invitations state
+    const invitations = ref([]);
+    const invitationsLoaded = ref(false);
+    
     // Inicializar desde localStorage si hay token y datos de usuario
     const token = localStorage.getItem('token');
     const savedUserData = loadUserFromLocalStorage();
@@ -52,6 +62,11 @@ const useIamStore = defineStore('iam', () => {
     const currentUserId = ref(savedUserData?.id || '');
     const currentUserRole = ref(savedUserData?.role || '');
     const currentUserToken = computed(() => isSignedIn.value ? localStorage.getItem('token') : null);
+    
+    // Computed for invitations
+    const invitationsCount = computed(() => {
+        return invitationsLoaded.value ? invitations.value.length : 0;
+    });
 
     function signIn(SignInCommand, router) {
         console.log(SignInCommand);
@@ -72,7 +87,7 @@ const useIamStore = defineStore('iam', () => {
                     currentUserId.value = currentUser.id;
                     currentUserRole.value = currentUser.role;
                     
-                    // Guardar token y datos del usuario en localStorage
+                    // Save token and user data to localStorage
                     localStorage.setItem('token', signInResource.token);
                     saveUserToLocalStorage({
                         id: currentUser.id,
@@ -85,7 +100,7 @@ const useIamStore = defineStore('iam', () => {
                     isSignedIn.value = true;
                     console.log(`User ${currentUserName.value} signed in successfully.`);
                     errors.value = [];
-                    // Si no tiene organizationId, redirigir a invitations, sino a management
+                    // If no organizationId, redirect to invitations, otherwise to management
                     if (!currentUser.organizationId) {
                         router.push({ name: 'invitations' });
                     } else {
@@ -130,29 +145,29 @@ const useIamStore = defineStore('iam', () => {
     }
 
     /**
-     * Inicializa el usuario desde el backend, validando el token
-     * y actualizando los datos del usuario con información fresca.
-     * Si falla, limpia todo el estado de autenticación.
+     * Initializes the user from the backend, validating the token
+     * and updating user data with fresh information.
+     * If it fails, clears all authentication state.
      * 
-     * Esta función se debe llamar al iniciar la app cuando hay un token en localStorage.
-     * Los datos del cache (localStorage) se muestran primero para mejor UX,
-     * y luego se actualizan con datos frescos del backend.
+     * This function should be called when starting the app when there is a token in localStorage.
+     * Cached data (localStorage) is shown first for better UX,
+     * and then updated with fresh data from the backend.
      */
     async function initializeUser() {
         const token = localStorage.getItem('token');
         
-        // Si no hay token, no hay nada que inicializar
+        // If there's no token, there's nothing to initialize
         if (!token) {
             return;
         }
 
         try {
-            // Intentar obtener datos frescos del usuario desde el backend
-            // Esto valida el token automáticamente
+            // Try to get fresh user data from the backend
+            // This automatically validates the token
             const response = await iamApi.getCurrentUser();
             
             if (response.status === 200 && response.data) {
-                // Actualizar store con datos frescos del backend
+                // Update store with fresh data from backend
                 const userData = response.data;
                 
                 currentUserId.value = userData.id || '';
@@ -161,7 +176,7 @@ const useIamStore = defineStore('iam', () => {
                 currentUserOrganizationId.value = userData.organizationId || '';
                 currentUserRole.value = userData.role || '';
                 
-                // Actualizar cache en localStorage con datos frescos
+                // Update cache in localStorage with fresh data
                 saveUserToLocalStorage({
                     id: userData.id,
                     name: userData.name,
@@ -171,22 +186,22 @@ const useIamStore = defineStore('iam', () => {
                 });
                 
                 isSignedIn.value = true;
-                console.log('✅ Usuario inicializado y validado desde el backend');
+                console.log('✅ User initialized and validated from backend');
             } else {
-                // Si la respuesta no es válida, limpiar todo
-                console.warn('⚠️ Respuesta inválida del backend, limpiando autenticación');
+                // If the response is invalid, clear everything
+                console.warn('⚠️ Invalid response from backend, clearing authentication');
                 clearAuth();
             }
         } catch (error) {
-            // Si hay error (token inválido, expirado, etc.), limpiar todo
-            console.error('❌ Error al inicializar usuario:', error);
-            console.log('🔒 Token inválido o expirado, limpiando autenticación');
+            // If there's an error (invalid token, expired, etc.), clear everything
+            console.error('❌ Error initializing user:', error);
+            console.log('🔒 Invalid or expired token, clearing authentication');
             clearAuth();
         }
     }
 
     /**
-     * Limpia todo el estado de autenticación
+     * Clears all authentication state
      */
     function clearAuth() {
         localStorage.removeItem('token');
@@ -200,7 +215,7 @@ const useIamStore = defineStore('iam', () => {
     }
 
     function signOut(router) {
-        // Limpiar token y datos del usuario de localStorage
+        // Clear token and user data from localStorage
         clearAuth();
         
         console.log('User signed out successfully.');
@@ -231,6 +246,236 @@ const useIamStore = defineStore('iam', () => {
         console.log(`✅ Organization ID updated to: ${organizationId}`);
     }
 
+    // ========== INVITATIONS ACTIONS ==========
+
+    /**
+     * Fetch user invitations from the API
+     * @returns {Promise} - A promise resolving to the list of invitations
+     */
+    async function fetchUserInvitations() {
+        try {
+            invitationsLoaded.value = false;
+            const response = await iamApi.getUserInvitations();
+            invitations.value = InvitationAssembler.toEntitiesFromResponse(response);
+            invitationsLoaded.value = true;
+            errors.value = [];
+            console.log(`✅ User invitations loaded: ${invitations.value.length}`);
+            return invitations.value;
+        } catch (error) {
+            console.error('❌ Error fetching user invitations:', error);
+            errors.value.push(error);
+            invitationsLoaded.value = false;
+            throw error;
+        }
+    }
+
+    /**
+     * Fetch organization invitations from the API
+     * @returns {Promise} - A promise resolving to the list of invitations
+     */
+    async function fetchOrganizationInvitations() {
+        try {
+            invitationsLoaded.value = false;
+            const response = await iamApi.getOrganizationInvitations();
+            invitations.value = InvitationAssembler.toEntitiesFromResponse(response);
+            invitationsLoaded.value = true;
+            errors.value = [];
+            console.log(`✅ Organization invitations loaded: ${invitations.value.length}`);
+            return invitations.value;
+        } catch (error) {
+            console.error('❌ Error fetching organization invitations:', error);
+            errors.value.push(error);
+            invitationsLoaded.value = false;
+            throw error;
+        }
+    }
+
+    /**
+     * Get invitation by id
+     * @param {number|string} id - The invitation ID
+     * @returns {Promise} - A promise resolving to the invitation entity
+     */
+    async function getInvitationById(id) {
+        try {
+            const response = await iamApi.getInvitationById(id);
+            const invitation = InvitationAssembler.toEntityFromResponse(response);
+            
+            if (invitation) {
+                // Update the invitation in the list if it exists
+                const index = invitations.value.findIndex(inv => inv.id === invitation.id);
+                if (index !== -1) {
+                    invitations.value[index] = invitation;
+                } else {
+                    invitations.value.push(invitation);
+                }
+            }
+            
+            return invitation;
+        } catch (error) {
+            console.error(`❌ Error fetching invitation ${id}:`, error);
+            errors.value.push(error);
+            throw error;
+        }
+    }
+
+    /**
+     * Accept an invitation
+     * @param {number|string} id - The invitation ID to accept
+     * @returns {Promise} - A promise resolving to the acceptance result
+     */
+    async function acceptInvitation(id) {
+        try {
+            const response = await iamApi.acceptInvitation(id);
+            
+            // Remove the invitation from the list after accepting
+            invitations.value = invitations.value.filter(inv => inv.id !== id);
+            
+            errors.value = [];
+            console.log(`✅ Invitation ${id} accepted successfully`);
+            return response;
+        } catch (error) {
+            console.error(`❌ Error accepting invitation ${id}:`, error);
+            errors.value.push(error);
+            throw error;
+        }
+    }
+
+    /**
+     * Reject an invitation (delete)
+     * @param {number|string} id - The invitation ID to reject
+     * @returns {Promise} - A promise resolving to the deletion result
+     */
+    async function rejectInvitation(id) {
+        try {
+            const response = await iamApi.rejectInvitation(id);
+            
+            // Remove the invitation from the list after rejecting
+            invitations.value = invitations.value.filter(inv => inv.id !== id);
+            
+            errors.value = [];
+            console.log(`✅ Invitation ${id} rejected successfully`);
+            return response;
+        } catch (error) {
+            console.error(`❌ Error rejecting invitation ${id}:`, error);
+            errors.value.push(error);
+            throw error;
+        }
+    }
+
+    /**
+     * Create a new invitation
+     * @param {Object} invitationData - The invitation data to create
+     * @returns {Promise} - A promise resolving to the created invitation
+     */
+    async function createInvitation(invitationData) {
+        try {
+            console.log('📋 IAM Store - Creating invitation with data:', invitationData);
+            const response = await iamApi.createInvitation(invitationData);
+            const invitation = InvitationAssembler.toEntityFromResponse(response);
+            
+            if (invitation) {
+                invitations.value.push(invitation);
+            }
+            
+            errors.value = [];
+            console.log(`✅ Invitation created successfully`);
+            return invitation;
+        } catch (error) {
+            console.error('❌ Error creating invitation:', error);
+            errors.value.push(error);
+            throw error;
+        }
+    }
+
+    /**
+     * Clear all invitations from the store
+     */
+    function clearInvitations() {
+        invitations.value = [];
+        invitationsLoaded.value = false;
+        errors.value = [];
+    }
+
+    // ========== ORGANIZATION USERS ACTIONS ==========
+
+    /**
+     * Fetch organization users from the API
+     * @returns {Promise} - A promise resolving to the list of organization users
+     */
+    async function fetchOrganizationUsers() {
+        try {
+            organizationUsersLoaded.value = false;
+            const response = await iamApi.getOrganizationUsers();
+            organizationUsers.value = UserAssembler.toEntitiesFromResponse(response);
+            organizationUsersLoaded.value = true;
+            errors.value = [];
+            console.log(`✅ Organization users loaded: ${organizationUsers.value.length}`);
+            return organizationUsers.value;
+        } catch (error) {
+            console.error('❌ Error fetching organization users:', error);
+            errors.value.push(error);
+            organizationUsersLoaded.value = false;
+            throw error;
+        }
+    }
+
+    /**
+     * Update user role
+     * @param {number|string} id - The user ID
+     * @param {string} role - The new role (Admin or Dispatcher)
+     * @returns {Promise} - A promise resolving to the update result
+     */
+    async function updateUserRole(id, role) {
+        try {
+            const response = await iamApi.updateUserRole(id, role);
+            
+            // Update the user in the list if it exists
+            const index = organizationUsers.value.findIndex(user => user.id === id);
+            if (index !== -1) {
+                organizationUsers.value[index].role = role;
+            }
+            
+            errors.value = [];
+            console.log(`✅ User ${id} role updated to ${role}`);
+            return response;
+        } catch (error) {
+            console.error(`❌ Error updating user role ${id}:`, error);
+            errors.value.push(error);
+            throw error;
+        }
+    }
+
+    /**
+     * Remove user from organization
+     * @param {number|string} id - The user ID to remove
+     * @returns {Promise} - A promise resolving to the deletion result
+     */
+    async function removeUserFromOrganization(id) {
+        try {
+            const response = await iamApi.removeUserFromOrganization(id);
+            
+            // Remove the user from the list after removing
+            organizationUsers.value = organizationUsers.value.filter(user => user.id !== id);
+            
+            errors.value = [];
+            console.log(`✅ User ${id} removed from organization successfully`);
+            return response;
+        } catch (error) {
+            console.error(`❌ Error removing user ${id} from organization:`, error);
+            errors.value.push(error);
+            throw error;
+        }
+    }
+
+    /**
+     * Clear all organization users from the store
+     */
+    function clearOrganizationUsers() {
+        organizationUsers.value = [];
+        organizationUsersLoaded.value = false;
+        errors.value = [];
+    }
+
     return {
         users,
         errors,
@@ -246,7 +491,25 @@ const useIamStore = defineStore('iam', () => {
         signUp,
         signOut,
         initializeUser,
-        updateOrganizationId
+        updateOrganizationId,
+        // Invitations
+        invitations,
+        invitationsLoaded,
+        invitationsCount,
+        fetchUserInvitations,
+        fetchOrganizationInvitations,
+        getInvitationById,
+        acceptInvitation,
+        rejectInvitation,
+        createInvitation,
+        clearInvitations,
+        // Organization users
+        organizationUsers,
+        organizationUsersLoaded,
+        fetchOrganizationUsers,
+        updateUserRole,
+        removeUserFromOrganization,
+        clearOrganizationUsers
     };
 });
 

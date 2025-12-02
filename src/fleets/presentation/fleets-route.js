@@ -10,3 +10,4 @@ const managementRoutes = [
 ];
 
 export default managementRoutes;
+
