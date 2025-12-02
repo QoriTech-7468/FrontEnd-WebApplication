@@ -6,7 +6,7 @@ import {UserAssembler} from "../infrastructure/user.assembler.js";
 
 const fleetResourceManagementApi = new FleetResourceManagementApi();
 
-const useStore = defineStore('vehicles', () => {
+const useStore = defineStore('fleets', () => {
 
     // State
     const vehicles = ref([]);

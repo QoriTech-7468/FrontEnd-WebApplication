@@ -1,7 +1,7 @@
 <script setup>
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
-import useStore from "../../application/fleet-resource-management.store.js";
+import useStore from "../../application/fleets.store.js";
 import {computed, onMounted, ref} from "vue";
 import {User} from "../../domain/model/user.entity.js";
 import {Vehicle} from "../../domain/model/vehicle.entity.js";

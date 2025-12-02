@@ -5,7 +5,7 @@ import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia' // Importar storeToRefs
 
 import { useRoutePlanningStore } from '../../application/routing.store.js'
-import useFleetStore from '../../../fleets/application/fleet-resource-management.store.js'
+import useFleetStore from '../../../fleets/application/fleets.store.js'
 
 import InteractiveMap from "../components/routes-edit/locations/interactive-map.vue"
 import LocationDetails from "../components/routes-edit/locations/location-details.vue"

@@ -1,5 +1,5 @@
 import {createRouter, createWebHistory} from "vue-router";
-import managementRoutes from "./fleets/presentation/management-vehicle-route.js";
+import managementRoutes from "./fleets/presentation/fleets-route.js";
 import routePlanningRoutes from "./planning/presentation/routing-route.js";
 import ClientRoutes from "./crm/presentation/management-client-route.js";
 import iamRoutes from "./iam/presentation/iam-route.js";

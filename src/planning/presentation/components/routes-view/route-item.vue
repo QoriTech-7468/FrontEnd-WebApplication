@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue' //  computed
 
-import useFleetStore from '../../../../fleets/application/fleet-resource-management.store.js'
+import useFleetStore from '../../../../fleets/application/fleets.store.js'
 
 import RouteStatusBadge from './route-status-badge.vue'
 

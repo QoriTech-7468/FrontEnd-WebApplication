@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia'
 import { useRoutePlanningStore } from '../../application/routing.store.js'
 
 //  Importar el store de vehículos
-import useFleetStore from '../../../fleets/application/fleet-resource-management.store.js'
+import useFleetStore from '../../../fleets/application/fleets.store.js'
 
 import RouteList from '../components/routes-view/route-list.vue'
 import NewRouteModal from '../components/routes-view/new-route-modal.vue'
