@@ -18,9 +18,9 @@
         >
           <div class="flex flex-column">
             <span class="text-900 font-medium">{{ v.plate }}</span>
-            <small class="text-600">{{ $t('vehicles.details.capacityLabel') }} {{ v.capacity }} kg</small>
+            <small class="text-600">{{ $t('vehicles.details.capacityLabel') }} {{ v.capacityKg || v.capacity || 0 }} kg</small>
           </div>
-          <Tag :value="$t(`vehicles.status.${v.isActive.toLowerCase()}`)" :severity="severity(v.isActive)" />
+          <Tag :value="$t(`vehicles.status.${(v.state || v.isActive || 'Enabled').toLowerCase()}`)" :severity="severity(v.state || v.isActive || 'Enabled')" />
         </li>
       </ul>
     </ScrollPanel>

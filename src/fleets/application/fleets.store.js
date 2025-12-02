@@ -54,24 +54,32 @@ const useStore = defineStore('fleets', () => {
     }
 
     function addVehicles(vehicleData) {
-        return fleetResourceManagementApi.createVehicles(vehicleData).then(response => {
+        const requestResource = VehicleAssembler.toResourceFromEntity(vehicleData, false);
+        return fleetResourceManagementApi.createVehicles(requestResource).then(response => {
             const resource = response.data;
             const newVehicle = VehicleAssembler.toEntityFromResource(resource);
             vehicles.value.push(newVehicle);
+            errors.value = [];
+            return newVehicle;
         }).catch(error => {
             console.error(' Error in addVehicles:', error);
             errors.value.push(error);
+            throw error;
         });
     }
 
-    function updateVehicles(vehicles) {
-        return fleetResourceManagementApi.updateVehicles(vehicles).then(response => {
+    function updateVehicles(vehicle) {
+        const requestResource = VehicleAssembler.toResourceFromEntity(vehicle, true);
+        return fleetResourceManagementApi.updateVehicles(requestResource).then(response => {
             const resource = response.data;
-            const updateVehicles = VehicleAssembler.toEntityFromResource(resource);
-            const index = vehicles.value.findIndex(c => c["id"] === updateVehicles.id);
-            if (index !== -1) vehicles.value[index] = updateVehicles;
+            const updatedVehicle = VehicleAssembler.toEntityFromResource(resource);
+            const index = vehicles.value.findIndex(v => v["id"] === updatedVehicle.id);
+            if (index !== -1) vehicles.value[index] = updatedVehicle;
+            errors.value = [];
+            return updatedVehicle;
         }).catch(error => {
             errors.value.push(error);
+            throw error;
         });
     }
 

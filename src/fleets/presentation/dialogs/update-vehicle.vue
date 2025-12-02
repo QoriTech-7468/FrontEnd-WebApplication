@@ -29,7 +29,7 @@
       <div>
         <label class="block text-600 mb-1">Status</label>
         <pv-dropdown
-            v-model="localVehicle.isActive"
+            v-model="localVehicle.state"
             :options="statusOptions"
             optionLabel="label"
             optionValue="value"
@@ -73,7 +73,13 @@ const statusOptions = [
 watch(
     () => props.vehicle,
     (newVal) => {
-      if (newVal) localVehicle.value = { ...newVal };
+      if (newVal) {
+        localVehicle.value = { 
+          ...newVal,
+          // Asegurar que state esté definido (usar isActive como fallback para compatibilidad)
+          state: newVal.state || newVal.isActive || 'Enabled'
+        };
+      }
     }
 );
 

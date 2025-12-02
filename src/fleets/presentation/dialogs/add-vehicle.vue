@@ -38,7 +38,7 @@ const saveVehicle = () => {
   const vehicleData = {
     plate: form.value.plate,
     capacityKg: form.value.capacity,
-    isActive: 'Enabled'
+    state: 'Enabled'
   };
   emit('save-vehicle', vehicleData);
 };
