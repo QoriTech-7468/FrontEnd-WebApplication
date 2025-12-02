@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import RouteItem from './route-item.vue'
 
@@ -6,10 +7,35 @@ const props = defineProps({
   routes: {
     type: Array,
     default: () => []
+  },
+  plannedDate: {
+    type: String,
+    default: null
   }
 })
 
+const emit = defineEmits(['create-route'])
+
 const { t } = useI18n()
+
+const isButtonDisabled = computed(() => {
+  if (!props.plannedDate) return true
+  // Handle both Date objects and strings
+  if (props.plannedDate instanceof Date) {
+    return false // Date object is valid
+  }
+  if (typeof props.plannedDate === 'string') {
+    const trimmed = props.plannedDate.trim()
+    return trimmed === '' || trimmed === null || trimmed === undefined
+  }
+  return true
+})
+
+const handleNewRoute = () => {
+  if (!isButtonDisabled.value) {
+    emit('create-route')
+  }
+}
 </script>
 
 <template>
@@ -24,6 +50,13 @@ const { t } = useI18n()
           {{ t('routes.list.total', { count: routes.length }) }}
         </div>
       </div>
+      <pv-button
+          label="New Route"
+          icon="pi pi-plus-circle"
+          class="font-medium"
+          :disabled="isButtonDisabled"
+          @click="handleNewRoute"
+      />
     </div>
 
     <!-- Lista de rutas -->

@@ -1,14 +1,14 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useRoutePlanningStore } from '../../application/routing.store.js'
+import { usePlanningStore } from '../../application/planning.store.js'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import LocationsTab from "../components/routes-edit/locations/locations-tab.vue"
 import TeamsTab from "../components/routes-edit/teams/teams-tab.vue"
 
 const { t } = useI18n()
-const store = useRoutePlanningStore()
+const store = usePlanningStore()
 const toast = useToast()
 const router = useRouter()
 const route = useRoute()
