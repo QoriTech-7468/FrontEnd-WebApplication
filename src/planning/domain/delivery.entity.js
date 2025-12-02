@@ -10,8 +10,8 @@ export class Delivery {
      * @param {string} params.longitude - Longitude coordinate
      * @param {string} params.proximity - Proximity type (close, mid, far)
      * @param {string} params.status - Delivery status (e.g., 'pending', 'assigned', 'in_transit', 'delivered', 'rejected')
-     * @param {string|null} params.reject_reason - Reason for rejection (if status is 'rejected')
-     * @param {string|null} params.reject_details - Additional details about rejection
+     * @param {string|null} params.rejectReason - Reason for rejection (if status is 'rejected')
+     * @param {string|null} params.rejectDetails - Additional details about rejection
      * @param {number|null} params.clientId - Associated client ID
      * @param {Client|null} params.client - Associated Client entity instance
      */
@@ -22,8 +22,8 @@ export class Delivery {
         longitude = '', 
         proximity = '', 
         status = 'pending',
-        reject_reason = '',
-        reject_details = '',
+        rejectReason = '',
+        rejectDetails = '',
         clientId = null,
         client = null
     }) {
@@ -33,8 +33,8 @@ export class Delivery {
         this.longitude = longitude;
         this.proximity = proximity;
         this.status = status;
-        this.reject_reason = reject_reason;
-        this.reject_details = reject_details;
+        this.rejectReason = rejectReason;
+        this.rejectDetails = rejectDetails;
         this.clientId = clientId;  // ID for quick references
         this.client = client instanceof Client ? client : null;  // Full Client instance
     }
@@ -68,7 +68,7 @@ export class Delivery {
      * @returns {boolean} - True if rejected and has rejection information
      */
     hasRejectionInfo() {
-        return this.isRejected() && (this.reject_reason || this.reject_details);
+        return this.isRejected() && (this.rejectReason || this.rejectDetails);
     }
 
     /**

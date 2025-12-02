@@ -8,7 +8,7 @@ export class RouteDraft {
      * @param {Object} params - RouteDraft parameters
      * @param {number|null} params.id - RouteDraft ID
      * @param {string} params.colorCode - Color code for the route (e.g., '#FF5733', 'blue')
-     * @param {string|null} params.execution_date - Execution date for the route (ISO date string)
+     * @param {string|null} params.executionDate - Execution date for the route (ISO date string)
      * @param {Vehicle|null} params.vehicle - Associated Vehicle entity instance
      * @param {Array<TeamMember>} params.teamMembers - Array of TeamMember entities
      * @param {Array<Delivery>} params.deliveries - Array of Delivery entities
@@ -16,14 +16,14 @@ export class RouteDraft {
     constructor({ 
         id = null,
         colorCode = '',
-        execution_date = null,
+        executionDate = null,
         vehicle = null,
         teamMembers = [],
         deliveries = []
     }) {
         this.id = id;
         this.colorCode = colorCode;
-        this.execution_date = execution_date;
+        this.executionDate = executionDate;
         this.vehicle = vehicle instanceof Vehicle ? vehicle : null;
         // Array of TeamMember entities
         this.teamMembers = Array.isArray(teamMembers)

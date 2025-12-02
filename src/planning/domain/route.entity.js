@@ -8,9 +8,9 @@ export class Route {
      * @param {Object} params - Route parameters
      * @param {number|null} params.id - Route ID
      * @param {string} params.colorCode - Color code for the route (e.g., '#FF5733', 'blue')
-     * @param {string|null} params.execution_date - Execution date for the route (ISO date string)
-     * @param {string|null} params.started_at - Start date/time of the route (ISO date string)
-     * @param {string|null} params.ended_at - End date/time of the route (ISO date string)
+     * @param {string|null} params.executionDate - Execution date for the route (ISO date string)
+     * @param {string|null} params.startedAt - Start date/time of the route (ISO date string)
+     * @param {string|null} params.endedAt - End date/time of the route (ISO date string)
      * @param {string} params.status - Route status (e.g., 'pending', 'in_progress', 'completed', 'cancelled')
      * @param {Vehicle|null} params.vehicle - Associated Vehicle entity instance
      * @param {Array<TeamMember>} params.teamMembers - Array of TeamMember entities
@@ -19,9 +19,9 @@ export class Route {
     constructor({ 
         id = null,
         colorCode = '',
-        execution_date = null,
-        started_at = null,
-        ended_at = null,
+        executionDate = null,
+        startedAt = null,
+        endedAt = null,
         status = 'pending',
         vehicle = null,
         teamMembers = [],
@@ -29,9 +29,9 @@ export class Route {
     }) {
         this.id = id;
         this.colorCode = colorCode;
-        this.execution_date = execution_date;
-        this.started_at = started_at;
-        this.ended_at = ended_at;
+        this.executionDate = executionDate;
+        this.startedAt = startedAt;
+        this.endedAt = endedAt;
         this.status = status;
         this.vehicle = vehicle instanceof Vehicle ? vehicle : null;
         // Array of TeamMember entities
@@ -146,18 +146,18 @@ export class Route {
 
     /**
      * Check if route has started
-     * @returns {boolean} - True if started_at is set
+     * @returns {boolean} - True if startedAt is set
      */
     hasStarted() {
-        return this.started_at !== null && this.started_at !== '';
+        return this.startedAt !== null && this.startedAt !== '';
     }
 
     /**
      * Check if route has ended
-     * @returns {boolean} - True if ended_at is set
+     * @returns {boolean} - True if endedAt is set
      */
     hasEnded() {
-        return this.ended_at !== null && this.ended_at !== '';
+        return this.endedAt !== null && this.endedAt !== '';
     }
 }
 
