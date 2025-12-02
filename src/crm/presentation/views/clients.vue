@@ -56,6 +56,10 @@
                     :locations="selectedWithLocations?.locations || []"
                     @marker-click="openEditLocationDialog"
                 />
+                <!-- Debug: mostrar información de locations -->
+                <div v-if="selectedWithLocations?.locations" class="text-xs text-500 mt-2">
+                  Debug: {{ selectedWithLocations.locations.length }} locations found
+                </div>
 
              
               </template>
