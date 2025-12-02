@@ -104,13 +104,6 @@
       "noMembers": "Sin miembros"
     }
   },
-  "teams": {
-    "title": "Equipos disponibles",
-    "select": "Seleccionar",
-    "unselect": "Deseleccionar",
-    "available": "Disponible",
-    "notAvailable": "No disponible"
-  },
   "routes": {
     "title": "Rutas",
     "subtitle": "Gestionar, planificar y monitorear tus rutas logísticas",
@@ -120,8 +113,10 @@
     "unassigned": "Sin asignar",
     "new": "Nueva Ruta",
     "list": {
-      "empty": "routes.list.empty",
+      "empty": "No hay rutas disponibles",
+      "emptyDrafts": "No hay borradores de ruta disponibles",
       "title": "Lista de Rutas",
+      "published": "Rutas Publicadas",
       "total": "Total de Rutas"
     },
     "item": {
@@ -129,6 +124,9 @@
       "vehicle": "Vehículo",
       "noVehicle": "Sin Vehículo Asignado",
       "created": "Creado",
+      "started": "Iniciado",
+      "ended": "Finalizado",
+      "error": "Error al acceder a la ruta",
       "status": {
         "draft": "Borrador",
         "published": "Publicado"
@@ -154,7 +152,13 @@
     },
     "tabs": {
       "locationsTab": "Ubicaciones",
-      "teamTab": "Equipo"
+      "teamTab": "Equipo",
+      "drafts": "Borradores de Ruta",
+      "published": "Rutas Publicadas"
+    },
+    "dateRequired": {
+      "title": "Selecciona una Fecha",
+      "message": "Por favor selecciona una fecha planeada arriba para ver y gestionar borradores de ruta y rutas publicadas."
     },
     "monitor": {
       "title": "Monitoreo de Rutas",

@@ -10,6 +10,7 @@ import useFleetStore from '../../../fleets/application/fleets.store.js'
 import RoutesTabs from '../components/routes-view/routes-tabs.vue'
 import TopActions from '../components/routes-view/top-actions.vue'
 import NewRouteModal from '../components/routes-view/new-route-modal.vue'
+import DateRequiredMessage from '../components/routes-view/date-required-message.vue'
 
 const { t } = useI18n()
 
@@ -167,8 +168,9 @@ const handleAddRoute = async (routeData) => {
         v-model="plannedDate"
     />
 
-    <!-- Tabs con Route Drafts y Routes -->
+    <!-- Mostrar tabs solo si hay fecha seleccionada -->
     <RoutesTabs
+        v-if="isValidDate(plannedDate)"
         :routeDrafts="store.routeDrafts"
         :routes="store.routes"
         :plannedDate="plannedDate"
@@ -177,6 +179,9 @@ const handleAddRoute = async (routeData) => {
         @fetch-route-drafts="handleFetchRouteDrafts"
         @fetch-routes="handleFetchRoutes"
     />
+
+    <!-- Mostrar mensaje si no hay fecha seleccionada -->
+    <DateRequiredMessage v-else />
 
     <!-- Modal para crear nueva ruta -->
     <NewRouteModal
