@@ -60,9 +60,10 @@ export class RouteDraftAssembler {
     /**
      * Transform a RouteDraft entity or plain object into a resource for API requests
      * @param {RouteDraft|Object} routeDraft - RouteDraft entity instance or plain object
+     * @param {boolean} isUpdate - If true, it's an update (PUT), if false, it's creation (POST)
      * @returns {Object} - API resource object
      */
-    static toResourceFromEntity(routeDraft) {
+    static toResourceFromEntity(routeDraft, isUpdate = false) {
         const resource = {
             colorCode: routeDraft.colorCode || ''
         };
@@ -70,6 +71,24 @@ export class RouteDraftAssembler {
         // Include executionDate if present
         if (routeDraft.executionDate !== null && routeDraft.executionDate !== undefined && routeDraft.executionDate !== '') {
             resource.executionDate = routeDraft.executionDate;
+        }
+
+        // Para creaciones, incluir organizationId
+        if (!isUpdate) {
+            let organizationId = null;
+            try {
+                const userDataStr = localStorage.getItem('userData');
+                if (userDataStr) {
+                    const userData = JSON.parse(userDataStr);
+                    organizationId = userData.organizationId;
+                }
+            } catch (error) {
+                console.error('Error getting organizationId from localStorage:', error);
+            }
+
+            if (organizationId !== null && organizationId !== undefined) {
+                resource.organizationId = organizationId;
+            }
         }
 
         // Include vehicleId if vehicle is present
