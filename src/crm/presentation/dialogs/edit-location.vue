@@ -1,11 +1,7 @@
 <template>
   <Dialog v-model:visible="modelVisible" header="Edit Location" modal style="width: 600px">
     <div class="flex flex-column gap-3">
-      <div>
-        <label class="block text-700 mb-2">Client ID</label>
-        <pv-input-text class="w-full" v-model="form.clientId" disabled />
-      </div>
-
+      
       <div>
         <label class="block text-700 mb-2">Seleccionar Ubicación</label>
         <MapWithPin

@@ -52,13 +52,7 @@
                     @marker-click="openEditLocationDialog"
                 />
 
-                <pv-button
-                    label="Edit location"
-                    class="mt-3"
-                    severity="info"
-                    :disabled="!locationToEdit"
-                    @click="showEditLocation = true"
-                />
+             
               </template>
 
             </pv-panel>
@@ -181,7 +175,8 @@ watch(selectedId, async (newClientId) => {
   if (newClientId) {
     loadingLocations.value = true;
     try {
-      const locations = await store.fetchLocationsByClientId(newClientId);
+      // Cargar solo locations activas del cliente seleccionado
+      const locations = await store.fetchLocations({ isActive: true, clientId: newClientId });
       clientLocations.value = locations;
     } catch (error) {
       console.error("Error loading client locations:", error);
@@ -239,9 +234,9 @@ async function handleCreateLocation(payload) {
       detail: payload.address, 
       life: 2500 
     });
-    // Refrescar locations del cliente seleccionado
+    // Refrescar locations del cliente seleccionado (solo activas)
     if (selectedId.value) {
-      const locations = await store.fetchLocationsByClientId(selectedId.value);
+      const locations = await store.fetchLocations({ isActive: true, clientId: selectedId.value });
       clientLocations.value = locations;
     }
     // También refrescar el store global
@@ -284,10 +279,10 @@ async function saveLocationEdit(updated) {
       detail: updated.address,
       life: 2500
     });
-    // Refrescar locations del cliente seleccionado
+    // Refrescar locations del cliente seleccionado (solo activas)
     if (selectedId.value) {
       try {
-        const locations = await store.fetchLocationsByClientId(selectedId.value);
+        const locations = await store.fetchLocations({ isActive: true, clientId: selectedId.value });
         clientLocations.value = locations;
       } catch (error) {
         console.error("Error refreshing client locations:", error);

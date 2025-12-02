@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import { loadGoogleMaps, loadMarkerLibrary } from "../../../shared/infrastructure/useGoogleMapsLoader.js";
 
 const props = defineProps({
@@ -38,22 +38,41 @@ const props = defineProps({
 const emit = defineEmits(["update:latitude", "update:longitude"]);
 
 const mapRef = ref(null);
-const lat = ref(props.latitude);
-const lng = ref(props.longitude);
+const lat = ref(null);
+const lng = ref(null);
 const loading = ref(true);
 const error = ref(null);
 
 let map = null;
 let marker = null;
+let AdvancedMarkerElement = null;
 
 const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-// Sync props with local refs
-if (props.latitude !== null && props.latitude !== undefined) {
-  lat.value = typeof props.latitude === 'string' ? parseFloat(props.latitude) : props.latitude;
+/**
+ * Check if coordinates are valid
+ */
+function isValidCoordinate(value) {
+  if (value === null || value === undefined || value === "") return false;
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  return !isNaN(num) && isFinite(num);
 }
-if (props.longitude !== null && props.longitude !== undefined) {
-  lng.value = typeof props.longitude === 'string' ? parseFloat(props.longitude) : props.longitude;
+
+/**
+ * Parse coordinate value
+ */
+function parseCoordinate(value) {
+  if (!isValidCoordinate(value)) return null;
+  return typeof value === 'string' ? parseFloat(value) : value;
+}
+
+// Initialize coordinates from props
+const initialLat = parseCoordinate(props.latitude);
+const initialLng = parseCoordinate(props.longitude);
+
+if (initialLat !== null && initialLng !== null) {
+  lat.value = initialLat;
+  lng.value = initialLng;
 }
 
 onMounted(async () => {
@@ -70,24 +89,15 @@ onMounted(async () => {
   console.log("Google Maps API Key encontrada:", apiKey.substring(0, 10) + "...");
 
   try {
-    // Ask user if they want to use current location
-    const useCurrentLocation = window.confirm("¿Deseas usar tu ubicación actual?");
-    
+    // Determine initial center: use props coordinates if available, otherwise default to Lima
     let initialCenter = { lat: -12.046374, lng: -77.042793 }; // Lima default
-    let shouldPlaceMarker = false;
+    let initialZoom = 14;
+    let hasInitialCoordinates = false;
 
-    if (useCurrentLocation) {
-      try {
-        const position = await getCurrentPosition();
-        initialCenter = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-        shouldPlaceMarker = true;
-      } catch (err) {
-        console.warn("No se pudo obtener la ubicación actual:", err);
-        // Continue with default center
-      }
+    if (initialLat !== null && initialLng !== null) {
+      initialCenter = { lat: initialLat, lng: initialLng };
+      initialZoom = 15; // Zoom closer if we have initial coordinates
+      hasInitialCoordinates = true;
     }
 
     // Load Google Maps
@@ -107,12 +117,16 @@ onMounted(async () => {
     const mapId = `map-${Date.now()}`;
     map = new google.maps.Map(mapRef.value, {
       center: initialCenter,
-      zoom: shouldPlaceMarker ? 15 : 14,
+      zoom: initialZoom,
       mapId: mapId, // Required for AdvancedMarkerElement
     });
 
+    // Wait for map to be ready
+    await new Promise((resolve) => {
+      google.maps.event.addListenerOnce(map, 'idle', resolve);
+    });
+
     // Load marker library for AdvancedMarkerElement
-    let AdvancedMarkerElement = null;
     try {
       const markerLib = await loadMarkerLibrary(apiKey);
       AdvancedMarkerElement = markerLib.AdvancedMarkerElement;
@@ -122,8 +136,8 @@ onMounted(async () => {
       AdvancedMarkerElement = null;
     }
 
-    // Place marker if using current location
-    if (shouldPlaceMarker) {
+    // Place marker if we have initial coordinates
+    if (hasInitialCoordinates && initialCenter) {
       if (AdvancedMarkerElement) {
         marker = new AdvancedMarkerElement({
           map,
@@ -137,11 +151,6 @@ onMounted(async () => {
           draggable: false,
         });
       }
-
-      lat.value = initialCenter.lat;
-      lng.value = initialCenter.lng;
-      emit("update:latitude", initialCenter.lat);
-      emit("update:longitude", initialCenter.lng);
     }
 
     // Click listener for map
@@ -189,10 +198,60 @@ onMounted(async () => {
   }
 });
 
+// Watch for changes in props to update marker position
+watch(
+  () => [props.latitude, props.longitude],
+  ([newLat, newLng]) => {
+    if (!map) return;
+    
+    const parsedLat = parseCoordinate(newLat);
+    const parsedLng = parseCoordinate(newLng);
+    
+    if (parsedLat !== null && parsedLng !== null) {
+      const position = { lat: parsedLat, lng: parsedLng };
+      
+      // Update local refs
+      lat.value = parsedLat;
+      lng.value = parsedLng;
+      
+      // Update or create marker
+      if (marker) {
+        if (AdvancedMarkerElement && marker instanceof AdvancedMarkerElement) {
+          marker.position = position;
+        } else {
+          marker.setPosition(position);
+        }
+      } else {
+        // Create marker if it doesn't exist
+        if (AdvancedMarkerElement) {
+          marker = new AdvancedMarkerElement({
+            map,
+            position,
+          });
+        } else {
+          marker = new google.maps.Marker({
+            position,
+            map,
+            draggable: false,
+          });
+        }
+      }
+      
+      // Center map on the new position
+      map.setCenter(position);
+      map.setZoom(15);
+    }
+  }
+);
+
 onBeforeUnmount(() => {
   // Cleanup
   if (marker) {
-    marker.setMap(null);
+    if (marker.setMap) {
+      marker.setMap(null);
+    } else if (marker.map) {
+      marker.map = null;
+    }
     marker = null;
   }
   if (map) {
@@ -204,29 +263,6 @@ onBeforeUnmount(() => {
   }
 });
 
-/**
- * Get current position using Geolocation API
- */
-function getCurrentPosition() {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error("Geolocation no está soportado por este navegador"));
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      resolve,
-      (err) => {
-        reject(new Error("No se pudo obtener la ubicación: " + err.message));
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      }
-    );
-  });
-}
 </script>
 
 <style scoped>
